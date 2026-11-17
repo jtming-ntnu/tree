@@ -1,0 +1,1972 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>任務森林｜扭蛋種樹樂園</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --canvas: #fff3dc;
+    --paper: #fffefa;
+    --powder: #ffe7c7;
+    --powder-soft: #fff9ed;
+    --primary: #cc4352;
+    --primary-dark: #a93645;
+    --primary-soft: #ffe2e3;
+    --green: #23856b;
+    --green-soft: #e3f7ef;
+    --amber: #9a6400;
+    --orange: #f28c52;
+    --yellow: #f7c948;
+    --ink: #463544;
+    --soft-ink: #665566;
+    --muted: #887584;
+    --line: #ead8cc;
+    --shadow: 0 20px 50px rgba(142, 88, 70, 0.15);
+    --shadow-soft: 0 10px 24px rgba(142, 88, 70, 0.10);
+  }
+
+  * {
+    box-sizing: border-box;
+    user-select: none;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(circle at 8% 10%, rgba(247, 201, 72, 0.36), transparent 25%),
+      radial-gradient(circle at 92% 12%, rgba(242, 140, 82, 0.25), transparent 28%),
+      radial-gradient(circle at 52% 96%, rgba(89, 195, 165, 0.22), transparent 32%),
+      linear-gradient(135deg, #fff0d2 0%, #fff9ed 48%, #ffe8dc 100%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+  }
+
+  /* Desktop Single-Viewport Lock */
+  @media (min-width: 1024px) {
+    body {
+      height: 100vh;
+      overflow: hidden;
+    }
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(234, 216, 204, 0.35);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #d8beae;
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #c2a18d;
+  }
+
+  /* Task Hierarchy Styling */
+  .task-row {
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .task-row:hover {
+    transform: translateX(3px);
+  }
+  .task-row.level-1 {
+    margin-left: 26px;
+    position: relative;
+  }
+  .task-row.level-1::before {
+    content: "";
+    position: absolute;
+    left: -14px;
+    top: -6px;
+    bottom: 50%;
+    width: 10px;
+    border-left: 2px dashed #dfc8b8;
+    border-bottom: 2px dashed #dfc8b8;
+    border-bottom-left-radius: 6px;
+  }
+  .task-row.level-2 {
+    margin-left: 52px;
+    position: relative;
+  }
+  .task-row.level-2::before {
+    content: "";
+    position: absolute;
+    left: -14px;
+    top: -6px;
+    bottom: 50%;
+    width: 10px;
+    border-left: 2px dotted #bdd4e6;
+    border-bottom: 2px dotted #bdd4e6;
+    border-bottom-left-radius: 6px;
+  }
+
+  /* Gacha Machine 3D & Animations */
+  .gacha-machine-wrap {
+    position: relative;
+    width: 246px;
+    height: 288px;
+    margin: 0 auto;
+  }
+
+  .gacha-globe {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    top: 4px;
+    height: 182px;
+    border: 8px solid #d95f57;
+    border-bottom-width: 11px;
+    border-radius: 50% 50% 38% 38%;
+    background:
+      radial-gradient(circle at 30% 24%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.4) 9%, transparent 11%),
+      linear-gradient(145deg, rgba(225, 249, 255, 0.85), rgba(166, 229, 240, 0.78) 60%, rgba(114, 198, 214, 0.85));
+    box-shadow:
+      inset 0 -14px 22px rgba(56, 138, 153, 0.28),
+      inset 0 8px 14px rgba(255, 255, 255, 0.75),
+      0 8px 0 #a33941;
+    overflow: hidden;
+    z-index: 2;
+  }
+
+  /* Glossy highlight arc */
+  .gacha-globe::after {
+    content: "";
+    position: absolute;
+    top: 12px;
+    left: 22px;
+    width: 58px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.65);
+    transform: rotate(-22deg);
+    pointer-events: none;
+  }
+
+  /* 3D Capsule Balls inside Globe */
+  .capsule-ball {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    box-shadow: inset -4px -5px 8px rgba(0,0,0,0.22), inset 4px 4px 6px rgba(255,255,255,0.85), 0 3px 5px rgba(0,0,0,0.18);
+    border: 2px solid rgba(255,255,255,0.65);
+    transition: transform 0.3s ease;
+    animation: idleFloat 3.2s ease-in-out infinite alternate;
+  }
+  .capsule-ball::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(255,255,255,0.75);
+    transform: translateY(-50%);
+  }
+
+  @keyframes idleFloat {
+    0% { transform: translateY(0px) rotate(0deg); }
+    100% { transform: translateY(-4px) rotate(6deg); }
+  }
+
+  /* Violent shake when spinning */
+  .gacha-machine-wrap.shaking .gacha-globe {
+    animation: machineShake 0.65s cubic-bezier(0.36, 0.07, 0.19, 0.97) 2;
+  }
+  .gacha-machine-wrap.shaking .capsule-ball {
+    animation: capsuleChaos 0.28s ease-in-out infinite alternate !important;
+  }
+
+  @keyframes machineShake {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    20% { transform: translate(-7px, -4px) rotate(-3deg); }
+    40% { transform: translate(7px, 2px) rotate(3deg); }
+    60% { transform: translate(-6px, 3px) rotate(-2deg); }
+    80% { transform: translate(6px, -3px) rotate(2deg); }
+  }
+
+  @keyframes capsuleChaos {
+    0% { transform: translate(-12px, -28px) rotate(-35deg) scale(1.06); }
+    50% { transform: translate(14px, -42px) rotate(45deg) scale(0.96); }
+    100% { transform: translate(-8px, -16px) rotate(90deg) scale(1.04); }
+  }
+
+  .gacha-base {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    height: 112px;
+    background: linear-gradient(145deg, #f38b67, #d74d52 68%, #b93842);
+    border-radius: 28px 28px 22px 22px;
+    box-shadow:
+      inset 0 -9px 0 #952936,
+      inset 0 4px 8px rgba(255, 230, 210, 0.55),
+      0 12px 22px rgba(143, 62, 52, 0.28);
+    z-index: 3;
+  }
+
+  /* Nameplate */
+  .gacha-plate {
+    position: absolute;
+    left: 50%;
+    top: 10px;
+    transform: translateX(-50%);
+    padding: 2px 12px;
+    border-radius: 99px;
+    background: #6c2834;
+    border: 3px solid #ffd5a1;
+    color: #fff3d1;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.16em;
+    white-space: nowrap;
+  }
+
+  /* Rotary Knob */
+  .gacha-knob-outer {
+    position: absolute;
+    left: 34px;
+    top: 38px;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fff5d6, #f4b942);
+    border: 4px solid #8c343d;
+    box-shadow: 0 5px 0 #792931, 0 8px 14px rgba(0,0,0,0.22);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: transform 0.65s cubic-bezier(0.45, 0.05, 0.55, 0.95), filter 0.2s;
+  }
+  .gacha-knob-outer:hover {
+    filter: brightness(1.08);
+  }
+  .gacha-knob-outer.turning {
+    transform: rotate(360deg);
+  }
+  .gacha-knob-bar {
+    width: 34px;
+    height: 12px;
+    border-radius: 99px;
+    background: linear-gradient(180deg, #ffffff, #ffd97d);
+    box-shadow: 0 2px 4px rgba(120, 62, 14, 0.35);
+    border: 2px solid #b56f1b;
+  }
+
+  /* Exit Chute */
+  .gacha-chute {
+    position: absolute;
+    right: 30px;
+    top: 42px;
+    width: 58px;
+    height: 52px;
+    background: #4e1c26;
+    border-radius: 14px 14px 18px 18px;
+    border: 4px solid #ffcf99;
+    box-shadow: inset 0 8px 12px rgba(0,0,0,0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+  }
+
+  /* Dropping Capsule Animation */
+  .dropped-capsule {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    position: relative;
+    transform: scale(0) translateY(-30px);
+    opacity: 0;
+    box-shadow: inset -4px -4px 8px rgba(0,0,0,0.25), 0 6px 12px rgba(0,0,0,0.3);
+    border: 2px solid #fff;
+    cursor: pointer;
+  }
+  .dropped-capsule.drop-in {
+    animation: dropBounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  @keyframes dropBounce {
+    0% { transform: scale(0.3) translateY(-35px); opacity: 0; }
+    60% { transform: scale(1.12) translateY(6px); opacity: 1; }
+    80% { transform: scale(0.95) translateY(-2px); opacity: 1; }
+    100% { transform: scale(1) translateY(2px); opacity: 1; }
+  }
+
+  /* Grand Prize Ready Aura */
+  .grand-ready-glow {
+    box-shadow: 0 0 0 3px #f7c948, 0 0 25px rgba(247, 201, 72, 0.75) !important;
+    animation: pulseGold 1.6s infinite alternate;
+  }
+  @keyframes pulseGold {
+    0% { filter: drop-shadow(0 0 4px rgba(247, 201, 72, 0.4)); }
+    100% { filter: drop-shadow(0 0 14px rgba(242, 140, 82, 0.9)); }
+  }
+
+  /* Tree Scene Atmospheres */
+  .tree-stage-canvas {
+    position: relative;
+    height: 300px;
+    border-radius: 24px;
+    overflow: hidden;
+    transition: background 0.7s ease;
+    box-shadow: inset 0 4px 18px rgba(0,0,0,0.08);
+    border: 3px solid #ffffff;
+  }
+  .sky-day {
+    background: linear-gradient(180deg, #bfeeff 0%, #eafaff 62%, #b8e6b0 63%, #7ec27c 100%);
+  }
+  .sky-sunset {
+    background: linear-gradient(180deg, #ff9e7d 0%, #ffd59e 50%, #fce6b4 62%, #9bc478 63%, #639a5d 100%);
+  }
+  .sky-night {
+    background: linear-gradient(180deg, #1b2347 0%, #344179 62%, #29594b 63%, #1b3f36 100%);
+  }
+
+  /* Rolling hills in Tree Scene */
+  .hill-back {
+    position: absolute;
+    bottom: 0;
+    left: -10%;
+    width: 75%;
+    height: 39%;
+    border-radius: 50% 50% 0 0;
+    background: rgba(114, 184, 108, 0.45);
+    pointer-events: none;
+  }
+  .hill-front {
+    position: absolute;
+    bottom: 0;
+    right: -12%;
+    width: 80%;
+    height: 36%;
+    border-radius: 50% 50% 0 0;
+    background: rgba(92, 166, 90, 0.55);
+    pointer-events: none;
+  }
+  .sky-night .hill-back { background: rgba(36, 86, 68, 0.65); }
+  .sky-night .hill-front { background: rgba(24, 64, 52, 0.75); }
+
+  /* Interactive Tree Bounce */
+  .main-tree-figure {
+    position: relative;
+    z-index: 5;
+    cursor: pointer;
+    transform-origin: bottom center;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s;
+  }
+  .main-tree-figure:hover {
+    transform: scale(1.04);
+  }
+  .main-tree-figure.boing {
+    animation: treeBoing 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes treeBoing {
+    0%, 100% { transform: scale(1, 1) translateY(0); }
+    30% { transform: scale(1.14, 0.88) translateY(4px); }
+    60% { transform: scale(0.92, 1.12) translateY(-10px); }
+    80% { transform: scale(1.04, 0.97) translateY(0); }
+  }
+
+  /* Draggable Ornaments on Tree */
+  .tree-ornament {
+    position: absolute;
+    z-index: 10;
+    font-size: 28px;
+    cursor: grab;
+    filter: drop-shadow(0 3px 4px rgba(0,0,0,0.22));
+    transition: transform 0.15s ease;
+    touch-action: none;
+  }
+  .tree-ornament:hover {
+    transform: scale(1.22) rotate(-6deg);
+    z-index: 20;
+  }
+  .tree-ornament:active {
+    cursor: grabbing;
+    transform: scale(1.3);
+  }
+  .tree-ornament.float-anim {
+    animation: gentleBob 2.6s ease-in-out infinite alternate;
+  }
+  @keyframes gentleBob {
+    0% { margin-top: 0px; }
+    100% { margin-top: -6px; }
+  }
+
+  /* Firefly / Star particles for Night / Rain */
+  .ambient-particle {
+    position: absolute;
+    pointer-events: none;
+    z-index: 4;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.25; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+  @keyframes rainFall {
+    0% { transform: translateY(-20px) translateX(4px); opacity: 0; }
+    30% { opacity: 0.75; }
+    100% { transform: translateY(290px) translateX(-12px); opacity: 0; }
+  }
+
+  /* Drawer Transition */
+  .forest-drawer-backdrop {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .forest-drawer-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .forest-drawer {
+    transform: translateX(100%);
+    transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .forest-drawer.open {
+    transform: translateX(0);
+  }
+
+  /* Floating Right Edge Drawer Handle */
+  .side-forest-tab {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 35;
+    background: linear-gradient(135deg, #23856b, #3ca385);
+    color: white;
+    border-radius: 22px 0 0 22px;
+    padding: 14px 12px 14px 16px;
+    box-shadow: -6px 10px 26px rgba(35, 133, 107, 0.32);
+    border: 2px solid #ffffff;
+    border-right: none;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .side-forest-tab:hover {
+    padding-right: 20px;
+    filter: brightness(1.06);
+  }
+
+  /* Confetti Particle */
+  .fx-particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    font-size: 18px;
+    animation: particleFly 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes particleFly {
+    0% { transform: translate(0, 0) scale(0.5) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(1.2) rotate(var(--rot)); opacity: 0; }
+  }
+</style>
+</head>
+<body class="flex flex-col justify-between">
+
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="w-full max-w-[1280px] mx-auto px-4 pt-3 pb-1 shrink-0">
+    <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-full bg-white/90 backdrop-blur-md border-2 border-white shadow-sm">
+      <!-- Brand -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl grid place-items-center text-white text-xl bg-gradient-to-br from-[#a93645] to-[#e05360] shadow-md shadow-[#cc4352]/30">
+          🌱
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-black text-base sm:text-lg tracking-tight text-[#463544]">任務森林・扭蛋種樹樂園</span>
+            <span class="hidden sm:inline-block text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#fff0bd] text-[#9a6400]">互動版</span>
+          </div>
+          <p class="text-xs text-[#887584] font-bold hidden md:block">完成任務賺取扭蛋券，收集神祕裝飾打造你的專屬魔法樹！</p>
+        </div>
+      </div>
+
+      <!-- Quick Stats & Tree Drawer Button -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Sound Toggle -->
+        <button id="soundToggleBtn" class="px-3 py-1.5 rounded-full bg-[#fff9ed] border border-[#ead8cc] text-xs font-extrabold text-[#665566] hover:bg-[#ffe7c7] transition flex items-center gap-1" title="切換音效">
+          <span id="soundIcon">🔊</span>
+          <span class="hidden sm:inline">音效</span>
+        </button>
+
+        <!-- Completed Counter Pill -->
+        <div class="px-3.5 py-1.5 rounded-full bg-[#e3f7ef] border border-[#bce5d6] flex items-center gap-1.5">
+          <span class="text-sm">✅</span>
+          <span class="text-xs font-extrabold text-[#23856b]">已完成 <strong id="totalDone" class="text-sm font-black">0</strong></span>
+        </div>
+
+        <!-- Gacha Ticket Counter Pill -->
+        <div class="px-3.5 py-1.5 rounded-full bg-[#fff0bd] border border-[#f5d57a] flex items-center gap-1.5">
+          <span class="text-sm">🎟️</span>
+          <span class="text-xs font-extrabold text-[#9a6400]">扭蛋券 <strong id="topTicketCount" class="text-sm font-black">0</strong></span>
+        </div>
+
+        <!-- Open Magic Tree Drawer Button -->
+        <button id="openTreeBtnTop" class="relative px-4 py-2 rounded-full bg-gradient-to-r from-[#23856b] to-[#3ca888] text-white font-black text-xs sm:text-sm shadow-md hover:brightness-105 active:scale-95 transition flex items-center gap-1.5">
+          <span>🌳 我的魔法樹</span>
+          <span id="topTreeLevelBadge" class="px-2 py-0.5 rounded-full bg-white/20 text-[11px]">Lv.1</span>
+          <!-- Notification Dot -->
+          <span id="treeNotifDot" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#ff4757] border-2 border-white animate-ping"></span>
+          <span id="treeNotifDotStatic" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#ff4757] border-2 border-white"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= FLOATING RIGHT-EDGE DRAWER HANDLE ================= -->
+  <button id="sideForestTab" class="side-forest-tab flex flex-col items-center gap-1.5" aria-label="展開我的魔法樹側欄">
+    <span class="text-2xl leading-none" id="sideTabTreeEmoji">🌱</span>
+    <span class="writing-vertical text-xs font-black tracking-widest" style="writing-mode: vertical-rl;">魔法樹花園</span>
+    <span id="sideTabCount" class="mt-1 px-1.5 py-0.5 rounded-full bg-white/25 text-[10px] font-black">0 件</span>
+    <span id="sideNotifBadge" class="hidden absolute -top-2 -left-2 px-2 py-0.5 rounded-full bg-[#ff4757] text-white text-[10px] font-black shadow animate-bounce">NEW!</span>
+  </button>
+
+  <!-- ================= MAIN SINGLE-SCREEN WORKSPACE ================= -->
+  <main class="w-full max-w-[1280px] mx-auto px-4 py-2 flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+
+    <!-- LEFT COLUMN: TASK LIST PANEL (7 cols on Desktop) -->
+    <section class="lg:col-span-7 bg-white/90 backdrop-blur-md border-2 border-white rounded-[28px] shadow-[0_20px_50px_rgba(142,88,70,0.14)] flex flex-col min-h-[460px] lg:min-h-0 overflow-hidden">
+      <!-- Panel Header -->
+      <div class="px-5 pt-4 pb-3 border-b border-[#f3e6dc] flex flex-wrap items-center justify-between gap-2 shrink-0">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-lg sm:text-xl font-black text-[#463544]">📝 我的任務清單</h2>
+            <span id="taskCount" class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-[#fff9ed] border border-[#ead8cc] text-[#887584]">共 0 項</span>
+          </div>
+          <p class="text-xs text-[#887584] font-bold mt-0.5">大任務拆解成小任務，每完成 3～7 個小任務必得「傳說大獎」！</p>
+        </div>
+
+        <!-- Filter Tabs & Template Button -->
+        <div class="flex items-center gap-1.5">
+          <div class="flex bg-[#fff5e6] p-1 rounded-xl border border-[#ead8cc] text-xs font-extrabold">
+            <button data-filter="all" class="filter-btn px-2.5 py-1 rounded-lg bg-white text-[#cc4352] shadow-sm transition">全部</button>
+            <button data-filter="active" class="filter-btn px-2.5 py-1 rounded-lg text-[#665566] hover:text-[#463544] transition">待辦</button>
+            <button data-filter="done" class="filter-btn px-2.5 py-1 rounded-lg text-[#665566] hover:text-[#463544] transition">完成</button>
+          </div>
+          <button id="templateMenuBtn" class="px-2.5 py-1.5 rounded-xl bg-[#eef9f5] hover:bg-[#d9f2e9] text-[#23856b] border border-[#bce5d6] text-xs font-black transition" title="快速載入任務範本">
+            ✨ 範本
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Template Bar (Collapsible) -->
+      <div id="templateBar" class="hidden px-5 py-2.5 bg-[#fff9ed] border-b border-[#ead8cc] flex flex-wrap items-center justify-between gap-2 shrink-0">
+        <span class="text-xs font-extrabold text-[#9a6400]">⚡ 點擊一鍵加入任務組合：</span>
+        <div class="flex flex-wrap gap-1.5">
+          <button data-tpl="study" class="tpl-chip px-2.5 py-1 rounded-lg bg-white border border-[#ead8cc] hover:border-[#f28c52] text-xs font-extrabold text-[#463544] transition">📚 專注讀書計畫</button>
+          <button data-tpl="clean" class="tpl-chip px-2.5 py-1 rounded-lg bg-white border border-[#ead8cc] hover:border-[#f28c52] text-xs font-extrabold text-[#463544] transition">🧹 房間清爽整理</button>
+          <button data-tpl="health" class="tpl-chip px-2.5 py-1 rounded-lg bg-white border border-[#ead8cc] hover:border-[#f28c52] text-xs font-extrabold text-[#463544] transition">💪 今日元氣充電</button>
+        </div>
+      </div>
+
+      <!-- Task Input Bar -->
+      <div class="px-5 py-3 bg-[#fffdf9] border-b border-[#f3e6dc] grid grid-cols-1 sm:grid-cols-12 gap-2 shrink-0">
+        <input id="taskInput" type="text" placeholder="輸入一個新任務（按 Enter 快速新增）…" maxlength="100"
+          class="sm:col-span-7 px-3.5 py-2.5 rounded-xl border-2 border-[#ead8cc] bg-white text-sm font-bold text-[#463544] focus:outline-none focus:border-[#f28c52] focus:ring-2 focus:ring-[#f28c52]/20">
+        <select id="taskLevel" aria-label="任務層級"
+          class="sm:col-span-3 px-3 py-2.5 rounded-xl border-2 border-[#ead8cc] bg-white text-sm font-extrabold text-[#463544] focus:outline-none focus:border-[#f28c52]">
+          <option value="0">🌳 大任務</option>
+          <option value="1" selected>🌿 小任務 (累積大獎)</option>
+          <option value="2">• 子任務</option>
+        </select>
+        <button id="addTask" class="sm:col-span-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#cc4352] to-[#e66d61] text-white font-black text-sm shadow-md hover:brightness-105 active:scale-95 transition">
+          ＋ 新增
+        </button>
+      </div>
+
+      <!-- Scrollable Task List Area -->
+      <div id="taskList" class="flex-1 overflow-y-auto px-5 py-3 space-y-2">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Task Panel Footer -->
+      <div class="px-5 py-2.5 bg-[#fffaf2] border-t border-dashed border-[#ead8cc] flex flex-wrap items-center justify-between gap-2 text-xs font-extrabold text-[#887584] shrink-0">
+        <div class="flex items-center gap-2">
+          <span>💡 提示：點擊任務右側「+子項」可直接在下方插入下層任務</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="clearDoneBtn" class="text-[#a93645] hover:underline">清除已完成</button>
+          <span>・</span>
+          <button id="exportBtn" class="text-[#23856b] hover:underline">📥 匯出紀錄</button>
+          <span>・</span>
+          <button id="resetBtn" class="text-[#887584] hover:text-[#cc4352] hover:underline">重置森林</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN: GACHA MACHINE & GRAND PRIZE PROGRESS (5 cols on Desktop) -->
+    <section class="lg:col-span-5 bg-gradient-to-b from-[#fffefa] to-[#fff3e2] border-2 border-white rounded-[28px] shadow-[0_20px_50px_rgba(142,88,70,0.14)] flex flex-col justify-between p-5 min-h-[480px] lg:min-h-0 overflow-y-auto">
+
+      <!-- Top Header -->
+      <div class="flex items-center justify-between gap-2 shrink-0">
+        <div>
+          <h2 class="text-lg sm:text-xl font-black text-[#463544] flex items-center gap-1.5">
+            <span>🎁 神祕扭蛋機</span>
+            <span id="grandReadyBadge" class="hidden px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#f7c948] to-[#f28c52] text-[#5e3800] text-xs font-black animate-bounce">
+              🏆 下一抽必中大獎！
+            </span>
+          </h2>
+          <p class="text-xs text-[#887584] font-bold">轉動旋鈕或點擊下方按鈕，抽出森林裝飾與魔法夥伴</p>
+        </div>
+
+        <!-- Auto-open drawer switch -->
+        <label class="flex items-center gap-1.5 cursor-pointer bg-white/80 px-2.5 py-1.5 rounded-xl border border-[#ead8cc] text-[11px] font-extrabold text-[#665566]" title="抽完扭蛋後是否自動滑出魔法樹抽屜">
+          <input type="checkbox" id="autoOpenTreeToggle" class="accent-[#23856b] w-3.5 h-3.5 rounded">
+          <span>開獎展開樹</span>
+        </label>
+      </div>
+
+      <!-- Center Stage: 3D Gacha Machine + Live Result Card -->
+      <div class="my-auto py-2 flex flex-col items-center justify-center relative">
+
+        <!-- Interactive Gacha Machine -->
+        <div id="machine" class="gacha-machine-wrap">
+          <!-- Glass Globe with 3D Capsules -->
+          <div class="gacha-globe" id="gachaGlobe">
+            <!-- Capsules injected by JS for dynamic colors & positions -->
+          </div>
+
+          <!-- Base with Rotary Knob & Chute -->
+          <div class="gacha-base">
+            <div class="gacha-plate">FOREST GACHA</div>
+
+            <!-- Interactive Knob -->
+            <div id="gachaKnob" class="gacha-knob-outer" title="點擊轉動旋鈕！">
+              <div class="gacha-knob-bar"></div>
+            </div>
+
+            <!-- Exit Chute with Dropped Capsule -->
+            <div class="gacha-chute">
+              <div id="droppedCapsule" class="dropped-capsule"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reward Reveal Popover Card (Shown after spinning) -->
+        <div id="result" class="hidden w-full max-w-[340px] mt-2 p-3.5 rounded-2xl bg-white border-2 border-dashed border-[#f0b55a] shadow-lg text-center animate-[pop_0.35s_ease]">
+          <div class="flex items-center gap-3 text-left">
+            <div id="resultIcon" class="w-14 h-14 rounded-2xl bg-[#fff8e6] border border-[#f5d89a] grid place-items-center text-4xl shrink-0">
+              🎁
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1.5">
+                <span id="resultTag" class="px-2 py-0.5 rounded-md bg-[#ffe2e3] text-[#a93645] text-[10px] font-black">獲得道具</span>
+                <strong id="resultName" class="text-base font-black text-[#a93645] truncate">神祕道具</strong>
+              </div>
+              <p id="resultDesc" class="text-xs text-[#665566] font-bold mt-0.5 line-clamp-2">讓你的樹長出新變化！</p>
+            </div>
+          </div>
+          <div class="mt-2.5 pt-2 border-t border-[#f5ebe0] flex items-center justify-between gap-2">
+            <span class="text-[11px] font-extrabold text-[#23856b]">✨ 已自動放入你的魔法樹花園！</span>
+            <button id="viewInTreeBtn" class="px-3 py-1 rounded-xl bg-[#23856b] text-white text-xs font-black hover:brightness-110 transition">
+              👉 前往魔法樹查看
+            </button>
+          </div>
+        </div>
+
+        <!-- Spin Action Button -->
+        <div class="w-full max-w-[290px] mt-2 text-center">
+          <button id="spinBtn" class="w-full py-3 px-5 rounded-2xl bg-gradient-to-r from-[#f6c84b] to-[#f29a43] text-[#5c3607] font-black text-base shadow-lg hover:brightness-105 active:scale-95 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none">
+            <span>🎡 扭轉神祕扭蛋</span>
+            <span id="spinBtnBadge" class="px-2 py-0.5 rounded-full bg-white/45 text-xs font-black">剩 0 次</span>
+          </button>
+          <p id="spinHint" class="text-xs text-[#887584] font-extrabold mt-1.5">完成任務後，就會獲得一次扭蛋機會</p>
+        </div>
+      </div>
+
+      <!-- Bottom Card: Grand Prize Progress + Quick Tree Preview Bar -->
+      <div class="space-y-2.5 shrink-0">
+        <!-- Grand Prize Variable Ratio Bar -->
+        <div id="grandCard" class="p-3.5 rounded-2xl bg-white border border-[#ead8cc] shadow-sm transition">
+          <div class="flex items-center justify-between text-xs font-black">
+            <span class="flex items-center gap-1 text-[#463544]">🏆 傳說大獎保底進度 <span class="text-[11px] font-bold text-[#887584]">(完成🌿小任務)</span></span>
+            <span id="bigProgressText" class="text-[#cc4352]">0 / 3 次</span>
+          </div>
+          <div class="h-3 bg-[#f2eadf] rounded-full my-2 overflow-hidden p-0.5">
+            <div id="bigProgress" class="h-full w-0 bg-gradient-to-r from-[#f5c948] via-[#f28c52] to-[#cc4352] rounded-full transition-all duration-300"></div>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-[#887584] font-bold">
+            <span>每次隨機設定 3～7 個小任務，集滿必出傳說大獎！</span>
+            <button id="openTreeBtnBottom" class="text-[#23856b] font-black hover:underline shrink-0 ml-2">🌳 打開魔法樹 (目前已收集 <span id="miniInvCount">0</span> 件) ➔</button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ================= SLIDE-OUT FOREST DRAWER (我的魔法樹側欄) ================= -->
+  <div id="drawerBackdrop" class="forest-drawer-backdrop fixed inset-0 bg-[#352633]/40 backdrop-blur-sm z-40"></div>
+
+  <aside id="forestDrawer" class="forest-drawer fixed top-0 right-0 bottom-0 w-full max-w-[540px] bg-[#fffdf9] border-l-4 border-white shadow-2xl z-50 flex flex-col justify-between overflow-hidden">
+
+    <!-- Drawer Top Header -->
+    <div class="px-5 py-4 bg-gradient-to-r from-[#e3f7ef] to-[#fff9ed] border-b border-[#ead8cc] flex items-center justify-between gap-3 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-2xl bg-[#23856b] text-white grid place-items-center text-xl shadow">
+          🌳
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-lg font-black text-[#463544]">我的魔法樹生態園</h2>
+            <span id="treeLevel" class="px-2.5 py-0.5 rounded-full bg-[#23856b] text-white text-xs font-black">幼苗 Lv.1</span>
+          </div>
+          <p class="text-xs text-[#665566] font-bold">可自由拖曳樹上的裝飾品調整位置，或點擊小樹與它互動！</p>
+        </div>
+      </div>
+
+      <button id="closeDrawerBtn" class="w-9 h-9 rounded-full bg-white border border-[#ead8cc] text-[#665566] hover:bg-[#ffe2e3] hover:text-[#a93645] font-black text-lg grid place-items-center transition" aria-label="關閉側欄">
+        ✕
+      </button>
+    </div>
+
+    <!-- Drawer Scrollable Body -->
+    <div class="flex-1 overflow-y-auto p-5 space-y-4">
+
+      <!-- Sky & Weather Controls + Tree Interaction Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <!-- Ambiance Switcher -->
+        <div class="flex items-center gap-1 bg-[#fff5e6] p-1 rounded-xl border border-[#ead8cc] text-xs font-extrabold">
+          <button data-sky="day" class="sky-btn px-2.5 py-1 rounded-lg bg-white text-[#9a6400] shadow-sm transition">☀️ 晨光</button>
+          <button data-sky="sunset" class="sky-btn px-2.5 py-1 rounded-lg text-[#665566] transition">🌅 夕陽</button>
+          <button data-sky="night" class="sky-btn px-2.5 py-1 rounded-lg text-[#665566] transition">🌙 星夜</button>
+          <button id="rainToggleBtn" class="px-2.5 py-1 rounded-lg text-[#665566] hover:bg-white/60 transition">🌧️ 甘霖</button>
+        </div>
+
+        <!-- Interact / Rearrange Buttons -->
+        <div class="flex items-center gap-1.5">
+          <button id="waterTreeBtn" class="px-3 py-1.5 rounded-xl bg-[#e6f8fb] hover:bg-[#cdeff6] text-[#1c7285] border border-[#a9e2ee] text-xs font-black transition flex items-center gap-1">
+            <span>💧 澆水呵護</span>
+          </button>
+          <button id="shuffleDecorBtn" class="px-3 py-1.5 rounded-xl bg-[#fff9ed] hover:bg-[#ffe7c7] text-[#9a6400] border border-[#ead8cc] text-xs font-black transition" title="隨機重新排列樹上裝飾位置">
+            ✨ 隨機擺設
+          </button>
+        </div>
+      </div>
+
+      <!-- Interactive Tree Stage -->
+      <div id="treeScene" class="tree-stage-canvas sky-day flex items-end justify-center select-none">
+        <!-- Sky Celestial Body -->
+        <div id="skyCelestial" class="absolute right-6 top-4 text-4xl filter drop-shadow transition-all duration-500 pointer-events-none">☀️</div>
+        <div class="absolute left-6 top-6 text-3xl opacity-80 pointer-events-none animate-pulse">☁️</div>
+        <div class="absolute left-36 top-10 text-2xl opacity-60 pointer-events-none">☁️</div>
+
+        <!-- Ambient Particles Container (Fireflies / Stars / Rain) -->
+        <div id="ambientLayer" class="absolute inset-0 pointer-events-none"></div>
+
+        <!-- Rolling Hills -->
+        <div class="hill-back"></div>
+        <div class="hill-front"></div>
+
+        <!-- Tree Speech Bubble -->
+        <div id="treeSpeech" class="hidden absolute top-4 left-1/2 -translate-x-1/2 z-30 px-3.5 py-1.5 rounded-2xl bg-white/95 border-2 border-[#23856b] text-[#23856b] text-xs font-black shadow-md whitespace-nowrap">
+          🌿 謝謝你的努力，我感覺充滿能量！
+        </div>
+
+        <!-- Main Tree Visual (SVG + Emoji Hybrid for Rich Stages) -->
+        <div id="tree" class="main-tree-figure mb-3 flex flex-col items-center" title="點擊小樹跟它打招呼！">
+          <!-- Dynamic Tree Stage Rendered by JS -->
+        </div>
+
+        <!-- Draggable Ornaments Layer -->
+        <div id="ornamentsLayer" class="absolute inset-0 overflow-hidden pointer-events-none">
+          <!-- Individual ornaments have pointer-events-auto and drag handlers -->
+        </div>
+      </div>
+
+      <!-- Tree Growth Progress & Caption -->
+      <div class="p-3.5 rounded-2xl bg-[#f4fbf7] border border-[#cbeadd] flex items-center justify-between gap-3">
+        <div>
+          <p id="treeCaption" class="text-xs font-black text-[#23856b]">先完成任務，讓小樹開始冒險！</p>
+          <p class="text-[11px] text-[#665566] font-bold mt-0.5">💡 提示：用滑鼠或手指直接拖曳樹上的花朵、果實與精靈，擺出你最喜歡的樣子！</p>
+        </div>
+        <div class="text-right shrink-0">
+          <span class="text-[11px] font-bold text-[#887584] block">距離下一階段</span>
+          <strong id="nextStageHint" class="text-xs font-black text-[#23856b]">還差 2 件道具</strong>
+        </div>
+      </div>
+
+      <!-- Drawer Tabs: 1. 森林圖鑑與背包 | 2. 森林驚喜日記 -->
+      <div>
+        <div class="flex border-b border-[#ead8cc] gap-2 mb-3">
+          <button data-dtab="pokedex" class="drawer-tab-btn px-4 py-2 border-b-4 border-[#cc4352] text-[#cc4352] font-black text-sm transition">
+            🎒 道具圖鑑 (<span id="pokedexProgress">0/12</span>)
+          </button>
+          <button data-dtab="diary" class="drawer-tab-btn px-4 py-2 border-b-4 border-transparent text-[#887584] hover:text-[#463544] font-black text-sm transition">
+            📜 森林驚喜日記
+          </button>
+        </div>
+
+        <!-- Tab 1: Pokedex & Inventory Grid -->
+        <div id="dtab-pokedex" class="space-y-3">
+          <div id="pokedexGrid" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
+            <!-- Populated by JS with unlocked count & locked silhouettes -->
+          </div>
+          <!-- Legacy Chip List for quick summary -->
+          <div class="pt-2 border-t border-dashed border-[#ead8cc]">
+            <h4 class="text-xs font-black text-[#887584] mb-2">目前樹上擺設清單：</h4>
+            <div id="inventory" class="flex flex-wrap gap-1.5"></div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Forest History Log -->
+        <div id="dtab-diary" class="hidden">
+          <div id="history" class="max-h-[240px] overflow-y-auto space-y-1.5 pr-1 text-xs font-bold text-[#665566]">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Drawer Footer -->
+    <div class="px-5 py-3 bg-[#fff9ed] border-t border-[#ead8cc] flex items-center justify-between text-xs font-extrabold text-[#887584] shrink-0">
+      <span>🌟 每件收集到的道具都會永久保存在這台裝置</span>
+      <button id="backToTaskBtn" class="px-3.5 py-1.5 rounded-xl bg-[#cc4352] text-white font-black hover:brightness-110 transition">
+        返回任務與扭蛋
+      </button>
+    </div>
+  </aside>
+
+  <!-- ================= CUSTOM MODAL DIALOG (No native confirm/alert) ================= -->
+  <div id="customModal" class="hidden fixed inset-0 bg-[#352633]/50 backdrop-blur-xs z-50 grid place-items-center p-4">
+    <div class="w-full max-w-[380px] bg-white rounded-3xl border-2 border-[#ead8cc] shadow-2xl p-6 text-center animate-[pop_0.25s_ease]">
+      <div id="modalEmoji" class="text-4xl mb-2">🌱</div>
+      <h3 id="modalTitle" class="text-lg font-black text-[#463544]">確認操作</h3>
+      <p id="modalMessage" class="text-xs font-bold text-[#665566] mt-2 leading-relaxed">確定要執行這項操作嗎？</p>
+      <div id="modalInputWrap" class="hidden mt-3">
+        <input id="modalInput" type="text" maxlength="100" class="w-full px-3.5 py-2 rounded-xl border-2 border-[#ead8cc] text-sm font-bold text-[#463544] focus:outline-none focus:border-[#f28c52]">
+      </div>
+      <div class="mt-5 flex items-center justify-center gap-2.5">
+        <button id="modalCancelBtn" class="flex-1 py-2.5 rounded-xl bg-[#fff9ed] border border-[#ead8cc] text-[#665566] font-black text-xs hover:bg-[#ffe7c7] transition">取消</button>
+        <button id="modalConfirmBtn" class="flex-1 py-2.5 rounded-xl bg-[#cc4352] text-white font-black text-xs hover:brightness-110 transition">確定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= TOAST NOTIFICATION ================= -->
+  <div id="toast" class="fixed left-1/2 bottom-5 -translate-x-1/2 translate-y-6 opacity-0 pointer-events-none bg-[#463544] text-white px-5 py-2.5 rounded-full shadow-xl font-extrabold text-xs sm:text-sm z-50 transition-all duration-300 text-center max-w-[90%]"></div>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  // ================= REWARD DEFINITIONS (8 Normal + 4 Grand Prizes) =================
+  const rewards = [
+    { name: "晨露水滴", icon: "💧", desc: "清澈的露水滋潤樹根，讓枝葉閃閃發亮。", type: "water" },
+    { name: "暖陽徽章", icon: "☀️", desc: "溫暖陽光灑落，樹冠變得更加蓬鬆。", type: "sun" },
+    { name: "魔法肥料", icon: "✨", desc: "小樹吸收星塵養分，長得更茁壯。", type: "fertilizer" },
+    { name: "彩虹花種", icon: "🌸", desc: "枝頭綻放出繽紛芬芳的粉紅小花。", type: "flower" },
+    { name: "森林蝴蝶", icon: "🦋", desc: "翩翩飛舞的彩蝶，讓森林變得更熱鬧。", type: "butterfly" },
+    { name: "甜甜果實", icon: "🍎", desc: "樹上結出飽滿紅潤的香甜果實。", type: "fruit" },
+    { name: "星星掛飾", icon: "⭐", desc: "把夜空的星光摘下來掛在樹梢上。", type: "star" },
+    { name: "小鳥朋友", icon: "🐦", desc: "快樂的青鳥在枝頭唱著清脆歌謠。", type: "bird" }
+  ];
+
+  const grandRewards = [
+    { name: "傳說彩虹樹冠", icon: "🌈", desc: "傳說級七彩光芒降臨，跨越整片樹冠！", type: "rainbow", grand: true },
+    { name: "夢幻花園花環", icon: "💐", desc: "整棵魔法樹盛開出奇蹟般的花海！", type: "garden", grand: true },
+    { name: "森林守護精靈", icon: "🧚", desc: "閃耀翅膀的森林精靈現身守護你的樹！", type: "fairy", grand: true },
+    { name: "榮耀黃金果實", icon: "🏆", desc: "珍貴無比的黃金果實，森林的最高榮耀！", type: "gold", grand: true }
+  ];
+
+  const allCatalog = [...rewards, ...grandRewards];
+
+  // Preset Task Templates
+  const taskTemplates = {
+    study: [
+      { name: "完成今日學習衝刺目標", level: 0 },
+      { name: "閱讀核心章節 30 分鐘并畫重點", level: 1 },
+      { name: "整理 5 個容易忘記的觀念筆記", level: 1 },
+      { name: "完成一回練習題自我測驗", level: 1 },
+      { name: "訂正錯題並寫下解析", level: 2 }
+    ],
+    clean: [
+      { name: "打造清爽舒適的房間角落", level: 0 },
+      { name: "把書桌上的雜物與文具歸位", level: 1 },
+      { name: "摺好床鋪與散落的衣服", level: 1 },
+      { name: "將垃圾分類打包清理", level: 1 }
+    ],
+    health: [
+      { name: "今日身心元氣充電計畫", level: 0 },
+      { name: "喝滿 3 大杯溫開水補充水分", level: 1 },
+      { name: "離開座位伸展拉筋 10 分鐘", level: 1 },
+      { name: "放下手機提早休息放鬆眼睛", level: 1 }
+    ]
+  };
+
+  // ================= STATE VARIABLES =================
+  let tasks = [];
+  let inventory = []; // Array of prize objects with optional { uid, x, y }
+  let history = [];
+  let doneCount = 0;
+  let smallCount = 0;
+  let smallTarget = 3;
+  let spinCredits = 0;
+  let pendingGrand = false;
+
+  // UI & Extended Preferences
+  let taskFilter = "all";
+  let soundEnabled = true;
+  let autoOpenTree = false;
+  let skyMode = "day";
+  let rainActive = false;
+  let isSpinning = false;
+
+  // ================= STORAGE (Compatible with taskForestSave) =================
+  function save() {
+    localStorage.setItem("taskForestSave", JSON.stringify({
+      tasks,
+      inventory,
+      history,
+      doneCount,
+      smallCount,
+      smallTarget,
+      spinCredits,
+      pendingGrand,
+      soundEnabled,
+      autoOpenTree,
+      skyMode,
+      rainActive
+    }));
+  }
+
+  function load() {
+    try {
+      const raw = localStorage.getItem("taskForestSave");
+      if (raw) {
+        const d = JSON.parse(raw);
+        tasks = d.tasks || [];
+        inventory = (d.inventory || []).map((item, idx) => ({
+          ...item,
+          uid: item.uid || `orn_${idx}_${Date.now()}`,
+          x: typeof item.x === "number" ? item.x : getDefaultOrnamentPos(idx).x,
+          y: typeof item.y === "number" ? item.y : getDefaultOrnamentPos(idx).y
+        }));
+        history = d.history || [];
+        doneCount = d.doneCount || 0;
+        smallCount = d.smallCount || 0;
+        smallTarget = d.smallTarget || 3;
+        spinCredits = d.spinCredits || 0;
+        pendingGrand = !!d.pendingGrand;
+        if (typeof d.soundEnabled === "boolean") soundEnabled = d.soundEnabled;
+        if (typeof d.autoOpenTree === "boolean") autoOpenTree = d.autoOpenTree;
+        if (d.skyMode) skyMode = d.skyMode;
+        if (typeof d.rainActive === "boolean") rainActive = d.rainActive;
+      }
+    } catch (e) {
+      console.warn("讀取紀錄失敗", e);
+    }
+  }
+
+  function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  function getDefaultOrnamentPos(index) {
+    // Golden-angle spiral around the tree canopy so ornaments never stack awkwardly
+    const spots = [
+      { x: 46, y: 34 }, { x: 33, y: 48 }, { x: 58, y: 46 },
+      { x: 48, y: 20 }, { x: 25, y: 33 }, { x: 67, y: 31 },
+      { x: 38, y: 60 }, { x: 56, y: 60 }, { x: 18, y: 52 },
+      { x: 74, y: 50 }, { x: 36, y: 22 }, { x: 60, y: 21 }
+    ];
+    const base = spots[index % spots.length];
+    const jitterX = (index >= spots.length) ? ((index * 7) % 11) - 5 : 0;
+    const jitterY = (index >= spots.length) ? ((index * 5) % 9) - 4 : 0;
+    return {
+      x: Math.max(10, Math.min(84, base.x + jitterX)),
+      y: Math.max(8, Math.min(72, base.y + jitterY))
+    };
+  }
+
+  // ================= SOUND EFFECTS (Web Audio API) =================
+  function playSound(type) {
+    if (!soundEnabled) return;
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const now = ctx.currentTime;
+
+      if (type === "check") {
+        [587.33, 880].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "triangle";
+          osc.frequency.value = freq;
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          gain.gain.setValueAtTime(0.001, now + i * 0.07);
+          gain.gain.exponentialRampToValueAtTime(0.14, now + i * 0.07 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.22);
+          osc.start(now + i * 0.07);
+          osc.stop(now + i * 0.07 + 0.23);
+        });
+      } else if (type === "crank") {
+        // Mechanical ratchet clicks during knob turn
+        [0, 0.09, 0.18, 0.28, 0.40, 0.52].forEach((t, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sawtooth";
+          osc.frequency.value = 180 + (i % 2) * 60;
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          gain.gain.setValueAtTime(0.001, now + t);
+          gain.gain.exponentialRampToValueAtTime(0.09, now + t + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.05);
+          osc.start(now + t);
+          osc.stop(now + t + 0.06);
+        });
+      } else if (type === "chime") {
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.type = "sine";
+          o.frequency.value = f;
+          o.connect(g);
+          g.connect(ctx.destination);
+          g.gain.setValueAtTime(0.0001, now + i * 0.08);
+          g.gain.exponentialRampToValueAtTime(0.14, now + i * 0.08 + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.08 + 0.26);
+          o.start(now + i * 0.08);
+          o.stop(now + i * 0.08 + 0.28);
+        });
+      } else if (type === "grand") {
+        [523.25, 659.25, 783.99, 1046.5, 1318.5, 1567.98].forEach((f, i) => {
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.type = "triangle";
+          o.frequency.value = f;
+          o.connect(g);
+          g.connect(ctx.destination);
+          g.gain.setValueAtTime(0.0001, now + i * 0.07);
+          g.gain.exponentialRampToValueAtTime(0.18, now + i * 0.07 + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.07 + 0.35);
+          o.start(now + i * 0.07);
+          o.stop(now + i * 0.07 + 0.36);
+        });
+      } else if (type === "leaf") {
+        [440, 554.37, 659.25].forEach((f, i) => {
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.type = "sine";
+          o.frequency.value = f;
+          o.connect(g);
+          g.connect(ctx.destination);
+          g.gain.setValueAtTime(0.001, now + i * 0.06);
+          g.gain.exponentialRampToValueAtTime(0.08, now + i * 0.06 + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.18);
+          o.start(now + i * 0.06);
+          o.stop(now + i * 0.06 + 0.20);
+        });
+      }
+
+      setTimeout(() => ctx.close(), 1200);
+    } catch (e) {}
+  }
+
+  // ================= VISUAL PARTICLE BURST =================
+  function spawnParticles(x, y, emojis = ["✨", "🌿", "⭐", "🎉"], count = 8) {
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement("span");
+      el.className = "fx-particle";
+      el.textContent = emojis[i % emojis.length];
+      const angle = (Math.PI * 2 * i) / count + (Math.random() * 0.5 - 0.25);
+      const dist = 42 + Math.random() * 55;
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      el.style.setProperty("--tx", `${Math.cos(angle) * dist}px`);
+      el.style.setProperty("--ty", `${Math.sin(angle) * dist - 20}px`);
+      el.style.setProperty("--rot", `${Math.floor(Math.random() * 260 - 130)}deg`);
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 920);
+    }
+  }
+
+  // ================= TOAST & CUSTOM MODAL =================
+  let toastTimer = null;
+  function toast(msg) {
+    const t = $("toast");
+    t.textContent = msg;
+    t.classList.remove("opacity-0", "translate-y-6");
+    t.classList.add("opacity-100", "translate-y-0");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      t.classList.add("opacity-0", "translate-y-6");
+      t.classList.remove("opacity-100", "translate-y-0");
+    }, 2400);
+  }
+
+  function openModal({ emoji = "🌱", title, message, inputDefault = null, onConfirm }) {
+    $("modalEmoji").textContent = emoji;
+    $("modalTitle").textContent = title;
+    $("modalMessage").textContent = message;
+    const inputWrap = $("modalInputWrap");
+    const inputEl = $("modalInput");
+    if (inputDefault !== null) {
+      inputWrap.classList.remove("hidden");
+      inputEl.value = inputDefault;
+      setTimeout(() => inputEl.focus(), 50);
+    } else {
+      inputWrap.classList.add("hidden");
+    }
+    $("customModal").classList.remove("hidden");
+
+    const close = () => $("customModal").classList.add("hidden");
+    $("modalCancelBtn").onclick = close;
+    $("modalConfirmBtn").onclick = () => {
+      const val = inputDefault !== null ? inputEl.value.trim() : true;
+      close();
+      if (onConfirm) onConfirm(val);
+    };
+  }
+
+  // ================= GACHA GLOBE CAPSULES INIT =================
+  const capsuleGradients = [
+    "linear-gradient(135deg, #ff9a9e, #ee4c58)",
+    "linear-gradient(135deg, #ffd86f, #f39237)",
+    "linear-gradient(135deg, #84fab0, #239b75)",
+    "linear-gradient(135deg, #a1c4fd, #4a89dc)",
+    "linear-gradient(135deg, #d4a5ff, #8c61d4)",
+    "linear-gradient(135deg, #fbc2eb, #e86ea9)"
+  ];
+
+  function renderGlobeCapsules() {
+    const globe = $("gachaGlobe");
+    globe.innerHTML = "";
+    const positions = [
+      { left: 14, bottom: 8, delay: 0 },
+      { left: 48, bottom: 6, delay: 0.2 },
+      { left: 84, bottom: 7, delay: 0.4 },
+      { left: 120, bottom: 8, delay: 0.1 },
+      { left: 152, bottom: 10, delay: 0.3 },
+      { left: 28, bottom: 38, delay: 0.5 },
+      { left: 66, bottom: 36, delay: 0.15 },
+      { left: 104, bottom: 38, delay: 0.35 },
+      { left: 138, bottom: 40, delay: 0.25 },
+      { left: 50, bottom: 66, delay: 0.45 },
+      { left: 90, bottom: 68, delay: 0.05 },
+      { left: 124, bottom: 64, delay: 0.3 }
+    ];
+    positions.forEach((pos, idx) => {
+      const ball = document.createElement("div");
+      ball.className = "capsule-ball";
+      ball.style.left = `${pos.left}px`;
+      ball.style.bottom = `${pos.bottom}px`;
+      ball.style.background = capsuleGradients[idx % capsuleGradients.length];
+      ball.style.animationDelay = `${pos.delay}s`;
+      globe.appendChild(ball);
+    });
+  }
+
+  // ================= DRAWER OPEN / CLOSE =================
+  function setDrawerOpen(open) {
+    const drawer = $("forestDrawer");
+    const backdrop = $("drawerBackdrop");
+    if (open) {
+      drawer.classList.add("open");
+      backdrop.classList.add("open");
+      // Clear new notification badge
+      $("treeNotifDot").classList.add("hidden");
+      $("treeNotifDotStatic").classList.add("hidden");
+      $("sideNotifBadge").classList.add("hidden");
+    } else {
+      drawer.classList.remove("open");
+      backdrop.classList.remove("open");
+    }
+  }
+
+  function showTreeNotif() {
+    $("treeNotifDot").classList.remove("hidden");
+    $("treeNotifDotStatic").classList.remove("hidden");
+    $("sideNotifBadge").classList.remove("hidden");
+  }
+
+  // ================= TASK MANAGEMENT =================
+  function addTask() {
+    const name = $("taskInput").value.trim();
+    if (!name) {
+      toast("先寫下一個想完成的任務喔！");
+      $("taskInput").focus();
+      return;
+    }
+    const level = Number($("taskLevel").value);
+    tasks.push({ id: uid(), name, level, done: false });
+    $("taskInput").value = "";
+    render();
+    save();
+    $("taskInput").focus();
+  }
+
+  function insertSubTask(parentId, parentLevel) {
+    const childLevel = Math.min(2, parentLevel + 1);
+    const levelLabel = childLevel === 1 ? "🌿 小任務" : "• 子任務";
+    openModal({
+      emoji: childLevel === 1 ? "🌿" : "•",
+      title: `新增下層${levelLabel}`,
+      message: "請輸入要拆解出的細項任務名稱：",
+      inputDefault: "",
+      onConfirm: (val) => {
+        if (!val) return;
+        const idx = tasks.findIndex(t => t.id === parentId);
+        if (idx === -1) return;
+        // Insert right after parent (and its existing immediate children)
+        let insertAt = idx + 1;
+        while (insertAt < tasks.length && tasks[insertAt].level > parentLevel) {
+          insertAt++;
+        }
+        tasks.splice(insertAt, 0, { id: uid(), name: val, level: childLevel, done: false });
+        render();
+        save();
+        toast(`已新增${levelLabel}！`);
+      }
+    });
+  }
+
+  function editTask(id) {
+    const t = tasks.find(x => x.id === id);
+    if (!t) return;
+    openModal({
+      emoji: "✏️",
+      title: "編輯任務名稱",
+      message: "修改你的任務內容：",
+      inputDefault: t.name,
+      onConfirm: (val) => {
+        if (!val) return;
+        t.name = val;
+        render();
+        save();
+        toast("任務名稱已更新！");
+      }
+    });
+  }
+
+  function completeTask(id, checked, event) {
+    const t = tasks.find(x => x.id === id);
+    if (!t) return;
+    if (checked && !t.done) {
+      t.done = true;
+      doneCount++;
+      spinCredits++;
+      if (t.level === 1) {
+        smallCount++;
+        if (smallCount >= smallTarget) {
+          pendingGrand = true;
+          smallCount = 0;
+          smallTarget = 3 + Math.floor(Math.random() * 5);
+        }
+      }
+      playSound("check");
+      if (event && event.target) {
+        const rect = event.target.getBoundingClientRect();
+        spawnParticles(rect.left + 10, rect.top + 10, ["🎉", "🎟️", "🌿", "✨"], 7);
+      }
+      toast(pendingGrand ? "🎉 任務完成！獲得扭蛋券，且下一抽必得傳說大獎！" : "任務完成！獲得 1 張扭蛋券 🎟️");
+    } else if (!checked && t.done) {
+      t.done = false;
+      doneCount = Math.max(0, doneCount - 1);
+      toast("已取消完成狀態（不追回已獲得的獎勵）");
+    }
+    render();
+    save();
+  }
+
+  function removeTask(id) {
+    tasks = tasks.filter(t => t.id !== id);
+    render();
+    save();
+  }
+
+  // ================= GACHA SPIN LOGIC =================
+  function spin() {
+    if (isSpinning) return;
+    if (spinCredits <= 0) {
+      toast("先完成一項任務，才能轉動扭蛋機喔！");
+      return;
+    }
+
+    isSpinning = true;
+    spinCredits--;
+    const isBig = pendingGrand;
+    let prizeTemplate;
+    if (isBig) {
+      prizeTemplate = grandRewards[Math.floor(Math.random() * grandRewards.length)];
+      pendingGrand = false;
+    } else {
+      prizeTemplate = rewards[Math.floor(Math.random() * rewards.length)];
+    }
+
+    // Create instance with default ornament position on the tree
+    const pos = getDefaultOrnamentPos(inventory.length);
+    const prize = {
+      ...prizeTemplate,
+      uid: `orn_${uid()}`,
+      x: pos.x,
+      y: pos.y
+    };
+
+    // Animate knob + globe shake + dropped capsule
+    const knob = $("gachaKnob");
+    const machine = $("machine");
+    const dropped = $("droppedCapsule");
+
+    knob.classList.add("turning");
+    machine.classList.remove("shaking");
+    void machine.offsetWidth;
+    machine.classList.add("shaking");
+    dropped.classList.remove("drop-in");
+    dropped.style.background = isBig
+      ? "linear-gradient(135deg, #fff3a1, #f7b731, #e84393)"
+      : capsuleGradients[Math.floor(Math.random() * capsuleGradients.length)];
+
+    $("spinBtn").disabled = true;
+    playSound("crank");
+
+    // Step 1: Drop capsule into chute
+    setTimeout(() => {
+      dropped.classList.add("drop-in");
+    }, 620);
+
+    // Step 2: Pop open & reveal reward
+    setTimeout(() => {
+      knob.classList.remove("turning");
+      machine.classList.remove("shaking");
+
+      inventory.push(prize);
+      const timeStr = new Date().toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" });
+      history.unshift({ icon: prize.icon, name: prize.name, big: isBig, time: timeStr });
+      history = history.slice(0, 20);
+
+      $("resultIcon").textContent = prize.icon;
+      $("resultTag").textContent = isBig ? "🏆 傳說大獎" : "🎁 森林道具";
+      $("resultTag").className = isBig
+        ? "px-2 py-0.5 rounded-md bg-gradient-to-r from-[#f7c948] to-[#f28c52] text-[#5e3800] text-[10px] font-black"
+        : "px-2 py-0.5 rounded-md bg-[#ffe2e3] text-[#a93645] text-[10px] font-black";
+      $("resultName").textContent = (isBig ? "🏆 大獎降臨！" : "") + prize.name;
+      $("resultDesc").textContent = prize.desc;
+      $("result").classList.remove("hidden");
+
+      const chuteRect = dropped.getBoundingClientRect();
+      spawnParticles(
+        chuteRect.left + 20,
+        chuteRect.top + 10,
+        isBig ? ["🏆", "🌈", "✨", "🎊", "🧚"] : [prize.icon, "✨", "🎉", "🌟"],
+        isBig ? 14 : 9
+      );
+
+      playSound(isBig ? "grand" : "chime");
+      showTreeNotif();
+      isSpinning = false;
+      render();
+      save();
+
+      if (isBig) {
+        toast("🎊 太幸運了！傳說級神祕大獎出現啦！");
+      } else {
+        toast(`獲得「${prize.icon} ${prize.name}」！已裝飾到魔法樹上`);
+      }
+
+      if (autoOpenTree) {
+        setTimeout(() => setDrawerOpen(true), 650);
+      }
+    }, 1150);
+  }
+
+  // ================= TREE STAGE & DRAGGABLE ORNAMENTS =================
+  function getTreeStageInfo(count) {
+    if (count >= 12) {
+      return {
+        levelText: "傳說世界神木 Lv.5",
+        emoji: "🌳",
+        nextText: "已達最高傳說境界 ✨",
+        caption: "傳說中的世界神木！整座森林都在閃耀著你的努力成果！",
+        svgScale: 1.18,
+        canopyColor1: "#2cad7e",
+        canopyColor2: "#1d8761",
+        blossom: true
+      };
+    } else if (count >= 8) {
+      return {
+        levelText: "森林守護樹 Lv.4",
+        emoji: "🌳",
+        nextText: `再收集 ${12 - count} 件升至 Lv.5`,
+        caption: "你的魔法樹已經成為森林裡的焦點，小動物都來定居了！",
+        svgScale: 1.06,
+        canopyColor1: "#34b37c",
+        canopyColor2: "#238a5d",
+        blossom: false
+      };
+    } else if (count >= 5) {
+      return {
+        levelText: "茂盛大樹 Lv.3",
+        emoji: "🌲",
+        nextText: `再收集 ${8 - count} 件升至 Lv.4`,
+        caption: "哇！枝葉越來越茂盛，樹上開始出現美麗的變化了！",
+        svgScale: 0.94,
+        canopyColor1: "#47bf83",
+        canopyColor2: "#2e9964",
+        blossom: false
+      };
+    } else if (count >= 2) {
+      return {
+        levelText: "成長小樹 Lv.2",
+        emoji: "🌿",
+        nextText: `再收集 ${5 - count} 件升至 Lv.3`,
+        caption: "小樹正在吸收能量抽高枝枒，繼續收集道具吧！",
+        svgScale: 0.80,
+        canopyColor1: "#5cce8e",
+        canopyColor2: "#3ca86c",
+        blossom: false
+      };
+    }
+    return {
+      levelText: "希望幼苗 Lv.1",
+      emoji: "🌱",
+      nextText: `再收集 ${2 - count} 件升至 Lv.2`,
+      caption: count === 0 ? "先完成任務，讓小樹開始冒險！" : "小幼苗冒出嫩芽了，再扭幾顆扭蛋幫助它長大！",
+      svgScale: 0.65,
+      canopyColor1: "#74da9a",
+      canopyColor2: "#4eb877",
+      blossom: false
+    };
+  }
+
+  function buildTreeSVG(stage, count) {
+    if (count < 2) {
+      // Cute vibrant sprout SVG + Emoji
+      return `
+        <svg width="150" height="160" viewBox="0 0 150 160" class="overflow-visible">
+          <ellipse cx="75" cy="148" rx="38" ry="9" fill="rgba(0,0,0,0.12)"/>
+          <path d="M75 145 Q75 105 75 82" stroke="#7c5338" stroke-width="10" stroke-linecap="round" fill="none"/>
+          <path d="M75 100 Q42 88 35 62 Q64 62 75 95 Z" fill="#52c97e"/>
+          <path d="M75 92 Q108 78 115 52 Q85 52 75 88 Z" fill="#3ab068"/>
+          <circle cx="75" cy="70" r="8" fill="#ffdf6b"/>
+        </svg>
+      `;
+    }
+
+    const hasRainbow = inventory.some(x => x.type === "rainbow");
+    return `
+      <svg width="230" height="235" viewBox="0 0 230 235" style="transform: scale(${stage.svgScale}); transform-origin: bottom center;" class="overflow-visible transition-transform duration-500">
+        ${hasRainbow ? `<path d="M 15 130 A 100 100 0 0 1 215 130" fill="none" stroke="url(#rainbowGrad)" stroke-width="14" stroke-linecap="round" opacity="0.85"/>` : ""}
+        <defs>
+          <linearGradient id="rainbowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ff6b6b"/>
+            <stop offset="25%" stop-color="#feca57"/>
+            <stop offset="50%" stop-color="#48dbfb"/>
+            <stop offset="75%" stop-color="#1dd1a1"/>
+            <stop offset="100%" stop-color="#ff9ff3"/>
+          </linearGradient>
+        </defs>
+        <!-- Ground Shadow -->
+        <ellipse cx="115" cy="222" rx="64" ry="12" fill="rgba(0,0,0,0.15)"/>
+        <!-- Trunk & Branches -->
+        <path d="M98 220 Q105 170 106 130 L124 130 Q125 170 132 220 Z" fill="#8c583a"/>
+        <path d="M112 158 Q85 140 72 118" stroke="#8c583a" stroke-width="11" stroke-linecap="round" fill="none"/>
+        <path d="M118 152 Q145 134 158 112" stroke="#75472d" stroke-width="10" stroke-linecap="round" fill="none"/>
+        <!-- Lush Multi-layered Canopy -->
+        <circle cx="72" cy="112" r="44" fill="${stage.canopyColor2}"/>
+        <circle cx="158" cy="112" r="44" fill="${stage.canopyColor2}"/>
+        <circle cx="115" cy="72" r="52" fill="${stage.canopyColor2}"/>
+        <circle cx="84" cy="95" r="42" fill="${stage.canopyColor1}"/>
+        <circle cx="146" cy="95" r="42" fill="${stage.canopyColor1}"/>
+        <circle cx="115" cy="64" r="46" fill="${stage.canopyColor1}"/>
+        <!-- Friendly Tree Face -->
+        <circle cx="103" cy="176" r="3.2" fill="#462818"/>
+        <circle cx="127" cy="176" r="3.2" fill="#462818"/>
+        <path d="M109 184 Q115 190 121 184" stroke="#462818" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <ellipse cx="97" cy="180" rx="4" ry="2.2" fill="#ff9a9e" opacity="0.7"/>
+        <ellipse cx="133" cy="180" rx="4" ry="2.2" fill="#ff9a9e" opacity="0.7"/>
+      </svg>
+    `;
+  }
+
+  function renderAmbientEffects() {
+    const scene = $("treeScene");
+    const layer = $("ambientLayer");
+    const celestial = $("skyCelestial");
+
+    scene.classList.remove("sky-day", "sky-sunset", "sky-night");
+    scene.classList.add(`sky-${skyMode}`);
+
+    if (skyMode === "day") celestial.textContent = "☀️";
+    else if (skyMode === "sunset") celestial.textContent = "🌅";
+    else celestial.textContent = "🌙";
+
+    layer.innerHTML = "";
+
+    // Night fireflies & stars
+    if (skyMode === "night") {
+      for (let i = 0; i < 14; i++) {
+        const star = document.createElement("span");
+        star.className = "ambient-particle";
+        star.textContent = i % 3 === 0 ? "✨" : "⋅";
+        star.style.color = i % 2 === 0 ? "#fff6a9" : "#b8ffda";
+        star.style.fontSize = i % 3 === 0 ? "13px" : "20px";
+        star.style.left = `${8 + (i * 17) % 86}%`;
+        star.style.top = `${6 + (i * 23) % 58}%`;
+        star.style.animation = `twinkle ${1.6 + (i % 4) * 0.5}s ease-in-out infinite`;
+        layer.appendChild(star);
+      }
+    }
+
+    // Raindrops
+    if (rainActive) {
+      for (let i = 0; i < 18; i++) {
+        const drop = document.createElement("span");
+        drop.className = "ambient-particle";
+        drop.textContent = "💧";
+        drop.style.fontSize = "11px";
+        drop.style.left = `${5 + (i * 19) % 90}%`;
+        drop.style.top = "0px";
+        drop.style.animation = `rainFall ${0.9 + (i % 5) * 0.2}s linear infinite`;
+        drop.style.animationDelay = `${(i * 0.13) % 1}s`;
+        layer.appendChild(drop);
+      }
+    }
+  }
+
+  function renderTree() {
+    const count = inventory.length;
+    const stage = getTreeStageInfo(count);
+
+    // Update Badges & Texts
+    $("treeLevel").textContent = stage.levelText;
+    $("topTreeLevelBadge").textContent = stage.levelText.split(" ")[1] || "Lv.1";
+    $("sideTabTreeEmoji").textContent = stage.emoji;
+    $("sideTabCount").textContent = `${count} 件`;
+    $("miniInvCount").textContent = count;
+    $("treeCaption").textContent = stage.caption;
+    $("nextStageHint").textContent = stage.nextText;
+
+    // Render SVG Tree
+    $("tree").innerHTML = buildTreeSVG(stage, count);
+
+    // Render Draggable Ornaments on Tree
+    const ornLayer = $("ornamentsLayer");
+    ornLayer.innerHTML = "";
+    inventory.forEach((item, idx) => {
+      if (typeof item.x !== "number" || typeof item.y !== "number") {
+        const pos = getDefaultOrnamentPos(idx);
+        item.x = pos.x;
+        item.y = pos.y;
+      }
+      const el = document.createElement("div");
+      el.className = "tree-ornament float-anim pointer-events-auto";
+      el.textContent = item.icon;
+      el.title = `${item.name}（可拖曳移動位置）`;
+      el.style.left = `${item.x}%`;
+      el.style.top = `${item.y}%`;
+      el.style.animationDelay = `${(idx * 0.25) % 2}s`;
+
+      // Make ornament draggable inside #treeScene
+      bindOrnamentDrag(el, item);
+      ornLayer.appendChild(el);
+    });
+
+    // Render Pokedex Collection Grid
+    const unlockedTypes = new Set(inventory.map(x => x.type));
+    $("pokedexProgress").textContent = `${unlockedTypes.size}/${allCatalog.length}`;
+    $("pokedexGrid").innerHTML = allCatalog.map(cat => {
+      const ownedCount = inventory.filter(x => x.type === cat.type).length;
+      const unlocked = ownedCount > 0;
+      return `
+        <div class="p-2.5 rounded-2xl border ${unlocked ? (cat.grand ? "bg-gradient-to-br from-[#fffbeb] to-[#fff0d4] border-[#f5c948]" : "bg-white border-[#ead8cc]") : "bg-[#f7f2ec] border-dashed border-[#dfd3c8] opacity-65"} flex flex-col items-center text-center relative">
+          ${unlocked ? `<span class="absolute top-1.5 right-1.5 px-1.5 py-0.2 rounded-full bg-[#fff0bd] text-[#9a6400] text-[10px] font-black">x${ownedCount}</span>` : ""}
+          <div class="text-2xl my-0.5 ${unlocked ? "" : "grayscale contrast-200 brightness-50"}">${unlocked ? cat.icon : "❓"}</div>
+          <div class="text-[11px] font-black text-[#463544] truncate w-full">${unlocked ? escapeHtml(cat.name) : "未知的驚喜"}</div>
+          <div class="text-[10px] font-bold text-[#887584]">${cat.grand ? "🏆 傳說大獎" : "🎁 一般道具"}</div>
+        </div>
+      `;
+    }).join("");
+
+    // Render Inventory Chips & History Log
+    $("inventory").innerHTML = inventory.length
+      ? inventory.map(x => `<span class="inline-flex items-center gap-1 bg-[#fff9ed] border border-[#ead8cc] rounded-full px-2.5 py-1 text-xs font-extrabold">${x.icon} ${escapeHtml(x.name)}</span>`).join("")
+      : '<span class="text-xs text-[#887584] font-bold">還沒有道具，快去完成任務扭一顆吧！</span>';
+
+    $("history").innerHTML = history.length
+      ? history.map(x => `
+        <div class="flex items-center justify-between py-1.5 px-2.5 rounded-xl bg-white border border-[#f2e5d8]">
+          <span>${x.big ? '<strong class="text-[#cc4352]">🏆 大獎</strong>' : '🎁 獲得'} ${x.icon} <strong>${escapeHtml(x.name)}</strong></span>
+          <span class="text-[10px] text-[#887584]">${x.time || "剛剛"}</span>
+        </div>
+      `).join("")
+      : '<div class="text-center py-6 text-[#887584]">森林日記目前空白，去轉動第一顆扭蛋吧！</div>';
+
+    renderAmbientEffects();
+  }
+
+  function bindOrnamentDrag(el, itemData) {
+    const scene = $("treeScene");
+    let dragging = false;
+
+    const onMove = (clientX, clientY) => {
+      if (!dragging) return;
+      const rect = scene.getBoundingClientRect();
+      const relX = ((clientX - rect.left - 14) / rect.width) * 100;
+      const relY = ((clientY - rect.top - 14) / rect.height) * 100;
+      itemData.x = Math.max(4, Math.min(88, Math.round(relX)));
+      itemData.y = Math.max(4, Math.min(82, Math.round(relY)));
+      el.style.left = `${itemData.x}%`;
+      el.style.top = `${itemData.y}%`;
+    };
+
+    const onEnd = () => {
+      if (!dragging) return;
+      dragging = false;
+      el.classList.add("float-anim");
+      save();
+    };
+
+    el.addEventListener("mousedown", (e) => {
+      e.stopPropagation();
+      dragging = true;
+      el.classList.remove("float-anim");
+    });
+    window.addEventListener("mousemove", (e) => onMove(e.clientX, e.clientY));
+    window.addEventListener("mouseup", onEnd);
+
+    el.addEventListener("touchstart", (e) => {
+      e.stopPropagation();
+      dragging = true;
+      el.classList.remove("float-anim");
+    }, { passive: true });
+    window.addEventListener("touchmove", (e) => {
+      if (!dragging || !e.touches[0]) return;
+      onMove(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+    window.addEventListener("touchend", onEnd);
+  }
+
+  // Interact with Tree (Click / Water)
+  const treeLines = [
+    "🌿 謝謝你的努力，我感覺充滿能量！",
+    "🌸 微風吹過樹梢，今天也要加油喔！",
+    "✨ 每完成一個小目標，森林就更熱鬧一點！",
+    "🐦 小鳥說很喜歡你佈置的樹冠呢！",
+    "🍎 吸收滿滿的陽光與露水，好舒服呀～"
+  ];
+  let speechTimer = null;
+
+  function interactWithTree(e, isWater = false) {
+    const treeEl = $("tree");
+    treeEl.classList.remove("boing");
+    void treeEl.offsetWidth;
+    treeEl.classList.add("boing");
+    playSound("leaf");
+
+    const rect = treeEl.getBoundingClientRect();
+    spawnParticles(
+      rect.left + rect.width / 2,
+      rect.top + rect.height / 3,
+      isWater ? ["💧", "✨", "🌿", "🌱"] : ["🍃", "🌸", "✨", "🌿"],
+      8
+    );
+
+    const speech = $("treeSpeech");
+    speech.textContent = isWater
+      ? "💧 咕嚕咕嚕～甘甜的泉水讓樹葉更翠綠了！"
+      : treeLines[Math.floor(Math.random() * treeLines.length)];
+    speech.classList.remove("hidden");
+    clearTimeout(speechTimer);
+    speechTimer = setTimeout(() => speech.classList.add("hidden"), 2500);
+  }
+
+  // ================= MAIN RENDER =================
+  function render() {
+    const list = $("taskList");
+    list.innerHTML = "";
+
+    const filteredTasks = tasks.filter(t => {
+      if (taskFilter === "active") return !t.done;
+      if (taskFilter === "done") return t.done;
+      return true;
+    });
+
+    if (!filteredTasks.length) {
+      list.innerHTML = `
+        <div class="py-12 px-4 text-center text-[#887584] font-extrabold leading-relaxed">
+          <div class="text-4xl mb-2">🌼</div>
+          <div>${tasks.length === 0 ? "你的任務森林還是一片空地" : "這個分類目前沒有任務喔"}</div>
+          <div class="text-xs mt-1">先在上方新增一個任務，或點擊右上角「✨ 範本」快速開始吧！</div>
+        </div>
+      `;
+    } else {
+      filteredTasks.forEach(t => {
+        const row = document.createElement("div");
+        const bgClass = t.done
+          ? "bg-[#eff8f0] opacity-60 border-[#cde5d1]"
+          : t.level === 0
+            ? "bg-[#fffaf2] border-[#eedcc9]"
+            : t.level === 1
+              ? "bg-[#f4fbf7] border-[#d3ede0]"
+              : "bg-[#f4f8ff] border-[#d8e5f7]";
+
+        row.className = `task-row level-${t.level} flex items-center gap-2.5 px-3 py-2.5 rounded-2xl border ${bgClass}`;
+
+        const check = document.createElement("input");
+        check.type = "checkbox";
+        check.className = "w-5 h-5 accent-[#23856b] rounded cursor-pointer shrink-0";
+        check.checked = t.done;
+        check.setAttribute("aria-label", "完成任務");
+        check.addEventListener("change", e => completeTask(t.id, e.target.checked, e));
+
+        const dot = document.createElement("span");
+        dot.className = "text-xs font-black shrink-0";
+        dot.textContent = t.level === 0 ? "🌳" : t.level === 1 ? "🌿" : "•";
+
+        const name = document.createElement("span");
+        name.className = `flex-1 font-extrabold text-sm break-words cursor-pointer ${t.done ? "line-through text-[#887584]" : "text-[#463544]"}`;
+        name.textContent = t.name;
+        name.title = "點擊可修改任務名稱";
+        name.onclick = () => editTask(t.id);
+
+        const actions = document.createElement("div");
+        actions.className = "flex items-center gap-1 shrink-0";
+
+        // Quick Add Subtask button for level 0 & 1
+        if (t.level < 2 && !t.done) {
+          const subBtn = document.createElement("button");
+          subBtn.className = "px-2 py-1 rounded-lg bg-white hover:bg-[#e3f7ef] border border-[#ead8cc] text-[11px] font-extrabold text-[#23856b] transition";
+          subBtn.textContent = "+子項";
+          subBtn.title = "在此任務下方新增子任務";
+          subBtn.onclick = () => insertSubTask(t.id, t.level);
+          actions.appendChild(subBtn);
+        }
+
+        const del = document.createElement("button");
+        del.className = "px-2 py-1 rounded-lg bg-white hover:bg-[#ffe2e3] border border-[#ead8cc] text-[11px] font-extrabold text-[#887584] hover:text-[#a93645] transition";
+        del.textContent = "刪除";
+        del.onclick = () => removeTask(t.id);
+        actions.appendChild(del);
+
+        row.append(check, dot, name, actions);
+        list.appendChild(row);
+      });
+    }
+
+    // Update Counters & Spin State
+    $("totalDone").textContent = doneCount;
+    $("topTicketCount").textContent = spinCredits;
+    $("taskCount").textContent = `共 ${tasks.length} 項・完成 ${doneCount} 項`;
+
+    $("spinBtn").disabled = spinCredits <= 0 || isSpinning;
+    $("spinBtnBadge").textContent = `剩 ${spinCredits} 次`;
+    $("spinHint").textContent = spinCredits > 0
+      ? `你有 ${spinCredits} 次扭蛋機會，點擊旋鈕或按鈕試試手氣！`
+      : "完成任務後，就會獲得一次扭蛋機會";
+
+    // Grand Prize Bar & Ready Glow
+    $("bigProgressText").textContent = pendingGrand
+      ? "🔥 已達標！下一抽必中傳說大獎"
+      : `${smallCount} / ${smallTarget} 次小任務`;
+    $("bigProgress").style.width = pendingGrand
+      ? "100%"
+      : `${Math.min(100, (smallCount / smallTarget) * 100)}%`;
+
+    if (pendingGrand) {
+      $("grandReadyBadge").classList.remove("hidden");
+      $("grandCard").classList.add("grand-ready-glow");
+    } else {
+      $("grandReadyBadge").classList.add("hidden");
+      $("grandCard").classList.remove("grand-ready-glow");
+    }
+
+    $("soundIcon").textContent = soundEnabled ? "🔊" : "🔇";
+    $("autoOpenTreeToggle").checked = autoOpenTree;
+
+    renderTree();
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[c]));
+  }
+
+  // ================= EXPORT & RESET =================
+  function resetAll() {
+    openModal({
+      emoji: "⚠️",
+      title: "重新整理任務森林",
+      message: "確定要重新開始嗎？目前的任務清單、已收集的扭蛋道具與魔法樹紀錄都會清空喔！",
+      onConfirm: () => {
+        tasks = [];
+        inventory = [];
+        history = [];
+        doneCount = 0;
+        smallCount = 0;
+        smallTarget = 3 + Math.floor(Math.random() * 5);
+        spinCredits = 0;
+        pendingGrand = false;
+        $("result").classList.add("hidden");
+        save();
+        render();
+        toast("🌱 森林已重新整理，開始新的冒險吧！");
+      }
+    });
+  }
+
+  function exportLog() {
+    const lines = [
+      "=== 任務森林｜扭蛋種樹樂園 紀錄 ===",
+      "匯出時間：" + new Date().toLocaleString("zh-TW"),
+      "已完成任務：" + doneCount,
+      "目前魔法樹階段：" + $("treeLevel").textContent,
+      "收集道具 (" + inventory.length + "件)：" + (inventory.map(x => `${x.icon}${x.name}`).join("、") || "無"),
+      "",
+      "【任務清單】",
+      ...tasks.map(t => `${t.done ? "[完成]" : "[待辦]"} ${"　".repeat(t.level)}${t.name}`)
+    ];
+    const blob = new Blob(["\ufeff" + lines.join("\n")], { type: "text/plain;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "task_forest_record.txt";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast("📥 任務森林紀錄已下載！");
+  }
+
+  // ================= EVENT LISTENERS =================
+  $("addTask").addEventListener("click", addTask);
+  $("taskInput").addEventListener("keydown", e => { if (e.key === "Enter") addTask(); });
+  $("spinBtn").addEventListener("click", spin);
+  $("gachaKnob").addEventListener("click", spin);
+  $("resetBtn").addEventListener("click", resetAll);
+  $("exportBtn").addEventListener("click", exportLog);
+
+  // Clear Completed Tasks
+  $("clearDoneBtn").addEventListener("click", () => {
+    const doneTasks = tasks.filter(t => t.done);
+    if (!doneTasks.length) {
+      toast("目前沒有已完成的任務可清除喔！");
+      return;
+    }
+    tasks = tasks.filter(t => !t.done);
+    render();
+    save();
+    toast(`已清除 ${doneTasks.length} 項已完成任務！`);
+  });
+
+  // Filter Buttons
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      taskFilter = btn.dataset.filter;
+      document.querySelectorAll(".filter-btn").forEach(b => {
+        b.className = "filter-btn px-2.5 py-1 rounded-lg text-[#665566] hover:text-[#463544] transition";
+      });
+      btn.className = "filter-btn px-2.5 py-1 rounded-lg bg-white text-[#cc4352] shadow-sm transition";
+      render();
+    });
+  });
+
+  // Template Bar Toggle & Presets
+  $("templateMenuBtn").addEventListener("click", () => {
+    $("templateBar").classList.toggle("hidden");
+  });
+  document.querySelectorAll(".tpl-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const tpl = taskTemplates[chip.dataset.tpl];
+      if (!tpl) return;
+      tpl.forEach(item => tasks.push({ id: uid(), name: item.name, level: item.level, done: false }));
+      $("templateBar").classList.add("hidden");
+      render();
+      save();
+      toast("✨ 已載入任務範本，勾選完成就能抽扭蛋囉！");
+    });
+  });
+
+  // Drawer Open / Close Triggers
+  $("openTreeBtnTop").addEventListener("click", () => setDrawerOpen(true));
+  $("openTreeBtnBottom").addEventListener("click", () => setDrawerOpen(true));
+  $("sideForestTab").addEventListener("click", () => setDrawerOpen(true));
+  $("viewInTreeBtn").addEventListener("click", () => setDrawerOpen(true));
+  $("closeDrawerBtn").addEventListener("click", () => setDrawerOpen(false));
+  $("backToTaskBtn").addEventListener("click", () => setDrawerOpen(false));
+  $("drawerBackdrop").addEventListener("click", () => setDrawerOpen(false));
+
+  // Sound & Auto-Open Toggles
+  $("soundToggleBtn").addEventListener("click", () => {
+    soundEnabled = !soundEnabled;
+    render();
+    save();
+    toast(soundEnabled ? "🔊 音效已開啟" : "🔇 音效已靜音");
+  });
+  $("autoOpenTreeToggle").addEventListener("change", e => {
+    autoOpenTree = e.target.checked;
+    save();
+  });
+
+  // Tree Drawer Interactions (Sky, Rain, Watering, Shuffle, Tabs)
+  $("tree").addEventListener("click", e => interactWithTree(e, false));
+  $("waterTreeBtn").addEventListener("click", e => interactWithTree(e, true));
+
+  $("shuffleDecorBtn").addEventListener("click", () => {
+    if (!inventory.length) {
+      toast("樹上還沒有裝飾品喔，快去扭蛋吧！");
+      return;
+    }
+    inventory.forEach((item, i) => {
+      item.x = 14 + Math.floor(Math.random() * 68);
+      item.y = 10 + Math.floor(Math.random() * 62);
+    });
+    renderTree();
+    save();
+    playSound("leaf");
+    toast("✨ 已隨機重新佈置魔法樹上的裝飾品！");
+  });
+
+  document.querySelectorAll(".sky-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      skyMode = btn.dataset.sky;
+      document.querySelectorAll(".sky-btn").forEach(b => {
+        b.className = "sky-btn px-2.5 py-1 rounded-lg text-[#665566] transition";
+      });
+      btn.className = "sky-btn px-2.5 py-1 rounded-lg bg-white text-[#9a6400] shadow-sm transition";
+      renderAmbientEffects();
+      save();
+    });
+  });
+
+  $("rainToggleBtn").addEventListener("click", () => {
+    rainActive = !rainActive;
+    $("rainToggleBtn").className = rainActive
+      ? "px-2.5 py-1 rounded-lg bg-[#e6f8fb] text-[#1c7285] shadow-sm transition"
+      : "px-2.5 py-1 rounded-lg text-[#665566] hover:bg-white/60 transition";
+    renderAmbientEffects();
+    save();
+  });
+
+  // Drawer Internal Tabs (Pokedex vs Diary)
+  document.querySelectorAll(".drawer-tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.dtab;
+      document.querySelectorAll(".drawer-tab-btn").forEach(b => {
+        b.className = "drawer-tab-btn px-4 py-2 border-b-4 border-transparent text-[#887584] hover:text-[#463544] font-black text-sm transition";
+      });
+      btn.className = "drawer-tab-btn px-4 py-2 border-b-4 border-[#cc4352] text-[#cc4352] font-black text-sm transition";
+      $("dtab-pokedex").classList.toggle("hidden", target !== "pokedex");
+      $("dtab-diary").classList.toggle("hidden", target !== "diary");
+    });
+  });
+
+  // ================= INITIALIZE =================
+  window.onload = function () {
+    load();
+    if (!smallTarget) smallTarget = 3 + Math.floor(Math.random() * 5);
+    renderGlobeCapsules();
+    render();
+  };
+</script>
+</body>
+</html>
