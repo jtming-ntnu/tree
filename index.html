@@ -16,8 +16,14 @@ button{cursor:pointer}
 html,body{height:100%;overflow:hidden}
 .wrap{max-width:1100px;margin:auto;height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));padding:12px;display:grid;gap:12px;grid-template-columns:1fr;grid-template-rows:auto minmax(0,46dvh) minmax(0,1fr);grid-template-areas:"top" "world" "tasks"}
 @media(min-width:900px){.wrap{grid-template-columns:1.1fr .9fr;grid-template-rows:auto minmax(0,1fr);grid-template-areas:"top top" "tasks world"}}
-@media(max-width:600px){.top p{display:none}h1{font-size:20px}.card{padding:12px}.pill{padding:6px 10px;font-size:14px}.pill-tx{display:none}.meter small{display:none}.meter{margin-top:6px}.gbtn{width:44px;height:44px;font-size:21px}.ibtn{width:34px;height:34px;font-size:15px}.top-l,.top-r{gap:6px}}
-@media(max-height:520px) and (max-width:899px){.wrap{grid-template-rows:auto minmax(0,110px) minmax(0,1fr)}.meter,.tabs{display:none}}
+@media(max-width:600px){
+ .top p{display:none}h1{font-size:20px}.card{padding:12px}.pill{padding:6px 10px;font-size:14px}.pill-tx{display:none}
+ .meter small{display:none}.meter{margin-top:6px}.gbtn{width:44px;height:44px;font-size:21px}.ibtn{width:34px;height:34px;font-size:15px}
+ .top-l,.top-r{gap:6px}.task{gap:5px;padding:8px 7px}.task button{width:26px;height:26px;font-size:13px}.rep-tag.off{width:26px!important;height:26px!important}
+ .hud-tx{display:none}.deco-btn{padding:4px 8px}
+ .add{grid-template-columns:1fr auto auto}.add input{grid-column:1 / -1}
+}
+@media(max-height:520px) and (max-width:899px){.wrap{grid-template-rows:auto minmax(0,110px) minmax(0,1fr)}.meter,.tabs,.world-act{display:none!important}}
 .top{grid-area:top;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
 .top-l,.top-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 h1{margin:0;font-size:26px;color:var(--gd)}
@@ -26,18 +32,33 @@ h1{margin:0;font-size:26px;color:var(--gd)}
 .top p{margin:2px 0 0;color:var(--mut);font-size:14px}
 .pill{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:99px;background:var(--sun);color:#4a3600;font-size:17px}
 .pill.bump{animation:bump .5s}
-.ibtn{width:40px;height:40px;border-radius:50%;border:2px solid var(--line);background:var(--card);font-size:18px;display:grid;place-items:center;transition:transform .15s,border-color .15s}
+.ibtn{position:relative;width:40px;height:40px;border-radius:50%;border:2px solid var(--line);background:var(--card);font-size:18px;display:grid;place-items:center;transition:transform .15s,border-color .15s}
 .ibtn:hover{transform:scale(1.07);border-color:var(--g)}
 .ibtn.off{opacity:.65}
+.ibtn.ready{border-color:var(--sun);animation:wob 1.8s infinite}
+.abdg{position:absolute;right:-5px;top:-5px;min-width:19px;padding:0 5px;border-radius:99px;background:#e8384f;color:#fff;font-size:11px;font-weight:400;line-height:19px;text-align:center}
 .card{background:var(--card);border:2px solid var(--line);border-radius:26px;padding:16px}
 h2{margin:0 0 10px;font-size:19px}
+.task-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.task-head h2{margin:0}
+.mini-tog{border:2px solid var(--line);background:var(--soft);color:var(--mut);border-radius:99px;padding:3px 10px;font-size:12px;display:inline-flex;align-items:center;gap:4px;transition:border-color .15s,background .15s,color .15s}
+.mini-tog.on{border-color:var(--g);background:color-mix(in srgb,var(--g) 12%,var(--card));color:var(--g)}
 #world{grid-area:world;display:flex;flex-direction:column;min-height:0}#tasks{grid-area:tasks;display:flex;flex-direction:column;min-height:0}
 #gacha,#daily,#bk,#stats,#decoPop{text-align:center;position:relative;width:100%;max-width:360px;max-height:94dvh;overflow:auto}
-#stats,#decoPop{max-width:420px}
+#stats,#decoPop{max-width:440px}
 #gov,#dov,#bov,#sov,#decov{z-index:40}
 #bk textarea{display:block;width:100%;margin:8px 0;padding:10px;border-radius:14px;border:2px solid var(--line);background:var(--soft);font-size:12px;word-break:break-all;resize:vertical}#bk h3{margin:18px 0 0;font-size:16px}#bk .btn{width:100%}
 /* scene */
-.scene{position:relative;flex:1;min-height:90px;border-radius:20px;overflow:hidden;background:linear-gradient(#8fd6ff,#e9fbff 64%,#8fd694 64%,#59b06a);user-select:none;touch-action:none;transition:background .8s ease}
+.scene{position:relative;flex:1;min-height:90px;border-radius:20px;overflow:hidden;background:linear-gradient(#8fd6ff,#e9fbff 64%,#8fd694 64%,#59b06a);user-select:none;touch-action:none;transition:background .8s ease,box-shadow .5s ease}
+.scene.star-1{box-shadow:inset 0 0 0 3px #ffc93c,0 0 14px #ffc93c55}
+.scene.star-1 #tree{filter:drop-shadow(0 0 8px #ffb3c7aa) hue-rotate(-14deg) saturate(1.16)}
+.scene.star-1 #pet{filter:drop-shadow(0 0 8px #ffd95acc)}
+.scene.star-2{box-shadow:inset 0 0 0 3px #a78bfa,0 0 16px #a78bfa66}
+.scene.star-2 #tree{filter:drop-shadow(0 0 10px #7ee0adbb) hue-rotate(24deg) saturate(1.25)}
+.scene.star-2 #pet{filter:drop-shadow(0 0 10px #c4b5fdcc)}
+.scene.star-3{box-shadow:inset 0 0 0 3px #ff6f91,0 0 18px #ffc93c88}
+.scene.star-3 #tree{filter:drop-shadow(0 0 12px #ffc93ccc) hue-rotate(-28deg) saturate(1.32) brightness(1.06)}
+.scene.star-3 #pet{filter:drop-shadow(0 0 12px #ff9a9ecc) saturate(1.15)}
 .sun{position:absolute;right:16px;top:10px;font-size:38px;pointer-events:none;z-index:2;transition:transform .4s}
 .cloud{position:absolute;font-size:34px;animation:drift 30s linear infinite;pointer-events:none;z-index:2}
 .hill{position:absolute;bottom:-40px;left:-10%;width:70%;height:110px;border-radius:50%;background:#6cc47b;pointer-events:none;z-index:1;transition:background .8s ease}
@@ -49,13 +70,25 @@ h2{margin:0 0 10px;font-size:19px}
 .wp-rain{position:absolute;top:-16px;width:2px;height:14px;border-radius:2px;background:linear-gradient(transparent,#dff6ff);opacity:.7;animation:rainFall linear infinite}
 .wp-petal{position:absolute;top:-24px;font-size:15px;opacity:.9;animation:petalFall linear infinite}
 .wp-snow{position:absolute;top:-20px;width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 5px #fff;opacity:.85;animation:snowFall linear infinite}
-.scene-hud{position:absolute;left:10px;top:10px;z-index:9;display:flex;flex-wrap:wrap;gap:6px}
-.deco-btn{border:2px solid #ffffffaa;background:#ffffffcc;color:#22352c;border-radius:99px;padding:4px 10px;font-size:12px;display:inline-flex;align-items:center;gap:4px;backdrop-filter:blur(4px);transition:transform .15s}
+.wp-meteor{position:absolute;width:64px;height:2px;border-radius:99px;background:linear-gradient(90deg,transparent,#fff8c4,#ffffff);box-shadow:0 0 8px #ffe484;opacity:0;animation:meteorFall linear infinite}
+.wp-aurora{position:absolute;top:-10%;left:-10%;width:120%;height:58%;background:linear-gradient(120deg,transparent 10%,#38f9d755 32%,#7b6cf666 56%,#ff6f9144 76%,transparent 92%);filter:blur(14px);mix-blend-mode:screen;animation:auroraWave 7s ease-in-out infinite alternate}
+.wp-rainbow{position:absolute;left:50%;top:14%;width:92%;height:78%;transform:translateX(-50%);border-radius:50% 50% 0 0;border:16px solid transparent;box-shadow:inset 0 0 0 4px #ff6f9155,inset 0 0 0 8px #ffc93c55,inset 0 0 0 12px #8fe08f55,inset 0 0 0 16px #6fd0ff55,inset 0 0 0 20px #b78cff55;opacity:.75;pointer-events:none}
+.wp-sparkle{position:absolute;font-size:13px;opacity:.85;animation:twinkle 1.8s ease-in-out infinite alternate}
+.scene-hud{position:absolute;left:10px;top:10px;z-index:9;display:flex;flex-wrap:nowrap;gap:6px;max-width:calc(100% - 62px)}
+.deco-btn{border:2px solid #ffffffaa;background:#ffffffcc;color:#22352c;border-radius:99px;padding:4px 10px;font-size:12px;display:inline-flex;align-items:center;gap:4px;backdrop-filter:blur(4px);transition:transform .15s;white-space:nowrap}
 .deco-btn:hover{transform:scale(1.05)}
-#tree{position:absolute;left:2%;bottom:0;width:60%;height:100%;transform-origin:50% 92%;cursor:pointer;z-index:2}
+.world-act{display:none;gap:8px;margin-top:8px;flex-wrap:wrap}
+.world-act.on{display:flex}
+.wact-btn{flex:1;min-width:140px;border:2px solid var(--line);border-radius:14px;padding:6px 12px;font-size:13px;display:inline-flex;align-items:center;justify-content:center;gap:5px;transition:transform .15s}
+.wact-btn:hover{transform:translateY(-1px)}
+.wact-btn.ascend{background:linear-gradient(135deg,#fff3b0,#ffd166);border-color:#ff9f1c;color:#4a3000;box-shadow:0 2px 0 #e09f1c}
+.wact-btn.grow-pick{background:color-mix(in srgb,var(--g) 14%,var(--card));border-color:var(--g);color:var(--g);box-shadow:0 2px 0 var(--gd)}
+#tree{position:absolute;left:2%;bottom:0;width:60%;height:100%;transform-origin:50% 92%;cursor:pointer;z-index:2;transition:filter .5s ease}
 #tree.boing{animation:boing .6s}
-#pet{position:absolute;right:9%;bottom:18px;line-height:1;cursor:pointer;transform-origin:bottom;animation:bob 1.7s ease-in-out infinite;transition:font-size .4s;z-index:5}
+#pet{position:absolute;right:9%;bottom:18px;line-height:1;cursor:pointer;transform-origin:bottom;animation:bob 1.7s ease-in-out infinite;transition:font-size .4s,filter .5s ease;z-index:5;display:inline-flex;align-items:center;justify-content:center}
 #pet.hop{animation:hop .7s}
+.pet-hat{position:absolute;top:-0.42em;left:50%;transform:translateX(-50%);font-size:0.52em;pointer-events:none;filter:drop-shadow(0 2px 3px #0004);line-height:1}
+.pet-hat.shades{top:0.18em;font-size:0.46em}
 #tree:focus-visible,#pet:focus-visible{outline:3px solid var(--lil);outline-offset:2px;border-radius:14px}
 .bubble{position:absolute;right:4%;top:50px;max-width:56%;padding:7px 12px;border-radius:14px;background:#fff;color:#22352c;font-size:13px;line-height:1.4;opacity:0;transform:translateY(6px);transition:.25s;pointer-events:none;z-index:8;box-shadow:0 4px 12px #0002}
 .bubble.on{opacity:1;transform:none}
@@ -68,16 +101,19 @@ h2{margin:0 0 10px;font-size:19px}
 .m-tree i{background:linear-gradient(90deg,#8fe08f,#2f9e6e)}.m-pet i{background:linear-gradient(90deg,#ffd36b,#ff8a4c)}
 .meter small{grid-column:2;color:var(--mut)}
 /* tasks */
-.add{display:grid;grid-template-columns:1fr auto auto;gap:8px}
-.add input,.add select{padding:10px 12px;border-radius:14px;border:2px solid var(--line);background:var(--soft)}
+.add{display:grid;grid-template-columns:1fr auto auto auto;gap:7px;align-items:center}
+.add input,.add select{padding:10px 12px;border-radius:14px;border:2px solid var(--line);background:var(--soft);min-width:0}
 .add input:focus,.add select:focus{outline:3px solid var(--lil);border-color:transparent}
+.add-rep{padding:9px 10px;border-radius:14px;border:2px solid var(--line);background:var(--soft);color:var(--mut);font-size:13px;white-space:nowrap;transition:border-color .15s,background .15s,color .15s}
+.add-rep.on{border-color:var(--g);background:color-mix(in srgb,var(--g) 15%,var(--card));color:var(--g)}
 .btn{padding:10px 18px;border:0;border-radius:14px;background:var(--g);color:#fff;font-size:16px;box-shadow:0 4px 0 var(--gd);transition:transform .1s,box-shadow .1s}
 .btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--gd)}
 .btn:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--lil);outline-offset:2px}
 .hint{display:none;margin:8px 0 0;font-size:13px;color:var(--lil)}.hint.on{display:block}
 .hint button{border:0;background:none;color:inherit;text-decoration:underline}
 #list{margin-top:12px;display:grid;align-content:start;gap:7px;flex:1;min-height:0;overflow:auto;padding:2px}
-.task{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:16px;border:2px solid var(--line);background:var(--soft);animation:pop .3s}
+.task{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:16px;border:2px solid var(--line);background:var(--soft);animation:pop .3s;margin-left:calc(var(--lv,0) * 20px)}
+@media(max-width:600px){.task{margin-left:calc(var(--lv,0) * 12px)}}
 .task.l0{border-color:var(--lil);background:color-mix(in srgb,var(--lil) 10%,var(--card))}
 .task.l1{border-color:#7fd1a5}
 .task.l2{border-style:dashed}
@@ -86,10 +122,16 @@ h2{margin:0 0 10px;font-size:19px}
 .nm{flex:1;min-width:0;overflow-wrap:anywhere;cursor:text}
 .nm-edit{flex:1;min-width:0;padding:2px 8px;border-radius:8px;border:2px solid var(--lil);background:var(--card)}
 .l0 .nm{font-size:17px}.l2 .nm{font-size:14px}
-.cnt{font-style:normal;font-size:12px;padding:1px 8px;border-radius:9px;background:var(--card);border:1px solid var(--line)}
+.cnt{font-style:normal;font-size:12px;padding:1px 8px;border-radius:9px;background:var(--card);border:1px solid var(--line);white-space:nowrap}
+.rep-tag{border:1px solid var(--g)!important;background:color-mix(in srgb,var(--g) 12%,var(--card))!important;color:var(--g)!important;width:auto!important;height:24px!important;padding:0 7px!important;border-radius:99px!important;font-size:11px!important;white-space:nowrap}
+.rep-tag.off{border:1px solid var(--line)!important;background:var(--card)!important;color:var(--mut)!important;width:28px!important;height:28px!important;padding:0!important;border-radius:10px!important;font-size:13px!important;opacity:.65}.rep-tag.off:hover{opacity:1;border-color:var(--g)!important;background:color-mix(in srgb,var(--g) 15%,var(--card))!important;color:var(--g)!important}.task button.del-cfm{width:auto;padding:0 8px;background:var(--pink);color:#fff;font-size:12px;white-space:nowrap;animation:pop .2s}
+.fold-btn{width:24px!important;height:24px!important;font-size:12px!important;border-radius:8px!important;background:transparent!important}
+.fold-btn:hover{background:var(--line)!important;color:var(--ink)!important}
 .rw{font-size:12px;color:var(--mut);white-space:nowrap}
-.task button{border:0;background:var(--card);border-radius:10px;width:28px;height:28px;color:var(--mut)}
+.task button{border:0;background:var(--card);border-radius:10px;width:28px;height:28px;color:var(--mut);flex:none;display:grid;place-items:center}
 .task button:hover{background:var(--pink);color:#fff}
+.task button[data-a="edit"]:hover{background:var(--lil);color:#fff}
+.task button[data-a="sub"]:hover{background:var(--g);color:#fff}
 .empty{text-align:center;color:var(--mut);padding:26px 0}
 .foot{margin-top:10px;font-size:13px;color:var(--mut);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}.fa{display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-end}
 .foot button{border:0;background:none;color:var(--mut);text-decoration:underline}
@@ -112,7 +154,8 @@ h2{margin:0 0 10px;font-size:19px}
 .odds{margin:10px 0 0;font-size:13px;color:var(--mut)}
 .gbtn{position:relative;width:52px;height:52px;border-radius:50%;border:3px solid var(--pink);background:var(--card);font-size:25px;display:grid;place-items:center;box-shadow:0 4px 0 #b3314f;transition:transform .15s}.gbtn:hover{transform:rotate(-8deg) scale(1.08)}.gbtn.ready{animation:wob 1.8s infinite}.gbtn b{position:absolute;right:-6px;top:-6px;min-width:22px;padding:0 6px;border-radius:99px;background:var(--pink);color:#fff;font-size:13px;font-weight:400;line-height:22px}.gx{position:absolute;right:12px;top:10px;border:0;background:var(--soft);width:32px;height:32px;border-radius:50%;color:var(--mut)}
 @keyframes wob{0%,70%,100%{transform:none}78%{transform:rotate(-12deg)}86%{transform:rotate(12deg)}94%{transform:rotate(-6deg)}}
-.tabs{display:flex;gap:6px;margin-top:8px}.sc{flex:1;border:2px solid var(--line);background:var(--soft);border-radius:14px;padding:3px 0;font-size:20px;line-height:1.2}.sc small{display:block;font-size:11px;color:var(--mut)}.sc.on{border-color:var(--g);background:var(--card);box-shadow:0 3px 0 var(--g)}.sc:disabled{opacity:.5;cursor:not-allowed}
+.tabs{display:flex;gap:6px;margin-top:8px}.sc{position:relative;flex:1;border:2px solid var(--line);background:var(--soft);border-radius:14px;padding:3px 0;font-size:20px;line-height:1.2}.sc small{display:block;font-size:11px;color:var(--mut)}.sc.on{border-color:var(--g);background:var(--card);box-shadow:0 3px 0 var(--g)}.sc:disabled{opacity:.5;cursor:not-allowed}
+.sc .st-tag{position:absolute;right:4px;top:2px;font-size:10px;padding:0 5px;border-radius:99px;background:var(--sun);color:#4a3000;line-height:1.5}
 .gbtn.d{border-color:var(--g);box-shadow:0 4px 0 var(--gd)}.gbtn.d b{background:#e8384f}
 .q{display:grid;grid-template-columns:auto 1fr auto;gap:4px 12px;align-items:center;text-align:left;padding:12px;margin-top:10px;border:2px solid var(--line);border-radius:18px;background:var(--soft)}.q .e{font-size:30px}.q p{margin:0;color:var(--mut);font-size:13px}.q.ok{opacity:.6}.q .btn{padding:8px 14px;font-size:15px}.q .btn:disabled{opacity:.5;box-shadow:none}
 .cl{border:2px solid var(--line);background:var(--card);border-radius:99px;padding:5px 11px;font-size:13px;color:var(--mut)}.cl[data-s=ok]{border-color:var(--g);color:var(--g)}.cl[data-s=sync]{border-color:var(--sun)}.cl[data-s=off]{border-style:dashed}
@@ -122,17 +165,23 @@ h2{margin:0 0 10px;font-size:19px}
 .sbox{background:var(--soft);border:2px solid var(--line);border-radius:16px;padding:10px 8px;text-align:center}
 .sbox b{display:block;font-size:22px;color:var(--g)}
 .sbox small{font-size:12px;color:var(--mut)}
-.ach-h{margin:16px 0 8px;font-size:16px;text-align:left;display:flex;justify-content:space-between;align-items:center}
+.ach-h{margin:16px 0 8px;font-size:16px;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ach-all{border:0;border-radius:99px;background:var(--sun);color:#4a3000;padding:4px 11px;font-size:12px;box-shadow:0 2px 0 #c98a00}
 .ach-list{display:grid;gap:7px;text-align:left}
-.ach{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:16px;border:2px solid var(--line);background:var(--soft);opacity:.55}
+.ach{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:16px;border:2px solid var(--line);background:var(--soft);opacity:.6}
 .ach.ok{opacity:1;border-color:var(--g);background:color-mix(in srgb,var(--g) 10%,var(--card))}
+.ach.claim{opacity:1;border-color:var(--sun);background:color-mix(in srgb,var(--sun) 16%,var(--card))}
 .ach .ae{font-size:26px;flex:none}
 .ach .at{flex:1;min-width:0}
 .ach .at b{display:block;font-size:14px}
 .ach .at small{display:block;font-size:12px;color:var(--mut)}
-.ach .st{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--card);border:1px solid var(--line);white-space:nowrap}
+.ach .st{font-size:12px;padding:3px 9px;border-radius:99px;background:var(--card);border:1px solid var(--line);white-space:nowrap}
 .ach.ok .st{background:var(--g);color:#fff;border-color:var(--g)}
-/* deco modal */
+.ach .claim-btn{border:0;border-radius:99px;background:var(--sun);color:#4a3000;padding:5px 11px;font-size:12px;white-space:nowrap;box-shadow:0 2px 0 #c98a00}
+/* collection modal */
+.ctabs{display:flex;gap:6px;margin-top:10px}
+.ctab{flex:1;padding:7px 6px;border-radius:12px;border:2px solid var(--line);background:var(--soft);font-size:13px;color:var(--mut)}
+.ctab.on{border-color:var(--g);background:var(--card);color:var(--g);box-shadow:0 2px 0 var(--g)}
 .dsec{margin-top:14px;text-align:left}
 .dsec-h{font-size:14px;margin:0 0 6px;display:flex;justify-content:space-between;align-items:center;color:var(--ink)}
 .dsec-h small{font-size:12px;color:var(--mut)}
@@ -143,7 +192,7 @@ h2{margin:0 0 10px;font-size:19px}
 .dcard.on{border-color:var(--g);background:color-mix(in srgb,var(--g) 12%,var(--card));box-shadow:0 3px 0 var(--g)}
 .dcard.lock{opacity:.48;cursor:not-allowed}
 .dcard small{font-size:11px;color:var(--mut)}
-/* popup */
+/* popup & toasts */
 .ov{position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:50;padding:16px}.ov.on{display:grid}
 .box{background:var(--card);border-radius:30px;padding:26px 24px;text-align:center;max-width:340px;width:100%;max-height:94dvh;overflow:auto;animation:pop .45s cubic-bezier(.3,1.6,.5,1)}
 .box .big{font-size:84px;line-height:1.1;animation:bob 1.2s ease-in-out infinite}
@@ -153,11 +202,15 @@ h2{margin:0 0 10px;font-size:19px}
 #toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;transition:.3s;z-index:60;max-width:92%;display:inline-flex;align-items:center;gap:10px;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 #toast button{border:0;background:var(--sun);color:#4a3600;padding:3px 10px;border-radius:99px;font-size:13px;white-space:nowrap}
+#achToast{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translate(-50%,-130px);opacity:0;background:linear-gradient(135deg,#fff5c0,#ffd166);color:#4a3000;border:2px solid #ff9f1c;padding:9px 16px;border-radius:99px;box-shadow:0 8px 20px #0003;transition:.35s cubic-bezier(.3,1.4,.5,1);z-index:65;max-width:92%;display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:14px}
+#achToast.on{opacity:1;transform:translate(-50%,0)}
 @keyframes drift{from{left:-15%}to{left:110%}}
 @keyframes twinkle{from{opacity:.25;transform:scale(.8)}to{opacity:1;transform:scale(1.25)}}
 @keyframes rainFall{0%{transform:translate(0,0) rotate(12deg)}100%{transform:translate(-28px,380px) rotate(12deg)}}
 @keyframes petalFall{0%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(22px,180px) rotate(160deg)}100%{transform:translate(-16px,380px) rotate(320deg)}}
 @keyframes snowFall{0%{transform:translate(0,0)}50%{transform:translate(16px,180px)}100%{transform:translate(-12px,380px)}}
+@keyframes meteorFall{0%{transform:translate(0,0) rotate(-32deg);opacity:0}12%{opacity:1}70%{opacity:.9}100%{transform:translate(-240px,150px) rotate(-32deg);opacity:0}}
+@keyframes auroraWave{0%{transform:translateX(-6%) skewX(-8deg) scaleY(.92);opacity:.65}50%{transform:translateX(6%) skewX(8deg) scaleY(1.08);opacity:.95}100%{transform:translateX(-3%) skewX(-4deg) scaleY(.96);opacity:.75}}
 @keyframes bob{50%{transform:translateY(-7px)}}
 @keyframes hop{30%{transform:translateY(-40px) scale(1.1,.9)}60%{transform:scale(1.1,.9)}}
 @keyframes boing{30%{transform:scale(1.1,.88)}60%{transform:scale(.94,1.1)}}
@@ -176,7 +229,7 @@ h2{margin:0 0 10px;font-size:19px}
   <header class="top">
     <div class="top-l">
       <button class="gbtn d" id="dOpen" aria-label="開啟每日任務" title="每日任務">📅<b id="dBadge">0</b></button>
-      <button class="ibtn" id="statOpen" aria-label="開啟森林紀錄" title="森林紀錄與成就">🏆</button>
+      <button class="ibtn" id="statOpen" aria-label="開啟森林紀錄" title="森林紀錄與成就">🏆<b class="abdg" id="aBadge" style="display:none">0</b></button>
       <div><h1>任務森林</h1><p>完成任務、扭蛋，培育四個場景的植物與夥伴</p></div>
     </div>
     <div class="top-r">
@@ -191,9 +244,9 @@ h2{margin:0 0 10px;font-size:19px}
   <section class="card" id="world">
     <div class="scene" id="sceneBox">
       <div class="scene-hud">
-        <button class="deco-btn" id="decoOpen" title="查看與擺放場景裝飾品">🎨 裝飾 <span id="decoCnt">0/12</span></button>
-        <button class="deco-btn" id="timeBtn" title="目前時段（點一下可預覽不同時段）">☀️ 白天</button>
-        <button class="deco-btn" id="wxBtn" title="目前天氣（點一下可切換天氣）">🌤️ 晴朗</button>
+        <button class="deco-btn" id="decoOpen" title="查看與穿戴裝飾品、頭飾與限定天氣">🎨 <span class="hud-tx">收藏 </span><span id="decoCnt">0/21</span></button>
+        <button class="deco-btn" id="timeBtn" title="目前時段（點一下可預覽不同時段）"><span id="timeIc">☀️</span><span class="hud-tx" id="timeTx"> 白天</span></button>
+        <button class="deco-btn" id="wxBtn" title="目前天氣（點一下可切換天氣）"><span id="wxIc">🌤️</span><span class="hud-tx" id="wxTx"> 晴朗</span></button>
       </div>
       <div id="starLayer"></div>
       <div class="sun" id="sun">☀️</div>
@@ -203,24 +256,32 @@ h2{margin:0 0 10px;font-size:19px}
       <div id="decoLayer"></div>
       <div id="tree" tabindex="0" role="button" aria-label="戳戳小樹" title="戳戳小樹"></div>
       <div class="bubble" id="bub"></div>
-      <div id="pet" tabindex="0" role="button" aria-label="摸摸毛孩" title="摸摸毛孩"></div>
+      <div id="pet" tabindex="0" role="button" aria-label="摸摸毛孩" title="摸摸毛孩"><span id="petHat" class="pet-hat"></span><span id="petBody"></span></div>
       <div id="weatherLayer"></div>
     </div>
     <div class="tabs" id="tabs"></div>
+    <div class="world-act" id="worldAct">
+      <button class="wact-btn ascend" id="ascendBtn" style="display:none" title="重置此場景成長條並晉升星級，解鎖隱藏光環與星級徽章">⭐ 升星轉生</button>
+      <button class="wact-btn grow-pick" id="growPickBtn" style="display:none" title="切換扭蛋機目前培育的目標場景">🌱 設為扭蛋培育目標</button>
+    </div>
     <div class="meter m-tree"><b id="tName">🌱 種子</b><div class="bar"><i id="tBar"></i></div><small id="tTxt"></small></div>
     <div class="meter m-pet"><b id="pName">🥚 神祕蛋</b><div class="bar"><i id="pBar"></i></div><small id="pTxt"></small></div>
   </section>
 
   <section class="card" id="tasks">
-    <h2>我的任務</h2>
+    <div class="task-head">
+      <h2>我的任務</h2>
+      <button class="mini-tog on" id="sinkBtn" title="開啟時，已完成的任務會自動排到下方">⬇️ 已完成沉底</button>
+    </div>
     <div class="add">
       <input id="inp" maxlength="60" placeholder="寫下一個任務，按 Enter 新增" aria-label="任務名稱">
       <select id="lv" aria-label="任務層級"><option value="0">🌳 大任務</option><option value="1" selected>🌿 小任務</option><option value="2">🍃 子任務</option></select>
+      <button type="button" class="add-rep" id="repBtn" aria-pressed="false" title="開啟後，此任務每天 0 點會自動重置為未完成（習慣模式）">🔁 每日</button>
       <button class="btn" id="addBtn">新增</button>
     </div>
     <p class="hint" id="hint"></p>
     <div id="list"></div>
-    <div class="foot"><span>大任務 +3、小任務 +2、子任務 +1 張券（雙擊名稱可編輯）</span><span class="fa"><button id="bkOpen">備份／還原</button><button id="clrDone">清除已完成</button><button id="clrAll">清空清單</button><button id="reset">重新開始</button></span></div>
+    <div class="foot"><span>大任務 +3、小任務 +2、子任務 +1 張券（點 ✏️ 編輯、🔁 切換每日習慣）</span><span class="fa"><button id="bkOpen">備份／還原</button><button id="clrDone">清除已完成</button><button id="clrAll">清空清單</button><button id="reset">重新開始</button></span></div>
   </section>
 
   <div class="ov" id="gov"><section class="card" id="gacha" role="dialog" aria-label="森林扭蛋機">
@@ -239,7 +300,7 @@ h2{margin:0 0 10px;font-size:19px}
 <div class="ov" id="bov"><section class="card" id="bk" role="dialog" aria-label="備份與還原">
   <button class="gx" id="bClose" aria-label="關閉備份視窗">✕</button>
   <h2>備份與還原</h2>
-  <p class="odds">備份碼包含所有任務、培育進度與裝飾品，貼到另一台裝置就能還原。</p>
+  <p class="odds">備份碼包含所有任務、習慣設定、培育進度、星級、成就、裝飾品、頭飾與限定天氣，貼到另一台裝置就能還原。</p>
   <textarea id="bkOut" readonly rows="3" aria-label="備份碼"></textarea>
   <button class="btn" id="bCopy">複製備份碼</button>
   <h3>還原進度</h3>
@@ -258,14 +319,19 @@ h2{margin:0 0 10px;font-size:19px}
   <button class="gx" id="sClose" aria-label="關閉森林紀錄">✕</button>
   <h2>🏆 森林紀錄</h2>
   <div class="sgrid" id="sGrid"></div>
-  <div class="ach-h"><span>成就牆</span><small id="achCnt" style="color:var(--mut)"></small></div>
+  <div class="ach-h"><span>成就牆 <small id="achCnt" style="color:var(--mut);font-size:12px"></small></span><button class="ach-all" id="achClaimAll" style="display:none">一鍵領取全部</button></div>
   <div class="ach-list" id="achList"></div>
 </section></div>
 
-<div class="ov" id="decov"><section class="card" id="decoPop" role="dialog" aria-label="場景裝飾品圖鑑">
-  <button class="gx" id="decoClose" aria-label="關閉裝飾品視窗">✕</button>
-  <h2 id="decoTitle">🎨 場景裝飾品圖鑑</h2>
-  <p class="odds" id="decoSub">四個場景全部培育完成後，扭蛋就能抽到專屬裝飾品！點選已解鎖小物可擺放或收回，也能直接在場景中拖曳移動位置。</p>
+<div class="ov" id="decov"><section class="card" id="decoPop" role="dialog" aria-label="森林收藏圖鑑">
+  <button class="gx" id="decoClose" aria-label="關閉收藏視窗">✕</button>
+  <h2 id="decoTitle">🎨 森林收藏圖鑑</h2>
+  <div class="ctabs" id="cTabs">
+    <button class="ctab on" data-ct="deco">🎨 場景裝飾</button>
+    <button class="ctab" data-ct="hat">👑 夥伴頭飾</button>
+    <button class="ctab" data-ct="wx">🌠 限定天氣</button>
+  </div>
+  <p class="odds" id="decoSub"></p>
   <div id="decoGrid"></div>
 </section></div>
 
@@ -274,6 +340,7 @@ h2{margin:0 0 10px;font-size:19px}
   <button class="btn" id="pOk" style="margin-top:14px">收下！</button>
 </div></div>
 <div id="toast" role="status"></div>
+<div id="achToast" role="status" title="點一下前往領取成就獎勵"></div>
 
 <script>
 const $=id=>document.getElementById(id);
@@ -300,6 +367,21 @@ const DECOS=[
  {id:"cabin",sc:3,i:"🏠",n:"暖爐木屋",x:22,y:70,c:"#d98a5b"},
  {id:"aurora",sc:3,i:"🌌",n:"極光緞帶",x:48,y:22,c:"#7b6cf6"}
 ];
+const HATS=[
+ {id:"crown",i:"👑",n:"黃金皇冠",c:"#ffc93c"},
+ {id:"shades",i:"🕶️",n:"酷炫墨鏡",c:"#4a5568"},
+ {id:"ribbon",i:"🎀",n:"可愛蝴蝶結",c:"#ff6f91"},
+ {id:"tophat",i:"🎩",n:"紳士禮帽",c:"#7b6cf6"},
+ {id:"flower",i:"🌺",n:"熱帶花環",c:"#ff8a4c"},
+ {id:"halo",i:"😇",n:"天使光環",c:"#6fd0ff"}
+];
+const SPECIAL_WX=[
+ {id:"meteor",i:"🌠",n:"流星雨",c:"#ffd95a"},
+ {id:"aurora",i:"🌌",n:"極光之夜",c:"#7b6cf6"},
+ {id:"rainbow",i:"🌈",n:"彩虹微風",c:"#ff9a9e"}
+];
+const TOTAL_COLL=DECOS.length+HATS.length+SPECIAL_WX.length;
+
 const TREE_LINES=[
  "沙沙～你每一次努力，都在悄悄替未來扎根喔。",
  "風吹過葉子的聲音，是在替認真的你拍拍手！",
@@ -320,14 +402,17 @@ const WX_CFG={
  clear:{n:"晴朗",ic:"🌤️"},
  rain:{n:"微雨",ic:"🌧️"},
  petal:{n:"飄花瓣",ic:"🌸"},
- snow:{n:"下小雪",ic:"❄️"}
+ snow:{n:"下小雪",ic:"❄️"},
+ meteor:{n:"流星雨",ic:"🌠",special:true},
+ aurora:{n:"極光之夜",ic:"🌌",special:true},
+ rainbow:{n:"彩虹微風",ic:"🌈",special:true}
 };
 const TIME_ORDER=["auto","dawn","day","dusk","night"];
-const WX_ORDER=["clear","rain","petal","snow"];
-let timeMode="auto",curWeather="clear",wxManual=false;
+const BASE_WX=["clear","rain","petal","snow"];
+let timeMode="auto",curWeather="clear",wxManual=false,colTab="deco",newRepeat=false;
 
 const TT=[2,5,9,14],PT=[2,6,12],MUL=[1,1.4,1.8,2.2];
-const th=(i,a)=>a.map(x=>Math.round(x*MUL[i]));
+const th=(i,a,st=0)=>a.map(x=>Math.round(x*MUL[i]*(1+Math.min(st,5)*0.2)));
 const PS=[46,54,64,78];
 const SC=[
 {n:"森林",ic:"🌳",pl:"小樹",pn:"孔雀",skyTop:"#8fd6ff,#e9fbff 64%",ground:"#8fd694 64%,#59b06a",hill:"#6cc47b",sun:"☀️",dc:"☁️",wxPool:["clear","clear","rain","petal"],svg:treeSVG,P:["🌱 種子","🌿 嫩芽","🌳 小樹苗","🌲 綠蔭樹","🌸 開花神木"],A:["🥚","🐣","🐥","🦚"],AN:["神祕蛋","破殼寶寶","活力小雞","孔雀王"],
@@ -379,11 +464,25 @@ const SC=[
   h:["今天完成了 {n} 項任務，真的非常努力，該給自己一個溫暖的擁抱了。","{n} 項任務都完成了！今晚可以安心在雪光下好好放鬆囉。","謝謝你今天這麼照顧自己的目標，完成 {n} 件事真的很了不起。","辛苦了，今天已經足夠閃耀，剩下的交給明天的自己就好。"]
  }}
 ];
-function fresh(){return{tasks:[],tickets:1,sc:[0,1,2,3].map(()=>({p:0,a:0})),grow:0,view:0,pulls:0,dry:0,done:0,decos:[],placed:{},daily:{d:"",signed:false,small:false,claimed:false,streak:0,maxStreak:0,last:"",todayDone:0,maxToday:0}}}
+function fresh(){
+ return{
+  tasks:[],tickets:1,
+  sc:[0,1,2,3].map(()=>({p:0,a:0})),
+  stars:[0,0,0,0],
+  unlocked:0,grow:0,view:0,allEverDone:false,
+  pulls:0,dry:0,done:0,
+  decos:[],placed:{},
+  hats:[],equippedHat:{},
+  specialWx:[],
+  achClaimed:[],
+  wxPref:{manual:false,wx:"clear",time:"auto"},
+  daily:{d:"",signed:false,small:false,claimed:false,streak:0,maxStreak:0,last:"",todayDone:0,maxToday:0}
+ };
+}
 let S=fresh(),lastK="",lastI=null;
 let parent=null,busy=false;
 const KEY="taskForestV2",PKEY="taskForestPrefs";
-let prefs={theme:"auto",muted:false};
+let prefs={theme:"auto",muted:false,sinkDone:true};
 try{const pr=localStorage.getItem(PKEY);if(pr)prefs=Object.assign(prefs,JSON.parse(pr))}catch(e){}
 function savePrefs(){try{localStorage.setItem(PKEY,JSON.stringify(prefs))}catch(e){}}
 function isDarkNow(){return prefs.theme==="dark"||(prefs.theme==="auto"&&matchMedia("(prefers-color-scheme:dark)").matches)}
@@ -394,7 +493,10 @@ function applyPrefs(){
  $("themeBtn").title=isDarkNow()?"切換為淺色模式":"切換為深色模式";
  $("muteBtn").textContent=prefs.muted?"🔇":"🔊";
  $("muteBtn").classList.toggle("off",prefs.muted);
- $("muteBtn").title=prefs.muted?"目前靜音（點一下開啟音效）":"目前有聲（點一下靜音）"}
+ $("muteBtn").title=prefs.muted?"目前靜音（點一下開啟音效）":"目前有聲（點一下靜音）";
+ $("sinkBtn").classList.toggle("on",!!prefs.sinkDone);
+ $("sinkBtn").textContent=prefs.sinkDone?"⬇️ 已完成沉底":"↕️ 原始排序";
+}
 
 let lastSer="",cloud=null,syncT=null,syncing=false,dirty=false,pend=false;
 const ser=()=>{const{savedAt,...r}=S;return JSON.stringify(r)};
@@ -408,10 +510,26 @@ async function push(){
  syncing=true;
  try{await cloud.set({savedAt:S.savedAt,json:JSON.stringify(S)});if(!pend)dirty=false;setCloud("ok")}catch(e){setCloud("off")}
  syncing=false;if(pend){pend=false;schedCloud()}}
+
+function applySavedAtmosphere(){
+ const wp=S.wxPref||{manual:false,wx:"clear",time:"auto"};
+ timeMode=TIME_ORDER.includes(wp.time)?wp.time:"auto";
+ const avail=availWxList();
+ if(wp.manual&&avail.includes(wp.wx)){
+  wxManual=true;curWeather=wp.wx;
+ }else{
+  wxManual=false;rollWeather(S.view);
+ }
+}
+function syncWxPref(){
+ S.wxPref={manual:wxManual,wx:curWeather,time:timeMode};
+}
+
 function normalize(o){
  const base=fresh();
  const m=Object.assign(base,o);
  m.daily=Object.assign(base.daily,o.daily||{});
+ m.wxPref=Object.assign(base.wxPref,o.wxPref||{});
  const scBase=[0,1,2,3].map(()=>({p:0,a:0}));
  if(Array.isArray(o.sc)){
   for(let i=0;i<4;i++){
@@ -423,18 +541,30 @@ function normalize(o){
  m.sc=scBase;
  if(o.tree!==undefined&&!o.sc)m.sc[0]={p:Math.max(0,+o.tree||0),a:Math.max(0,+o.pet||0)};
  delete m.tree;delete m.pet;
+ const stBase=[0,0,0,0];
+ if(Array.isArray(o.stars)){for(let i=0;i<4;i++)stBase[i]=Math.max(0,Math.floor(+o.stars[i]||0))}
+ m.stars=stBase;
  if(!Array.isArray(m.tasks))m.tasks=[];
+ else m.tasks=m.tasks.map(t=>({id:t.id||uid(),name:String(t.name||""),level:Math.max(0,Math.min(2,+t.level||0)),done:!!t.done,repeat:!!t.repeat,collapsed:!!t.collapsed}));
  if(!Array.isArray(m.decos))m.decos=[];
  if(!m.placed||typeof m.placed!=="object")m.placed={};
+ if(!Array.isArray(m.hats))m.hats=[];
+ if(!m.equippedHat||typeof m.equippedHat!=="object")m.equippedHat={};
+ if(!Array.isArray(m.specialWx))m.specialWx=[];
+ if(!Array.isArray(m.achClaimed))m.achClaimed=[];
  m.grow=Math.max(0,Math.min(3,+m.grow||0));
- m.view=Math.max(0,Math.min(m.grow,+m.view||0));
+ m.unlocked=Math.max(m.grow,Math.min(3,o.unlocked!==undefined?(+o.unlocked||0):m.grow));
+ m.view=Math.max(0,Math.min(m.unlocked,+m.view||0));
+ const allMaxNow=[0,1,2,3].every(i=>stage(m.sc[i].p,th(i,TT,m.stars[i]))>=4&&stage(m.sc[i].a,th(i,PT,m.stars[i]))>=3);
+ m.allEverDone=!!(o.allEverDone||allMaxNow||m.stars.some(x=>x>0)||m.decos.length>0||m.hats.length>0||m.specialWx.length>0);
+ if(m.allEverDone)m.unlocked=3;
  m.daily.maxStreak=Math.max(m.daily.maxStreak||0,m.daily.streak||0);
  m.daily.maxToday=Math.max(m.daily.maxToday||0,m.daily.todayDone||0);
  return m}
 function adopt(d){
- try{const o=JSON.parse(d.json);S=normalize(o);S.savedAt=d.savedAt;lastSer=ser();
+ try{const o=JSON.parse(d.json);S=normalize(o);S.savedAt=d.savedAt;applySavedAtmosphere();lastSer=ser();
   try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
-  renderAll();toast("已載入雲端最新進度");return true}catch(e){return false}}
+  renderAll(true);toast("已載入雲端最新進度");return true}catch(e){return false}}
 async function pull(){
  const sn=await tmo(cloud.get(),10000);if(!sn.exists)return"none";
  const d=sn.data(),l=S.savedAt||0;
@@ -455,7 +585,8 @@ $("cloudSt").onclick=()=>{
  pull().then(r=>r==="local"||r==="none"?push():setCloud("ok")).catch(()=>setCloud("off"))};
 document.addEventListener("visibilitychange",()=>{
  if(!document.hidden){
-  dayCheck();dailyBadge();renderAtmosphere();
+  if(dayCheck()){renderTasks();save()}
+  dailyBadge();renderAtmosphere();
   if($("dov").classList.contains("on"))renderDaily();
   if(cloud&&!dirty&&!syncing&&!busy)pull().then(()=>setCloud("ok")).catch(()=>{});
  }
@@ -463,7 +594,7 @@ document.addEventListener("visibilitychange",()=>{
 function load(){try{const r=localStorage.getItem(KEY);if(r){S=normalize(JSON.parse(r));return true}}catch(e){}return false}
 const uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const stage=(xp,th)=>th.filter(x=>xp>=x).length;
+const stage=(xp,thArr)=>thArr.filter(x=>xp>=x).length;
 
 let audioCtx=null;
 function tone(f){
@@ -485,7 +616,7 @@ function tone(f){
  }catch(e){}
 }
 function fx(x,y,em,n=9){for(let i=0;i<n;i++){const s=document.createElement("span"),a=Math.PI*2*i/n,d=50+Math.random()*60;s.className="fx";s.textContent=em[i%em.length];s.style.left=x+"px";s.style.top=y+"px";s.style.setProperty("--x",Math.cos(a)*d+"px");s.style.setProperty("--y",Math.sin(a)*d-24+"px");s.style.setProperty("--r",Math.random()*240-120+"deg");document.body.appendChild(s);setTimeout(()=>s.remove(),1000)}}
-let tt;
+let tt,achT;
 function toast(m,undoFn){
  const t=$("toast");
  t.innerHTML="<span>"+esc(m)+"</span>"+(undoFn?'<button id="tUndo">復原</button>':"");
@@ -494,8 +625,16 @@ function toast(m,undoFn){
  clearTimeout(tt);
  tt=setTimeout(()=>t.classList.remove("on"),undoFn?4200:2400);
 }
+function showAchBanner(ach){
+ const el=$("achToast");
+ el.textContent="🏆 達成成就「"+ach.n+"」！點 🏆 領取 +"+ach.rw+" 🎟️";
+ el.classList.add("on");
+ clearTimeout(achT);
+ achT=setTimeout(()=>el.classList.remove("on"),3800);
+}
+$("achToast").onclick=()=>{$("achToast").classList.remove("on");renderStats();$("sov").classList.add("on")};
 
-// Real-time Day/Night & Weather System
+// Real-time Day/Night & Weather System (with saved preferences)
 function getTimePhase(){
  if(timeMode!=="auto")return timeMode;
  const h=new Date().getHours();
@@ -512,6 +651,7 @@ function initStars(){
  }
  $("starLayer").innerHTML=h;
 }
+function availWxList(){return [...BASE_WX,...S.specialWx.filter(id=>WX_CFG[id])]}
 function rollWeather(scIdx){
  const pool=SC[scIdx].wxPool;
  curWeather=pool[Math.floor(Math.random()*pool.length)];
@@ -519,33 +659,56 @@ function rollWeather(scIdx){
 function renderWeatherParticles(){
  const w=$("weatherLayer");
  if(curWeather==="clear"){w.innerHTML="";return}
- let h="",n=curWeather==="rain"?22:16;
- for(let i=0;i<n;i++){
-  const left=(Math.random()*106-3).toFixed(1);
-  const delay=(Math.random()*4).toFixed(2);
-  if(curWeather==="rain"){
-   const dur=(0.7+Math.random()*0.45).toFixed(2);
+ let h="";
+ if(curWeather==="rain"){
+  for(let i=0;i<22;i++){
+   const left=(Math.random()*106-3).toFixed(1),delay=(Math.random()*4).toFixed(2),dur=(0.7+Math.random()*0.45).toFixed(2);
    h+='<span class="wp-rain" style="left:'+left+'%;animation-duration:'+dur+'s;animation-delay:-'+delay+'s"></span>';
-  }else if(curWeather==="petal"){
-   const dur=(4.5+Math.random()*2.8).toFixed(2);
-   const em=i%3===0?"🌼":"🌸";
+  }
+ }else if(curWeather==="petal"){
+  for(let i=0;i<16;i++){
+   const left=(Math.random()*106-3).toFixed(1),delay=(Math.random()*4).toFixed(2),dur=(4.5+Math.random()*2.8).toFixed(2),em=i%3===0?"🌼":"🌸";
    h+='<span class="wp-petal" style="left:'+left+'%;animation-duration:'+dur+'s;animation-delay:-'+delay+'s">'+em+'</span>';
-  }else if(curWeather==="snow"){
-   const dur=(3.8+Math.random()*2.6).toFixed(2);
-   const sz=(4+Math.random()*4).toFixed(1);
+  }
+ }else if(curWeather==="snow"){
+  for(let i=0;i<16;i++){
+   const left=(Math.random()*106-3).toFixed(1),delay=(Math.random()*4).toFixed(2),dur=(3.8+Math.random()*2.6).toFixed(2),sz=(4+Math.random()*4).toFixed(1);
    h+='<span class="wp-snow" style="left:'+left+'%;width:'+sz+'px;height:'+sz+'px;animation-duration:'+dur+'s;animation-delay:-'+delay+'s"></span>';
+  }
+ }else if(curWeather==="meteor"){
+  for(let i=0;i<8;i++){
+   const left=(30+Math.random()*75).toFixed(1),top=(2+Math.random()*36).toFixed(1),delay=(Math.random()*4.5).toFixed(2),dur=(1.8+Math.random()*1.4).toFixed(2);
+   h+='<span class="wp-meteor" style="left:'+left+'%;top:'+top+'%;animation-duration:'+dur+'s;animation-delay:-'+delay+'s"></span>';
+  }
+ }else if(curWeather==="aurora"){
+  h+='<div class="wp-aurora"></div><div class="wp-aurora" style="animation-delay:-3.5s;top:4%;opacity:.55"></div>';
+ }else if(curWeather==="rainbow"){
+  h+='<div class="wp-rainbow"></div>';
+  for(let i=0;i<10;i++){
+   const left=(10+Math.random()*80).toFixed(1),top=(12+Math.random()*45).toFixed(1),delay=(Math.random()*2).toFixed(2);
+   h+='<span class="wp-sparkle" style="left:'+left+'%;top:'+top+'%;animation-delay:-'+delay+'s">✨</span>';
   }
  }
  w.innerHTML=h;
 }
 function renderAtmosphere(){
  const c=SC[S.view],ph=getTimePhase(),tc=TIME_CFG[ph];
- const sky=tc.sky||c.skyTop;
+ let sky=tc.sky||c.skyTop;
+ let sunIc=tc.sun||c.sun;
+ let showStars=ph==="night";
+ if(curWeather==="meteor"||curWeather==="aurora"){
+  sky="#0b1330,#1e2f5c 64%";
+  sunIc="🌙";
+  showStars=true;
+ }
  $("sceneBox").style.background="linear-gradient(180deg,"+sky+","+c.ground+")";
- $("sun").textContent=tc.sun||c.sun;
- $("starLayer").classList.toggle("on",ph==="night");
- $("timeBtn").textContent=tc.ic+" "+tc.n+(timeMode==="auto"?"":"*");
- $("wxBtn").textContent=WX_CFG[curWeather].ic+" "+WX_CFG[curWeather].n;
+ $("sun").textContent=sunIc;
+ $("starLayer").classList.toggle("on",showStars);
+ $("timeIc").textContent=tc.ic;
+ $("timeTx").textContent=" "+tc.n+(timeMode==="auto"?"":"*");
+ const wcfg=WX_CFG[curWeather]||WX_CFG.clear;
+ $("wxIc").textContent=wcfg.ic;
+ $("wxTx").textContent=" "+wcfg.n;
  renderWeatherParticles();
 }
 
@@ -560,7 +723,7 @@ function treeSVG(s){
  if(s===4){[[70,70],[110,50],[140,96],[56,106],[100,100],[128,70]].forEach(([x,y],i)=>o+='<circle cx="'+x+'" cy="'+y+'" r="6" fill="'+(i%2?"#ff6f91":"#ffb3c7")+'"/>');[[84,92],[120,112],[48,98]].forEach(([x,y])=>o+='<circle cx="'+x+'" cy="'+y+'" r="5" fill="#e8384f"/>');o+='<text x="150" y="40" font-size="22">✨</text><text x="34" y="64" font-size="18">✨</text>'}
  return o+'</svg>'}
 
-function meter(xp,th,st){const n=th[st],p=th[st-1]||0;return{pct:n?(xp-p)/(n-p)*100:100,txt:n?"再收集 "+(n-xp)+" 點成長值升級（目前 "+xp+"）":"已達最高等級！（"+xp+"）"}}
+function meter(xp,thArr,st){const n=thArr[st],p=thArr[st-1]||0;return{pct:n?(xp-p)/(n-p)*100:100,txt:n?"再收集 "+(n-xp)+" 點成長值升級（目前 "+xp+"）":"已達最高等級！（"+xp+"）"}}
 const G='<svg viewBox="0 0 200 200" width="100%" height="100%" style="overflow:visible">';
 const sh=s=>'<ellipse cx="100" cy="186" rx="'+(30+s*9)+'" ry="8" fill="#0002"/>';
 function sunHead(x,y,r){let o="";for(let k=0;k<12;k++)o+='<ellipse cx="'+x+'" cy="'+(y-r*.95)+'" rx="'+r*.27+'" ry="'+r*.48+'" fill="#ffc93c" transform="rotate('+k*30+' '+x+' '+y+')"/>';return o+'<circle cx="'+x+'" cy="'+y+'" r="'+r*.55+'" fill="#7a4a21"/>'}
@@ -593,15 +756,73 @@ function pineSVG(s){
 
 const key=d=>d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
 const yest=()=>key(new Date(Date.now()-864e5));
-function dayCheck(){const D=S.daily,t=key(new Date());if(D.d!==t){D.d=t;D.signed=false;D.small=false;D.claimed=false;D.todayDone=0}}
+function dayCheck(){
+ const D=S.daily,t=key(new Date());
+ if(D.d!==t){
+  const hadPrev=!!D.d;
+  D.d=t;D.signed=false;D.small=false;D.claimed=false;D.todayDone=0;
+  let resetRep=0;
+  if(hadPrev){
+   S.tasks.forEach(tk=>{if(tk.repeat&&tk.done){tk.done=false;resetRep++}});
+  }
+  return resetRep>0;
+ }
+ return false;
+}
 function curStreak(){dayCheck();const D=S.daily;return(D.last===D.d||D.last===yest())?(D.streak||0):0}
 function dailyBadge(){dayCheck();const D=S.daily,n=(D.signed?0:1)+(D.small&&!D.claimed?1:0),b=$("dBadge");b.textContent=n;b.style.display=n?"":"none";$("dOpen").classList.toggle("ready",n>0)}
 function renderDaily(){dayCheck();const D=S.daily,ns=D.signed?D.streak:(D.last===yest()?D.streak+1:1),g=2+(ns>=3?1:0);
  $("dList").innerHTML='<div class="q'+(D.signed?" ok":"")+'"><span class="e">📅</span><div><b>每日簽到</b><p>🔥 連續 '+ns+' 天，連續 3 天起多 +1 張</p></div><button class="btn" data-q="sign" '+(D.signed?"disabled":"")+'>'+(D.signed?"已簽到":"+"+g+" 🎟️ 簽到")+'</button></div><div class="q'+(D.claimed?" ok":"")+'"><span class="e">🌿</span><div><b>完成 1 個小任務或大任務</b><p>今天完成任一個 🌿 小任務或 🌳 大任務（'+(D.small?1:0)+'/1）</p></div><button class="btn" data-q="claim" '+(D.small&&!D.claimed?"":"disabled")+'>'+(D.claimed?"已領取":D.small?"+2 🎟️ 領取":"未完成")+'</button></div>'}
-function sst(i){const d=S.sc[i];return[stage(d.p,th(i,TT)),stage(d.a,th(i,PT))]}
+
+function sst(i){const d=S.sc[i],st=S.stars[i]||0;return[stage(d.p,th(i,TT,st)),stage(d.a,th(i,PT,st))]}
 const done_=i=>{const[a,b]=sst(i);return a>=4&&b>=3};
 const allDone=()=>SC.every((_,i)=>done_(i));
+const totalStars=()=>S.stars.reduce((a,b)=>a+b,0);
 const lockedDecos=()=>DECOS.filter(d=>!S.decos.includes(d.id));
+const lockedHats=()=>HATS.filter(h=>!S.hats.includes(h.id));
+const lockedWx=()=>SPECIAL_WX.filter(w=>!S.specialWx.includes(w.id));
+const lockedHidden=()=>[...lockedHats().map(h=>({k:"hat",item:h})),...lockedWx().map(w=>({k:"wx",item:w}))];
+const totalOwnedColl=()=>S.decos.length+S.hats.length+S.specialWx.length;
+
+// Achievement System (with instant notification & claimable ticket rewards)
+let notifiedAchs=new Set();
+function getAchievements(){
+ dayCheck();
+ const cs=curStreak();
+ const bestStreak=Math.max(cs,S.daily.maxStreak||0);
+ const bestToday=Math.max(S.daily.todayDone||0,S.daily.maxToday||0);
+ const hiddenOwned=S.hats.length+S.specialWx.length;
+ return[
+  {id:"first",e:"🌱",n:"初入森林",d:"完成第 1 個任務",rw:1,ok:S.done>=1},
+  {id:"ten",e:"📝",n:"行動派",d:"累計完成 10 個任務",rw:2,ok:S.done>=10},
+  {id:"day5",e:"⚡",n:"效率達人",d:"單日完成 5 個任務",rw:2,ok:bestToday>=5},
+  {id:"streak3",e:"🔥",n:"持之以恆",d:"連續簽到滿 3 天",rw:2,ok:bestStreak>=3},
+  {id:"pull10",e:"🎰",n:"扭蛋收藏家",d:"累計扭蛋 10 次",rw:2,ok:S.pulls>=10},
+  {id:"sc0",e:"🌳",n:"綠手指",d:"完成第 1 個場景培育",rw:2,ok:done_(0)||S.unlocked>=1||S.stars[0]>0},
+  {id:"allsc",e:"🏆",n:"森林守護者",d:"四個場景全部培育滿等",rw:4,ok:S.allEverDone||allDone()},
+  {id:"deco4",e:"🎨",n:"空間設計師",d:"收集至少 4 件場景裝飾品",rw:2,ok:S.decos.length>=4},
+  {id:"star1",e:"⭐",n:"生態轉生",d:"將任一場景進行升星轉生",rw:3,ok:totalStars()>=1},
+  {id:"hid3",e:"👑",n:"時尚天氣師",d:"收集至少 3 件夥伴頭飾或限定天氣",rw:3,ok:hiddenOwned>=3}
+ ];
+}
+function checkAchievements(silent=false){
+ const achs=getAchievements();
+ const claimable=achs.filter(a=>a.ok&&!S.achClaimed.includes(a.id));
+ const b=$("aBadge");
+ b.textContent=claimable.length;
+ b.style.display=claimable.length?"":"none";
+ $("statOpen").classList.toggle("ready",claimable.length>0);
+ if(silent){
+  claimable.forEach(a=>notifiedAchs.add(a.id));
+  return;
+ }
+ const freshNew=claimable.filter(a=>!notifiedAchs.has(a.id));
+ if(freshNew.length){
+  freshNew.forEach(a=>notifiedAchs.add(a.id));
+  showAchBanner(freshNew[0]);
+  tone([659,880,1046]);
+ }
+}
 
 function renderDecosInScene(){
  const layer=$("decoLayer"),vi=S.view;
@@ -610,41 +831,92 @@ function renderDecosInScene(){
   const p=S.placed[d.id];
   return '<div class="deco-item" data-did="'+d.id+'" title="'+d.n+'（可拖曳移動）" style="left:'+p.x+'%;top:'+p.y+'%">'+d.i+'</div>';
  }).join("");
- $("decoCnt").textContent=S.decos.length+"/"+DECOS.length;
+ $("decoCnt").textContent=totalOwnedColl()+"/"+TOTAL_COLL;
 }
-function renderDecoModal(){
- $("decoTitle").textContent="🎨 場景裝飾品圖鑑（"+S.decos.length+"/"+DECOS.length+"）";
- $("decoSub").textContent=allDone()
-  ?(lockedDecos().length?"四個場景已培育完成！現在扭蛋可直接抽到裝飾品，點選已解鎖小物可擺放或收回，也能在對應場景中拖曳移動。":"全圖鑑 12 件裝飾品收集完成！點選可擺放或收回，也能在對應場景中直接拖曳移動位置。")
-  :"將四個場景全部培育完成後，扭蛋機就會開放抽取專屬裝飾品。";
- $("decoGrid").innerHTML=SC.map((c,si)=>{
-  const list=DECOS.filter(d=>d.sc===si);
-  const owned=list.filter(d=>S.decos.includes(d.id)).length;
-  const cur=si===S.view;
-  return '<div class="dsec'+(cur?" cur":"")+'"><div class="dsec-h"><b>'+c.ic+' '+c.n+(cur?"（目前場景）":"")+'</b><small>'+owned+'/'+list.length+'</small></div><div class="dgrid">'+list.map(d=>{
-   const has=S.decos.includes(d.id),on=has&&S.placed[d.id]&&S.placed[d.id].on;
-   return '<button class="dcard'+(has?(on?" on":""):" lock")+'" data-did="'+d.id+'" '+(has?"":"disabled")+'><span class="de">'+(has?d.i:"🔒")+'</span><b>'+(has?d.n:"未解鎖")+'</b><small>'+(has?(on?"已擺放":"點一下擺放"):"滿等後獲得")+'</small></button>';
+
+function renderCollectionModal(){
+ $("decoTitle").textContent="🎨 森林收藏圖鑑（"+totalOwnedColl()+"/"+TOTAL_COLL+"）";
+ document.querySelectorAll("#cTabs .ctab").forEach(b=>b.classList.toggle("on",b.dataset.ct===colTab));
+ if(colTab==="deco"){
+  $("decoSub").textContent=S.allEverDone
+   ?(lockedDecos().length?"四個場景皆滿等時，扭蛋會抽出專屬場景裝飾品！點選已解鎖小物可擺放或收回，也能在場景中拖曳移動。":"全 12 件場景裝飾品收集完成！點選可擺放或收回，也能在場景中拖曳移動位置。")
+   :"將四個場景全部培育完成後，扭蛋機就會開放抽取 12 件專屬場景裝飾品。";
+  $("decoGrid").innerHTML=SC.map((c,si)=>{
+   const list=DECOS.filter(d=>d.sc===si);
+   const owned=list.filter(d=>S.decos.includes(d.id)).length;
+   const cur=si===S.view;
+   return '<div class="dsec'+(cur?" cur":"")+'"><div class="dsec-h"><b>'+c.ic+' '+c.n+(cur?"（目前場景）":"")+'</b><small>'+owned+'/'+list.length+'</small></div><div class="dgrid">'+list.map(d=>{
+    const has=S.decos.includes(d.id),on=has&&S.placed[d.id]&&S.placed[d.id].on;
+    return '<button class="dcard'+(has?(on?" on":""):" lock")+'" data-kind="deco" data-id="'+d.id+'" '+(has?"":"disabled")+'><span class="de">'+(has?d.i:"🔒")+'</span><b>'+(has?d.n:"未解鎖")+'</b><small>'+(has?(on?"已擺放":"點一下擺放"):"滿等後獲得")+'</small></button>';
+   }).join("")+'</div></div>';
+  }).join("");
+ }else if(colTab==="hat"){
+  const c=SC[S.view],eq=S.equippedHat[S.view];
+  $("decoSub").textContent=lockedDecos().length===0
+   ?"隱藏限定池已開放！點選已解鎖的頭飾，即可幫目前場景「"+c.ic+" "+c.n+"」的夥伴戴上或取下。"
+   :"收集完 12 件場景裝飾品後，扭蛋機將開啟「隱藏限定池」，有機會抽到 6 款夥伴頭飾！";
+  $("decoGrid").innerHTML='<div class="dsec cur"><div class="dsec-h"><b>目前對象：'+c.ic+' '+c.n+'的夥伴</b><small>'+S.hats.length+'/'+HATS.length+'</small></div><div class="dgrid">'+HATS.map(h=>{
+   const has=S.hats.includes(h.id),on=has&&eq===h.id;
+   return '<button class="dcard'+(has?(on?" on":""):" lock")+'" data-kind="hat" data-id="'+h.id+'" '+(has?"":"disabled")+'><span class="de">'+(has?h.i:"🔒")+'</span><b>'+(has?h.n:"未解鎖")+'</b><small>'+(has?(on?"已配戴":"點一下配戴"):"隱藏池抽得")+'</small></button>';
   }).join("")+'</div></div>';
- }).join("");
+ }else{
+  $("decoSub").textContent=lockedDecos().length===0
+   ?"隱藏限定池已開放！解鎖限定天氣券後，點選即可立即切換並自動記憶，也能隨時從天氣按鈕輪換。"
+   :"收集完 12 件場景裝飾品後，扭蛋機將開啟「隱藏限定池」，有機會抽到 3 種限定夢幻天氣！";
+  $("decoGrid").innerHTML='<div class="dsec cur"><div class="dsec-h"><b>🌠 隱藏限定天氣</b><small>'+S.specialWx.length+'/'+SPECIAL_WX.length+'</small></div><div class="dgrid">'+SPECIAL_WX.map(w=>{
+   const has=S.specialWx.includes(w.id),on=has&&curWeather===w.id;
+   return '<button class="dcard'+(has?(on?" on":""):" lock")+'" data-kind="wx" data-id="'+w.id+'" '+(has?"":"disabled")+'><span class="de">'+(has?w.i:"🔒")+'</span><b>'+(has?w.n:"未解鎖")+'</b><small>'+(has?(on?"套用中":"點一下套用"):"隱藏池抽得")+'</small></button>';
+  }).join("")+'</div></div>';
+ }
 }
 
 function renderWorld(){
- const i=S.view,c=SC[i],d=S.sc[i],[ts,ps]=sst(i);
+ const i=S.view,c=SC[i],d=S.sc[i],st=S.stars[i]||0,[ts,ps]=sst(i);
+ const sb=$("sceneBox");
+ sb.classList.remove("star-1","star-2","star-3");
+ if(st>=1)sb.classList.add(st===1?"star-1":st===2?"star-2":"star-3");
  $("hill").style.background=c.hill;
  document.querySelectorAll(".cloud").forEach(e=>e.textContent=c.dc);
- $("tree").innerHTML=c.svg(ts);$("pet").textContent=c.A[ps];$("pet").style.fontSize=PS[ps]+"px";
- $("tName").textContent=c.P[ts]+" Lv."+(ts+1);$("pName").textContent=c.A[ps]+" "+c.AN[ps]+" Lv."+(ps+1);
- let m=meter(d.p,th(i,TT),ts);$("tBar").style.width=m.pct+"%";$("tTxt").textContent=m.txt;
- m=meter(d.a,th(i,PT),ps);$("pBar").style.width=m.pct+"%";$("pTxt").textContent=m.txt;
- if(allDone()){
-  const rem=lockedDecos().length;
-  $("gOdds").innerHTML=rem
-   ?'🎉 四個場景已全部滿等！現在扭蛋將抽出<b>「場景裝飾品」</b>（剩餘 '+rem+' 件未收集），可自由擺放在場景中。'
-   :'🏆 四個場景與 12 件裝飾品全部收集完成！現在扭蛋會繼續累積森林榮譽成長值。';
- }else{
-  $("gOdds").innerHTML='綠色道具讓植物長大，橘色道具讓夥伴長大。目前培育中：<b id="gTarget">'+SC[S.grow].ic+' '+SC[S.grow].n+'</b><br>連續 6 抽沒出稀有，下一抽必出稀有。';
+ $("tree").innerHTML=c.svg(ts);
+ $("petBody").textContent=c.A[ps];
+ $("pet").style.fontSize=PS[ps]+"px";
+ const hatId=S.equippedHat[i],hatObj=HATS.find(h=>h.id===hatId&&S.hats.includes(h.id));
+ const ph=$("petHat");
+ ph.textContent=hatObj?hatObj.i:"";
+ ph.className="pet-hat"+(hatObj&&hatObj.id==="shades"?" shades":"");
+ const starTxt=st>0?" ★"+st:"";
+ $("tName").textContent=c.P[ts]+" Lv."+(ts+1)+starTxt;
+ $("pName").textContent=c.A[ps]+" "+c.AN[ps]+" Lv."+(ps+1)+starTxt;
+ let m=meter(d.p,th(i,TT,st),ts);$("tBar").style.width=m.pct+"%";$("tTxt").textContent=m.txt;
+ m=meter(d.a,th(i,PT,st),ps);$("pBar").style.width=m.pct+"%";$("pTxt").textContent=m.txt;
+
+ // World action bar (outside scene so it never blocks HUD/tree/bubble)
+ const canAscend=S.allEverDone&&done_(i);
+ const canPickGrow=!done_(i)&&S.grow!==i;
+ $("ascendBtn").style.display=canAscend?"":"none";
+ if(canAscend&&!ascendTimer)$("ascendBtn").textContent="⭐ 升星轉生（晉升 ★"+(st+1)+"）";
+ $("growPickBtn").style.display=canPickGrow?"":"none";
+ $("worldAct").classList.toggle("on",canAscend||canPickGrow);
+
+ // Gacha odds description
+ if(!done_(S.grow)){
+  const gst=S.stars[S.grow]||0;
+  $("gOdds").innerHTML='綠色道具讓植物長大，橘色道具讓夥伴長大。目前培育中：<b id="gTarget">'+SC[S.grow].ic+' '+SC[S.grow].n+(gst?' ★'+gst:'')+'</b><br>連續 6 抽沒出稀有，下一抽必出稀有。';
+ }else if(allDone()){
+  const remD=lockedDecos().length,remH=lockedHidden().length;
+  if(remD){
+   $("gOdds").innerHTML='🎉 四個場景皆滿等！現在扭蛋必出<b>「場景裝飾品」</b>（剩餘 '+remD+' 件），也可先幫滿等場景「⭐ 升星轉生」。';
+  }else if(remH){
+   $("gOdds").innerHTML='✨ <b>隱藏限定池</b>開放中！每次扭蛋有 35% 機率（連 6 抽必出）獲得<b>夥伴頭飾／限定天氣</b>（剩餘 '+remH+' 件）！';
+  }else{
+   $("gOdds").innerHTML='🏆 全圖鑑 '+TOTAL_COLL+' 件收藏達成！現在可幫任意場景<b>「⭐ 升星轉生」</b>解鎖星級光環，或繼續累積榮譽成長值。';
+  }
  }
- $("tabs").innerHTML=SC.map((x,k)=>'<button class="sc'+(k===i?" on":"")+'" data-i="'+k+'" '+(k>S.grow?"disabled":"")+' title="'+x.n+'">'+(k>S.grow?"🔒":x.ic)+"<small>"+(k>S.grow?"未解鎖":done_(k)?"已完成":"培育中")+"</small></button>").join("");
+ $("tabs").innerHTML=SC.map((x,k)=>{
+  const locked=k>S.unlocked,kst=S.stars[k]||0,isGrow=k===S.grow&&!done_(k);
+  const stTag=kst>0?'<span class="st-tag">★'+kst+'</span>':"";
+  return '<button class="sc'+(k===i?" on":"")+'" data-i="'+k+'" '+(locked?"disabled":"")+' title="'+x.n+'">'+stTag+(locked?"🔒":x.ic)+"<small>"+(locked?"未解鎖":done_(k)?"滿等":isGrow?"培育中":"待培育")+"</small></button>";
+ }).join("");
  renderDecosInScene();
  renderAtmosphere();
 }
@@ -655,44 +927,122 @@ function renderStats(){
  const cs=curStreak();
  const bestStreak=Math.max(cs,S.daily.maxStreak||0);
  const bestToday=Math.max(S.daily.todayDone||0,S.daily.maxToday||0);
+ const hiddenOwned=S.hats.length+S.specialWx.length;
+ const hiddenTotal=HATS.length+SPECIAL_WX.length;
  const cards=[
   {v:S.done,l:"總完成任務"},
   {v:S.daily.todayDone||0,l:"今日完成（最高 "+bestToday+"）"},
   {v:S.pulls,l:"累計扭蛋次數"},
   {v:cs+" 天",l:"連續簽到（最高 "+bestStreak+" 天）"},
-  {v:doneScenes+" / 4",l:"滿等場景數"},
-  {v:S.decos.length+" / "+DECOS.length,l:"場景裝飾收集"}
+  {v:"★"+totalStars(),l:"場景累計星級（滿等 "+doneScenes+"/4）"},
+  {v:totalOwnedColl()+" / "+TOTAL_COLL,l:"裝飾 "+S.decos.length+"/12・限定 "+hiddenOwned+"/"+hiddenTotal}
  ];
  $("sGrid").innerHTML=cards.map(c=>'<div class="sbox"><b>'+c.v+'</b><small>'+c.l+'</small></div>').join("");
- const achs=[
-  {e:"🌱",n:"初入森林",d:"完成第 1 個任務",ok:S.done>=1},
-  {e:"📝",n:"行動派",d:"累計完成 10 個任務",ok:S.done>=10},
-  {e:"⚡",n:"效率達人",d:"單日完成 5 個任務",ok:bestToday>=5},
-  {e:"🔥",n:"持之以恆",d:"連續簽到滿 3 天",ok:bestStreak>=3},
-  {e:"🎰",n:"扭蛋收藏家",d:"累計扭蛋 10 次",ok:S.pulls>=10},
-  {e:"🌳",n:"綠手指",d:"完成第 1 個場景培育",ok:done_(0)},
-  {e:"🏆",n:"森林守護者",d:"四個場景全部培育滿等",ok:allDone()},
-  {e:"🎨",n:"空間設計師",d:"收集至少 4 件場景裝飾品",ok:S.decos.length>=4}
- ];
- const okCnt=achs.filter(a=>a.ok).length;
- $("achCnt").textContent="已解鎖 "+okCnt+" / "+achs.length;
- $("achList").innerHTML=achs.map(a=>'<div class="ach'+(a.ok?" ok":"")+'"><span class="ae">'+a.e+'</span><div class="at"><b>'+a.n+'</b><small>'+a.d+'</small></div><span class="st">'+(a.ok?"已達成":"未解鎖")+'</span></div>').join("");
+ const achs=getAchievements();
+ const okCnt=achs.filter(a=>a.ok||S.achClaimed.includes(a.id)).length;
+ const claimable=achs.filter(a=>a.ok&&!S.achClaimed.includes(a.id));
+ $("achCnt").textContent="（"+okCnt+" / "+achs.length+"）";
+ $("achClaimAll").style.display=claimable.length>=2?"":"none";
+ if(claimable.length>=2){
+  const sumRw=claimable.reduce((s,a)=>s+a.rw,0);
+  $("achClaimAll").textContent="一鍵領取（+"+sumRw+" 🎟️）";
+ }
+ $("achList").innerHTML=achs.map(a=>{
+  const claimed=S.achClaimed.includes(a.id);
+  const canClaim=a.ok&&!claimed;
+  const cls=canClaim?" claim":(claimed||a.ok?" ok":"");
+  const right=canClaim
+   ?'<button class="claim-btn" data-aid="'+a.id+'">領取 +'+a.rw+'🎟️</button>'
+   :'<span class="st">'+(claimed?"已領取":"+"+a.rw+"🎟️")+'</span>';
+  return '<div class="ach'+cls+'"><span class="ae">'+a.e+'</span><div class="at"><b>'+a.n+'</b><small>'+a.d+'</small></div>'+right+'</div>';
+ }).join("");
+}
+
+// Build hierarchical task list with optional "sink done" sorting and parent folding
+function buildRenderTasks(){
+ const T=S.tasks;
+ const roots=[];
+ const stack=[];
+ for(let i=0;i<T.length;i++){
+  const node={task:T[i],children:[]};
+  while(stack.length&&stack[stack.length-1].task.level>=node.task.level)stack.pop();
+  if(stack.length)stack[stack.length-1].children.push(node);
+  else roots.push(node);
+  stack.push(node);
+ }
+ function calcStats(node){
+  let total=0,done=0;
+  for(const ch of node.children){
+   const s=calcStats(ch);
+   total+=1+s.total;
+   done+=(ch.task.done?1:0)+s.done;
+  }
+  node.subTotal=total;
+  node.subDone=done;
+  if(prefs.sinkDone&&node.children.length>1){
+   node.children.sort((a,b)=>(a.task.done?1:0)-(b.task.done?1:0));
+  }
+  return{total,done};
+ }
+ roots.forEach(calcStats);
+ if(prefs.sinkDone&&roots.length>1){
+  roots.sort((a,b)=>(a.task.done?1:0)-(b.task.done?1:0));
+ }
+ const flat=[];
+ function walk(nodes){
+  for(const nd of nodes){
+   flat.push(nd);
+   if(!nd.task.collapsed&&nd.children.length)walk(nd.children);
+  }
+ }
+ walk(roots);
+ return flat;
 }
 
 function renderTasks(){
- const T=S.tasks;
- $("list").innerHTML=T.length?T.map((t,i)=>{
-  let c="";if(t.level<2){let d=0,n=0;for(let j=i+1;j<T.length&&T[j].level>t.level;j++){n++;if(T[j].done)d++}if(n)c='<em class="cnt">'+d+"/"+n+"</em>"}
-  return '<div class="task l'+t.level+(t.done?" done":"")+'" style="margin-left:'+t.level*22+'px"><input type="checkbox" data-a="chk" data-id="'+t.id+'" '+(t.done?"checked disabled":"")+' aria-label="完成任務"><span>'+L[t.level].i+'</span><span class="nm" data-id="'+t.id+'"'+(t.done?"":' title="雙擊可編輯名稱"')+'>'+esc(t.name)+"</span>"+c+'<span class="rw">+'+L[t.level].t+"🎟️</span>"+(t.level<2&&!t.done?'<button data-a="sub" data-id="'+t.id+'" title="在底下新增細項" aria-label="新增下層任務">＋</button>':"")+'<button data-a="del" data-id="'+t.id+'" aria-label="刪除">✕</button></div>'}).join(""):'<div class="empty">🌼 森林還是一片空地<br>先新增一個任務吧！</div>';
+ if(typeof clearDelCfm==="function")clearDelCfm();
+ const flat=buildRenderTasks();
+ $("list").innerHTML=flat.length?flat.map(nd=>{
+  const t=nd.task;
+  const hasSub=nd.subTotal>0;
+  const foldBtn=hasSub?'<button class="fold-btn" data-a="fold" data-id="'+t.id+'" title="'+(t.collapsed?"展開細項":"折疊細項")+'" aria-label="'+(t.collapsed?"展開細項":"折疊細項")+'">'+(t.collapsed?"▸":"▾")+'</button>':"";
+  const cnt=hasSub?'<em class="cnt">'+nd.subDone+"/"+nd.subTotal+"</em>":"";
+  const repTag=t.repeat?'<button class="rep-tag" data-a="rep" data-id="'+t.id+'" title="每日重複任務（點一下取消重複）">🔁 每日</button>':(!t.done?'<button class="rep-tag off" data-a="rep" data-id="'+t.id+'" title="設為每日重複任務（習慣模式）" aria-label="設為每日重複任務">🔁</button>':"");
+  return '<div class="task l'+t.level+(t.done?" done":"")+'" style="--lv:'+t.level+'">'+foldBtn+'<input type="checkbox" data-a="chk" data-id="'+t.id+'" '+(t.done?"checked disabled":"")+' aria-label="完成任務"><span>'+L[t.level].i+'</span><span class="nm" data-id="'+t.id+'"'+(t.done?"":' title="點 ✏️ 或雙擊可編輯名稱"')+'>'+esc(t.name)+"</span>"+repTag+cnt+'<span class="rw">+'+L[t.level].t+"🎟️</span>"+(!t.done?'<button data-a="edit" data-id="'+t.id+'" title="編輯任務名稱" aria-label="編輯任務名稱">✏️</button>':"")+(t.level<2&&!t.done?'<button data-a="sub" data-id="'+t.id+'" title="在底下新增細項" aria-label="新增下層任務">＋</button>':"")+'<button data-a="del" data-id="'+t.id+'" aria-label="刪除">✕</button></div>';
+ }).join(""):'<div class="empty">🌼 森林還是一片空地<br>先新增一個任務吧！</div>';
  $("tk").textContent=S.tickets;$("gBadge").textContent=S.tickets;dailyBadge();$("gOpen").classList.toggle("ready",S.tickets>0);$("spin").disabled=S.tickets<1||busy;$("spinAll").disabled=S.tickets<2||busy;$("spinAll").textContent=S.tickets>1?"一鍵扭完（"+S.tickets+" 顆）":"一鍵扭完（需 2 張以上）";
  $("spin").textContent=S.tickets>0?"扭一下！（剩 "+S.tickets+" 張）":"完成任務就能獲得扭蛋券"}
-function renderAll(){renderTasks();renderWorld();save()}
+function renderAll(silentAch=false){renderTasks();renderWorld();checkAchievements(silentAch);save()}
+
+function startEditTask(id){
+ const t=S.tasks.find(x=>x.id===id);if(!t||t.done)return;
+ const nm=$("list").querySelector('.nm[data-id="'+id+'"]');if(!nm)return;
+ const inp=document.createElement("input");
+ inp.className="nm-edit";inp.maxLength=60;inp.value=t.name;
+ nm.replaceWith(inp);inp.focus();inp.select();
+ setTimeout(()=>{try{inp.scrollIntoView({block:"center",behavior:"smooth"})}catch(e){}},120);
+ let doneEdit=false;
+ const commit=saveIt=>{
+  if(doneEdit)return;doneEdit=true;
+  if(saveIt){const v=inp.value.trim();if(v&&v!==t.name){t.name=v;toast("已更新任務名稱")}}
+  renderAll();
+ };
+ inp.onkeydown=ev=>{if(ev.key==="Enter"&&!ev.isComposing)commit(true);if(ev.key==="Escape")commit(false)};
+ inp.onblur=()=>commit(true);
+}
 
 function addTask(){
  const name=$("inp").value.trim();if(!name){toast("先寫下一個任務喔");$("inp").focus();return}
  let level=+$("lv").value,at=S.tasks.length;
- if(parent){const i=S.tasks.findIndex(t=>t.id===parent);if(i>-1){level=Math.min(2,S.tasks[i].level+1);at=i+1;while(at<S.tasks.length&&S.tasks[at].level>S.tasks[i].level)at++}}
- S.tasks.splice(at,0,{id:uid(),name,level,done:false});
+ if(parent){
+  const i=S.tasks.findIndex(t=>t.id===parent);
+  if(i>-1){
+   S.tasks[i].collapsed=false;
+   level=Math.min(2,S.tasks[i].level+1);at=i+1;
+   while(at<S.tasks.length&&S.tasks[at].level>S.tasks[i].level)at++;
+  }
+ }
+ S.tasks.splice(at,0,{id:uid(),name,level,done:false,repeat:newRepeat,collapsed:false});
  $("inp").value="";clearParent();renderAll();$("inp").focus()}
 function setParent(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;parent=id;$("lv").value=Math.min(2,t.level+1);$("hint").innerHTML="加到「"+esc(t.name)+"」底下 <button id=\"cp\">取消</button>";$("hint").classList.add("on");$("cp").onclick=clearParent;$("inp").focus()}
 function clearParent(){parent=null;$("hint").classList.remove("on")}
@@ -700,8 +1050,9 @@ function complete(id,el){
  const t=S.tasks.find(x=>x.id===id);if(!t||t.done)return;
  dayCheck();
  const prevSmall=S.daily.small;
+ const prevMaxToday=S.daily.maxToday||0;
  t.done=true;S.done++;S.daily.todayDone=(S.daily.todayDone||0)+1;
- S.daily.maxToday=Math.max(S.daily.maxToday||0,S.daily.todayDone);
+ S.daily.maxToday=Math.max(prevMaxToday,S.daily.todayDone);
  S.tickets+=L[t.level].t;if(t.level<=1)S.daily.small=true;
  const r=el.getBoundingClientRect();fx(r.left+10,r.top+10,["🎟️","✨","🌿"],7);tone([587,880]);
  $("pill").classList.remove("bump");void $("pill").offsetWidth;$("pill").classList.add("bump");
@@ -709,23 +1060,51 @@ function complete(id,el){
   if(!S.tasks.some(x=>x.id===id)||!t.done||S.tickets<L[t.level].t){toast("扭蛋券已使用或任務已刪除，無法復原");return}
   t.done=false;S.done=Math.max(0,S.done-1);
   S.daily.todayDone=Math.max(0,(S.daily.todayDone||1)-1);
+  S.daily.maxToday=Math.max(prevMaxToday,S.daily.todayDone);
   S.tickets-=L[t.level].t;
   if(t.level<=1&&!S.daily.claimed)S.daily.small=prevSmall;
-  renderAll();toast("已復原任務狀態");
+  renderAll(true);toast("已復原任務狀態");
  });
  renderAll()}
 
 function pick(){
  if(allDone()){
-  const rem=lockedDecos();
-  if(rem.length){
-   const d=rem[Math.floor(Math.random()*rem.length)];
+  const remD=lockedDecos();
+  if(remD.length){
+   const d=remD[Math.floor(Math.random()*remD.length)];
    return{n:d.n,i:d.i,k:"deco",deco:d,v:0,r:1,c:d.c};
+  }
+  const remH=lockedHidden();
+  if(remH.length&&(S.dry>=5||Math.random()<0.35)){
+   const pickH=remH[Math.floor(Math.random()*remH.length)];
+   return{n:pickH.item.n,i:pickH.item.i,k:pickH.k,item:pickH.item,v:0,r:1,c:pickH.item.c};
   }
  }
  let pool=S.dry>=5?PRIZES.filter(p=>p.r):PRIZES;
  let x=Math.random()*pool.reduce((a,p)=>a+p.w,0);
  for(const p of pool){x-=p.w;if(x<=0)return p}return pool[0]}
+
+function advanceGrowAfterDone(gi){
+ const msgs=[];
+ if(gi<3&&S.unlocked===gi){
+  S.unlocked=gi+1;S.grow=gi+1;
+  msgs.push("🎉 「"+SC[gi].n+"」培育完成！解鎖新場景「"+SC[gi+1].n+"」！");
+  return msgs;
+ }
+ const nextUnmax=SC.findIndex((_,k)=>k<=S.unlocked&&!done_(k));
+ if(nextUnmax>-1){
+  S.grow=nextUnmax;
+  const st=S.stars[gi]||0;
+  msgs.push("🌟 「"+SC[gi].n+(st?" ★"+st:"")+"」滿等完成！已切換培育「"+SC[nextUnmax].n+"」");
+  return msgs;
+ }
+ const firstTimeAll=!S.allEverDone;
+ S.allEverDone=true;S.unlocked=3;
+ if(firstTimeAll)msgs.push("🏆 四個場景全部培育完成！開放抽取「場景裝飾品」與「⭐ 升星轉生」！");
+ else if((S.stars[gi]||0)>0)msgs.push("🌟 「"+SC[gi].n+" ★"+S.stars[gi]+"」再次培育滿等！可繼續升星或抽收藏池！");
+ return msgs;
+}
+
 function spin(){
  if(busy||S.tickets<1)return;
  busy=true;S.tickets--;S.pulls++;
@@ -736,6 +1115,7 @@ function spin(){
  $("drop").style.setProperty("--c",p.c);$("drop").classList.remove("go");
  setTimeout(()=>$("drop").classList.add("go"),900);
  setTimeout(()=>reveal(p),1600)}
+
 function reveal(p){
  if(p.k==="deco"){
   const d=p.deco;
@@ -744,9 +1124,37 @@ function reveal(p){
   lastI=d.sc;lastK="both";
   $("pE").textContent=d.i;$("pN").textContent="解鎖場景裝飾："+d.n;
   $("pD").textContent="已自動擺放到「"+SC[d.sc].n+"」場景，可在畫面中拖曳移動！";
-  $("pU").textContent=lockedDecos().length?"裝飾品收集進度："+S.decos.length+" / "+DECOS.length:"🏆 全 12 件場景裝飾品收集完成！";
+  $("pU").textContent=lockedDecos().length?"裝飾品收集進度："+S.decos.length+" / "+DECOS.length:"🏆 全 12 件裝飾品收齊！隱藏限定池（夥伴頭飾與限定天氣）正式解鎖！";
   $("ov").classList.add("on");$("pOk").focus();
   fx(innerWidth/2,innerHeight/2,["🌟","🎊","✨",d.i],16);
+  tone([523,659,784,1046,1318]);
+  $("knob").classList.remove("turn");$("mach").classList.remove("shake");$("drop").classList.remove("go");
+  busy=false;renderAll();return;
+ }
+ if(p.k==="hat"){
+  const h=p.item;
+  if(!S.hats.includes(h.id))S.hats.push(h.id);
+  S.equippedHat[S.view]=h.id;
+  lastI=S.view;lastK="pet";
+  $("pE").textContent=h.i;$("pN").textContent="隱藏限定！夥伴頭飾："+h.n;
+  $("pD").textContent="已幫目前場景「"+SC[S.view].n+"」的夥伴戴上囉！可至收藏圖鑑隨時更換。";
+  $("pU").textContent="夥伴頭飾收集進度："+S.hats.length+" / "+HATS.length;
+  $("ov").classList.add("on");$("pOk").focus();
+  fx(innerWidth/2,innerHeight/2,["👑","🌟","✨",h.i],16);
+  tone([523,659,784,1046,1318]);
+  $("knob").classList.remove("turn");$("mach").classList.remove("shake");$("drop").classList.remove("go");
+  busy=false;renderAll();return;
+ }
+ if(p.k==="wx"){
+  const w=p.item;
+  if(!S.specialWx.includes(w.id))S.specialWx.push(w.id);
+  curWeather=w.id;wxManual=true;syncWxPref();
+  lastI=S.view;lastK="both";
+  $("pE").textContent=w.i;$("pN").textContent="隱藏限定！天氣券："+w.n;
+  $("pD").textContent="已立即套用「"+w.n+"」天象並記憶，之後也能從天氣按鈕隨時切換！";
+  $("pU").textContent="限定天氣收集進度："+S.specialWx.length+" / "+SPECIAL_WX.length;
+  $("ov").classList.add("on");$("pOk").focus();
+  fx(innerWidth/2,innerHeight/2,["🌠","🌌","✨",w.i],16);
   tone([523,659,784,1046,1318]);
   $("knob").classList.remove("turn");$("mach").classList.remove("shake");$("drop").classList.remove("go");
   busy=false;renderAll();return;
@@ -763,7 +1171,7 @@ function reveal(p){
  }
  const[nt,np]=sst(gi);
  let up="";if(nt>ot)up+="🌱 "+c.pl+"長大了：「"+c.P[nt]+"」！ ";if(np>op)up+="🐾 "+c.pn+"進化了：「"+c.AN[np]+"」！ ";
- if(done_(gi)&&gi<3){S.grow++;up+="🎉 「"+c.n+"」培育完成！解鎖新場景「"+SC[gi+1].n+"」！"}else if(done_(gi)&&!(ot>=4&&op>=3))up+="🏆 四個場景全部培育完成！扭蛋開放抽取「場景裝飾品」囉！";
+ if(done_(gi)&&!(ot>=4&&op>=3)){up+=advanceGrowAfterDone(gi).join(" ")}
  lastI=gi;lastK=effK;
  $("pE").textContent=p.i;$("pN").textContent=(p.r?"稀有！":"")+p.n;
  $("pD").textContent=desc;$("pU").textContent=up;
@@ -772,34 +1180,51 @@ function reveal(p){
  tone(p.r||up?[523,659,784,1046,1318]:[523,659,784]);
  $("knob").classList.remove("turn");$("mach").classList.remove("shake");$("drop").classList.remove("go");
  busy=false;renderAll()}
+
 function applyPrize(p){
  if(p.k==="deco"){
   const d=p.deco;
   if(!S.decos.includes(d.id))S.decos.push(d.id);
   S.placed[d.id]={on:true,x:d.x,y:d.y};
   const up=["🎨 解鎖「"+SC[d.sc].n+"」裝飾："+d.i+d.n];
-  if(!lockedDecos().length)up.push("🏆 全 12 件場景裝飾品收集完成！");
+  if(!lockedDecos().length)up.push("✨ 全 12 件裝飾收齊！隱藏限定池已開放！");
   return up;
+ }
+ if(p.k==="hat"){
+  const h=p.item;
+  if(!S.hats.includes(h.id))S.hats.push(h.id);
+  S.equippedHat[S.view]=h.id;
+  return["👑 隱藏限定！獲得頭飾："+h.i+h.n];
+ }
+ if(p.k==="wx"){
+  const w=p.item;
+  if(!S.specialWx.includes(w.id))S.specialWx.push(w.id);
+  curWeather=w.id;wxManual=true;syncWxPref();
+  return["🌠 隱藏限定！解鎖天氣："+w.i+w.n];
  }
  const gi=S.grow,c=SC[gi],[ot,op]=sst(gi),d=S.sc[gi],up=[];
  if(p.k==="both"){d.p+=p.v;d.a+=p.v}
  else if(p.k==="tree"){if(ot>=4&&op<3)d.a+=p.v;else d.p+=p.v}
  else{if(op>=3&&ot<4)d.p+=p.v;else d.a+=p.v}
  const[nt,np]=sst(gi);if(nt>ot)up.push("🌱 "+c.pl+"長大了：「"+c.P[nt]+"」");if(np>op)up.push("🐾 "+c.pn+"進化了：「"+c.AN[np]+"」");
- if(done_(gi)&&gi<3){S.grow++;up.push("🎉 「"+c.n+"」培育完成，解鎖「"+SC[gi+1].n+"」")}else if(done_(gi)&&!(ot>=4&&op>=3))up.push("🏆 四個場景全部培育完成！開放抽取裝飾品");return up}
+ if(done_(gi)&&!(ot>=4&&op>=3))up.push(...advanceGrowAfterDone(gi));
+ return up}
+
 function spinAll(){
  if(busy||S.tickets<2)return;
  busy=true;$("spin").disabled=true;$("spinAll").disabled=true;
  $("mach").classList.remove("shake");void $("mach").offsetWidth;$("mach").classList.add("shake");$("knob").classList.add("turn");tone([180,220,180,240,200,260]);
  setTimeout(()=>{
-  const n=S.tickets,got=[],ups=[],cnt={},decosGot=[];let lastDecoSc=null;S.tickets=0;S.pulls+=n;
+  const n=S.tickets,got=[],ups=[],cnt={},specialsGot=[];let lastDecoSc=null;S.tickets=0;S.pulls+=n;
   for(let j=0;j<n;j++){
    const p=pick();S.dry=p.r?0:S.dry+1;got.push(p);
-   if(p.k==="deco"){decosGot.push(p.i+p.n);lastDecoSc=p.deco.sc}else cnt[p.n]=(cnt[p.n]||0)+1;
+   if(p.k==="deco"){specialsGot.push(p.i+p.n);lastDecoSc=p.deco.sc}
+   else if(p.k==="hat"||p.k==="wx"){specialsGot.push(p.i+p.n)}
+   else cnt[p.n]=(cnt[p.n]||0)+1;
    ups.push(...applyPrize(p));
   }
   const summaryParts=[];
-  if(decosGot.length)summaryParts.push("🎨 裝飾："+decosGot.join("、"));
+  if(specialsGot.length)summaryParts.push("✨ 收藏："+specialsGot.join("、"));
   const normSummary=PRIZES.filter(p=>cnt[p.n]).map(p=>(p.r?"⭐":"")+p.i+p.n+" ×"+cnt[p.n]).join("、");
   if(normSummary)summaryParts.push(normSummary);
   $("pE").textContent=got.some(p=>p.r)?"🎊":"🎁";$("pN").textContent="一鍵扭完 "+n+" 顆！";
@@ -809,6 +1234,7 @@ function spinAll(){
   fx(innerWidth/2,innerHeight/2,["🌟","🎊","✨","🎉"],16);tone([523,659,784,1046,1318]);
   $("knob").classList.remove("turn");$("mach").classList.remove("shake");
   lastK="both";lastI=lastDecoSc!==null?lastDecoSc:S.grow;busy=false;renderAll()},1400)}
+
 function closePop(){
  $("ov").classList.remove("on");$("gov").classList.remove("on");
  const k=lastK;if(lastI!==null)S.view=lastI;renderWorld();save();
@@ -832,6 +1258,35 @@ function say(){
  showBubble([...stagePool,...moodPool]);
 }
 function sayTree(){showBubble(TREE_LINES)}
+
+// Scene Ascension (轉生升星)
+let ascendTimer=null;
+$("ascendBtn").onclick=()=>{
+ const i=S.view,c=SC[i];
+ if(!S.allEverDone||!done_(i))return;
+ const b=$("ascendBtn");
+ if(!ascendTimer){
+  b.textContent="⭐ 再按一次確認轉生";
+  ascendTimer=setTimeout(()=>{ascendTimer=null;renderWorld()},3500);
+  return;
+ }
+ clearTimeout(ascendTimer);ascendTimer=null;
+ S.stars[i]=(S.stars[i]||0)+1;
+ S.sc[i]={p:0,a:0};
+ S.grow=i;
+ const r=$("sceneBox").getBoundingClientRect();
+ fx(r.left+r.width/2,r.top+r.height/2,["⭐","🌟","✨","🎊"],18);
+ tone([523,659,784,1046,1318]);
+ toast("🎉 「"+c.n+"」升星轉生成功！晉升 ★"+S.stars[i]+"，解鎖星級外觀光環！");
+ renderAll();
+};
+$("growPickBtn").onclick=()=>{
+ if(done_(S.view))return;
+ S.grow=S.view;
+ tone([587,880]);
+ toast("扭蛋機培育目標已切換為「"+SC[S.view].n+"」");
+ renderAll();
+};
 
 {let dragEl=null,dragId=null;
  $("decoLayer").addEventListener("pointerdown",e=>{
@@ -857,45 +1312,120 @@ function initGlobe(){
 
 $("timeBtn").onclick=()=>{
  timeMode=TIME_ORDER[(TIME_ORDER.indexOf(timeMode)+1)%TIME_ORDER.length];
- renderAtmosphere();
- toast(timeMode==="auto"?"已切回真實時間天色":"已預覽「"+TIME_CFG[timeMode].n+"」天色");
+ syncWxPref();renderAtmosphere();save();
+ toast(timeMode==="auto"?"已切回真實時間天色":"已設定「"+TIME_CFG[timeMode].n+"」天色");
 };
 $("wxBtn").onclick=()=>{
  wxManual=true;
- curWeather=WX_ORDER[(WX_ORDER.indexOf(curWeather)+1)%WX_ORDER.length];
- renderAtmosphere();
- toast("天氣已切換為："+WX_CFG[curWeather].n);
+ const list=availWxList();
+ const idx=list.indexOf(curWeather);
+ curWeather=list[(idx+1)%list.length];
+ syncWxPref();renderAtmosphere();save();
+ toast("天氣已切換為："+WX_CFG[curWeather].n+"（已記憶）");
 };
 
 $("themeBtn").onclick=()=>{prefs.theme=isDarkNow()?"light":"dark";savePrefs();applyPrefs();toast(prefs.theme==="dark"?"已切換為深色模式":"已切換為淺色模式")};
 $("muteBtn").onclick=()=>{prefs.muted=!prefs.muted;savePrefs();applyPrefs();if(!prefs.muted)tone([660,880]);toast(prefs.muted?"已靜音":"已開啟音效")};
+$("sinkBtn").onclick=()=>{prefs.sinkDone=!prefs.sinkDone;savePrefs();applyPrefs();renderTasks();toast(prefs.sinkDone?"已開啟：已完成任務自動沉底":"已切回原始任務順序")};
+$("repBtn").onclick=()=>{
+ newRepeat=!newRepeat;
+ $("repBtn").classList.toggle("on",newRepeat);
+ $("repBtn").setAttribute("aria-pressed",String(newRepeat));
+};
+
 $("statOpen").onclick=()=>{renderStats();$("sov").classList.add("on")};
 $("sClose").onclick=()=>$("sov").classList.remove("on");
 $("sov").onclick=e=>{if(e.target.id==="sov")$("sov").classList.remove("on")};
-$("decoOpen").onclick=()=>{renderDecoModal();$("decov").classList.add("on")};
+$("achList").onclick=e=>{
+ const b=e.target.closest(".claim-btn");if(!b)return;
+ const aid=b.dataset.aid;
+ const a=getAchievements().find(x=>x.id===aid);
+ if(!a||!a.ok||S.achClaimed.includes(aid))return;
+ S.achClaimed.push(aid);S.tickets+=a.rw;
+ const r=b.getBoundingClientRect();
+ fx(r.left+r.width/2,r.top,["🎟️","🏆","✨"],10);tone([523,659,784,1046]);
+ toast("領取成就「"+a.n+"」獎勵：+"+a.rw+" 🎟️");
+ renderAll(true);renderStats();
+};
+$("achClaimAll").onclick=()=>{
+ const claimable=getAchievements().filter(a=>a.ok&&!S.achClaimed.includes(a.id));
+ if(!claimable.length)return;
+ let sum=0;
+ claimable.forEach(a=>{S.achClaimed.push(a.id);sum+=a.rw});
+ S.tickets+=sum;
+ fx(innerWidth/2,innerHeight/2,["🎟️","🏆","🌟","✨"],16);tone([523,659,784,1046,1318]);
+ toast("已一鍵領取 "+claimable.length+" 項成就獎勵，共獲得 +"+sum+" 🎟️！");
+ renderAll(true);renderStats();
+};
+
+$("decoOpen").onclick=()=>{renderCollectionModal();$("decov").classList.add("on")};
 $("decoClose").onclick=()=>$("decov").classList.remove("on");
 $("decov").onclick=e=>{if(e.target.id==="decov")$("decov").classList.remove("on")};
+$("cTabs").onclick=e=>{
+ const b=e.target.closest(".ctab");if(!b)return;
+ colTab=b.dataset.ct;renderCollectionModal();
+};
 $("decoGrid").onclick=e=>{
  const b=e.target.closest(".dcard");if(!b||b.disabled)return;
- const id=b.dataset.did,d=DECOS.find(x=>x.id===id);if(!d)return;
- if(!S.placed[id])S.placed[id]={on:true,x:d.x,y:d.y};
- else S.placed[id].on=!S.placed[id].on;
- if(d.sc!==S.view&&d.sc<=S.grow)S.view=d.sc;
- tone(S.placed[id].on?[587,880]:[440,330]);
- renderWorld();renderDecoModal();save();
+ const kind=b.dataset.kind,id=b.dataset.id;
+ if(kind==="deco"){
+  const d=DECOS.find(x=>x.id===id);if(!d)return;
+  if(!S.placed[id])S.placed[id]={on:true,x:d.x,y:d.y};
+  else S.placed[id].on=!S.placed[id].on;
+  if(d.sc!==S.view&&d.sc<=S.unlocked)S.view=d.sc;
+  tone(S.placed[id].on?[587,880]:[440,330]);
+ }else if(kind==="hat"){
+  if(S.equippedHat[S.view]===id){delete S.equippedHat[S.view];tone([440,330])}
+  else{S.equippedHat[S.view]=id;tone([587,880])}
+ }else if(kind==="wx"){
+  if(curWeather===id){curWeather="clear";wxManual=false;tone([440,330])}
+  else{curWeather=id;wxManual=true;tone([587,880])}
+  syncWxPref();
+ }
+ renderWorld();renderCollectionModal();save();
 };
 
 $("addBtn").onclick=addTask;
 $("inp").onkeydown=e=>{if(e.key==="Enter"&&!e.isComposing)addTask()};
+let delCfmId=null,delCfmBtn=null,delCfmT=null;
+function clearDelCfm(){
+ clearTimeout(delCfmT);delCfmT=null;delCfmId=null;
+ if(delCfmBtn){delCfmBtn.classList.remove("del-cfm");delCfmBtn.textContent="✕";delCfmBtn=null}
+}
 $("list").addEventListener("click",e=>{
  const b=e.target.closest("button");if(!b)return;
- if(b.dataset.a==="sub")setParent(b.dataset.id);
- if(b.dataset.a==="del"){
-  const idx=S.tasks.findIndex(t=>t.id===b.dataset.id);
+ const id=b.dataset.id,a=b.dataset.a;
+ if(a==="edit"){startEditTask(id);return}
+ if(a==="sub"){setParent(id);return}
+ if(a==="fold"){
+  const t=S.tasks.find(x=>x.id===id);
+  if(t){t.collapsed=!t.collapsed;renderTasks();save()}
+  return;
+ }
+ if(a==="rep"){
+  const t=S.tasks.find(x=>x.id===id);
+  if(t){t.repeat=!t.repeat;renderAll();toast(t.repeat?"已設為每日重複任務":"已取消每日重複")}
+  return;
+ }
+ if(a==="del"){
+  const idx=S.tasks.findIndex(t=>t.id===id);
   if(idx>-1){
    const lv=S.tasks[idx].level;
    let end=idx+1;
    while(end<S.tasks.length&&S.tasks[end].level>lv)end++;
+   const targets=S.tasks.slice(idx,end);
+   const hasUndone=targets.some(x=>!x.done);
+   if(hasUndone&&delCfmId!==id){
+    clearDelCfm();
+    delCfmId=id;
+    delCfmBtn=b;
+    b.classList.add("del-cfm");
+    b.textContent="確認?";
+    toast(targets.length>1?"尚有未完成項目（含細項共 "+targets.length+" 項），再按一次確認刪除":"此任務尚未完成，再按一次確認刪除");
+    delCfmT=setTimeout(clearDelCfm,3000);
+    return;
+   }
+   clearDelCfm();
    const removed=S.tasks.splice(idx,end-idx);
    if(removed.some(x=>x.id===parent))clearParent();
    renderAll();
@@ -905,18 +1435,7 @@ $("list").addEventListener("click",e=>{
 });
 $("list").addEventListener("dblclick",e=>{
  const nm=e.target.closest(".nm");if(!nm)return;
- const t=S.tasks.find(x=>x.id===nm.dataset.id);if(!t||t.done)return;
- const inp=document.createElement("input");
- inp.className="nm-edit";inp.maxLength=60;inp.value=t.name;
- nm.replaceWith(inp);inp.focus();inp.select();
- let doneEdit=false;
- const commit=saveIt=>{
-  if(doneEdit)return;doneEdit=true;
-  if(saveIt){const v=inp.value.trim();if(v&&v!==t.name){t.name=v;toast("已更新任務名稱")}}
-  renderAll();
- };
- inp.onkeydown=ev=>{if(ev.key==="Enter"&&!ev.isComposing)commit(true);if(ev.key==="Escape")commit(false)};
- inp.onblur=()=>commit(true);
+ startEditTask(nm.dataset.id);
 });
 $("list").addEventListener("change",e=>{if(e.target.dataset.a==="chk"&&e.target.checked)complete(e.target.dataset.id,e.target)});
 $("gOpen").onclick=()=>{$("gov").classList.add("on");$("spin").focus()};$("gClose").onclick=()=>{if(!busy)$("gov").classList.remove("on")};$("gov").onclick=e=>{if(e.target.id==="gov"&&!busy)$("gov").classList.remove("on")};
@@ -927,11 +1446,22 @@ addEventListener("keydown",e=>{
  }
 });
 $("spin").onclick=spin;$("knob").onclick=spin;$("spinAll").onclick=spinAll;$("pOk").onclick=closePop;
-$("clrDone").onclick=()=>{const n=S.tasks.filter(t=>t.done).length;if(!n){toast("目前沒有已完成的任務");return}S.tasks=S.tasks.filter(t=>!t.done);renderAll();toast("已清除 "+n+" 項已完成任務，獎勵與成長都保留")};
+$("clrDone").onclick=()=>{
+ const rm=S.tasks.filter(t=>t.done&&!t.repeat).length;
+ const keepRep=S.tasks.filter(t=>t.done&&t.repeat).length;
+ if(!rm){
+  toast(keepRep?"已完成的皆為每日重複任務（明天會自動重置）":"目前沒有可清除的已完成任務");
+  return;
+ }
+ S.tasks=S.tasks.filter(t=>!(t.done&&!t.repeat));
+ renderAll();
+ toast("已清除 "+rm+" 項已完成任務"+(keepRep?"（已保留 "+keepRep+" 項每日習慣）":""));
+};
 {let ct=null;const b=$("clrAll");b.onclick=()=>{if(!S.tasks.length){toast("清單已經是空的");return}if(!ct){b.textContent="再按一次確認清空";ct=setTimeout(()=>{ct=null;b.textContent="清空清單"},3000);return}clearTimeout(ct);ct=null;b.textContent="清空清單";const n=S.tasks.length;S.tasks=[];clearParent();renderAll();toast("已清空 "+n+" 項任務，扭蛋券與成長都保留")}}
 $("tabs").onclick=e=>{
  const b=e.target.closest(".sc");
  if(b&&!b.disabled){
+  clearTimeout(ascendTimer);ascendTimer=null;
   S.view=+b.dataset.i;
   if(!wxManual)rollWeather(S.view);
   renderWorld();save();tone([660,880]);
@@ -947,9 +1477,9 @@ $("pet").onclick=()=>{bounce("pet","hop");say();tone([660,880])};
 const kbClick=(el,fn)=>el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fn()}});
 kbClick($("tree"),()=>$("tree").click());
 kbClick($("pet"),()=>$("pet").click());
-let rt;$("reset").onclick=()=>{if(!rt){$("reset").textContent="再按一次確認清空";rt=setTimeout(()=>{rt=null;$("reset").textContent="重新開始"},3000);return}clearTimeout(rt);rt=null;$("reset").textContent="重新開始";S=fresh();clearParent();renderAll();toast("森林已重置，開始新的冒險！")};
+let rt;$("reset").onclick=()=>{if(!rt){$("reset").textContent="再按一次確認清空";rt=setTimeout(()=>{rt=null;$("reset").textContent="重新開始"},3000);return}clearTimeout(rt);rt=null;$("reset").textContent="重新開始";S=fresh();notifiedAchs.clear();applySavedAtmosphere();clearParent();renderAll(true);toast("森林已重置，開始新的冒險！")};
 
-if(!load()){S.tasks=[{id:uid(),name:"完成期末報告",level:0,done:false},{id:uid(),name:"整理參考資料",level:1,done:false},{id:uid(),name:"找 3 篇文獻",level:2,done:false},{id:uid(),name:"寫出報告大綱",level:1,done:false}]}
+if(!load()){S.tasks=[{id:uid(),name:"完成期末報告",level:0,done:false,repeat:false,collapsed:false},{id:uid(),name:"整理參考資料",level:1,done:false,repeat:false,collapsed:false},{id:uid(),name:"找 3 篇文獻",level:2,done:false,repeat:false,collapsed:false},{id:uid(),name:"寫出報告大綱",level:1,done:false,repeat:false,collapsed:false}]}
 
 const BK2="TFOREST2:",BK1="TFOREST1:";
 function encodeBackup(obj){
@@ -974,9 +1504,9 @@ $("bCopy").onclick=async()=>{const t=$("bkOut");t.select();try{await navigator.c
  try{o=decodeBackup(raw);if(!Array.isArray(o.tasks)||!Array.isArray(o.sc))throw 0}catch(e){toast("備份碼格式不正確，請重新複製完整內容");return}
  if(!rt2){b.textContent="再按一次確認覆蓋目前進度";rt2=setTimeout(()=>{rt2=null;b.textContent="還原"},3000);return}
  clearTimeout(rt2);rt2=null;b.textContent="還原";
- S=normalize(o);$("bkIn").value="";$("bov").classList.remove("on");clearParent();renderAll();toast("已還原備份進度")}}
+ S=normalize(o);notifiedAchs.clear();applySavedAtmosphere();$("bkIn").value="";$("bov").classList.remove("on");clearParent();renderAll(true);toast("已還原備份進度")}}
 
-applyPrefs();initGlobe();initStars();rollWeather(S.view);lastSer=ser();renderAll();cloudInit();
+applyPrefs();initGlobe();initStars();dayCheck();applySavedAtmosphere();lastSer=ser();renderAll(true);cloudInit();
 setInterval(()=>{if(timeMode==="auto")renderAtmosphere()},60000);
 setInterval(()=>{if(!wxManual&&Math.random()<0.35){rollWeather(S.view);renderAtmosphere()}},180000);
 </script>
