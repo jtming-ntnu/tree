@@ -2,1971 +2,983 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>任務森林｜扭蛋種樹樂園</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>任務森林｜扭蛋養樹與毛孩</title>
+<link href="https://fonts.googleapis.com/css2?family=Huninn&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --canvas: #fff3dc;
-    --paper: #fffefa;
-    --powder: #ffe7c7;
-    --powder-soft: #fff9ed;
-    --primary: #cc4352;
-    --primary-dark: #a93645;
-    --primary-soft: #ffe2e3;
-    --green: #23856b;
-    --green-soft: #e3f7ef;
-    --amber: #9a6400;
-    --orange: #f28c52;
-    --yellow: #f7c948;
-    --ink: #463544;
-    --soft-ink: #665566;
-    --muted: #887584;
-    --line: #ead8cc;
-    --shadow: 0 20px 50px rgba(142, 88, 70, 0.15);
-    --shadow-soft: 0 10px 24px rgba(142, 88, 70, 0.10);
-  }
-
-  * {
-    box-sizing: border-box;
-    user-select: none;
-  }
-
-  body {
-    margin: 0;
-    font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
-    color: var(--ink);
-    background:
-      radial-gradient(circle at 8% 10%, rgba(247, 201, 72, 0.36), transparent 25%),
-      radial-gradient(circle at 92% 12%, rgba(242, 140, 82, 0.25), transparent 28%),
-      radial-gradient(circle at 52% 96%, rgba(89, 195, 165, 0.22), transparent 32%),
-      linear-gradient(135deg, #fff0d2 0%, #fff9ed 48%, #ffe8dc 100%);
-    background-attachment: fixed;
-    overflow-x: hidden;
-  }
-
-  /* Desktop Single-Viewport Lock */
-  @media (min-width: 1024px) {
-    body {
-      height: 100vh;
-      overflow: hidden;
-    }
-  }
-
-  /* Custom Scrollbar */
-  ::-webkit-scrollbar {
-    width: 7px;
-    height: 7px;
-  }
-  ::-webkit-scrollbar-track {
-    background: rgba(234, 216, 204, 0.35);
-    border-radius: 99px;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #d8beae;
-    border-radius: 99px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #c2a18d;
-  }
-
-  /* Task Hierarchy Styling */
-  .task-row {
-    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  .task-row:hover {
-    transform: translateX(3px);
-  }
-  .task-row.level-1 {
-    margin-left: 26px;
-    position: relative;
-  }
-  .task-row.level-1::before {
-    content: "";
-    position: absolute;
-    left: -14px;
-    top: -6px;
-    bottom: 50%;
-    width: 10px;
-    border-left: 2px dashed #dfc8b8;
-    border-bottom: 2px dashed #dfc8b8;
-    border-bottom-left-radius: 6px;
-  }
-  .task-row.level-2 {
-    margin-left: 52px;
-    position: relative;
-  }
-  .task-row.level-2::before {
-    content: "";
-    position: absolute;
-    left: -14px;
-    top: -6px;
-    bottom: 50%;
-    width: 10px;
-    border-left: 2px dotted #bdd4e6;
-    border-bottom: 2px dotted #bdd4e6;
-    border-bottom-left-radius: 6px;
-  }
-
-  /* Gacha Machine 3D & Animations */
-  .gacha-machine-wrap {
-    position: relative;
-    width: 246px;
-    height: 288px;
-    margin: 0 auto;
-  }
-
-  .gacha-globe {
-    position: absolute;
-    left: 18px;
-    right: 18px;
-    top: 4px;
-    height: 182px;
-    border: 8px solid #d95f57;
-    border-bottom-width: 11px;
-    border-radius: 50% 50% 38% 38%;
-    background:
-      radial-gradient(circle at 30% 24%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.4) 9%, transparent 11%),
-      linear-gradient(145deg, rgba(225, 249, 255, 0.85), rgba(166, 229, 240, 0.78) 60%, rgba(114, 198, 214, 0.85));
-    box-shadow:
-      inset 0 -14px 22px rgba(56, 138, 153, 0.28),
-      inset 0 8px 14px rgba(255, 255, 255, 0.75),
-      0 8px 0 #a33941;
-    overflow: hidden;
-    z-index: 2;
-  }
-
-  /* Glossy highlight arc */
-  .gacha-globe::after {
-    content: "";
-    position: absolute;
-    top: 12px;
-    left: 22px;
-    width: 58px;
-    height: 22px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.65);
-    transform: rotate(-22deg);
-    pointer-events: none;
-  }
-
-  /* 3D Capsule Balls inside Globe */
-  .capsule-ball {
-    position: absolute;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    box-shadow: inset -4px -5px 8px rgba(0,0,0,0.22), inset 4px 4px 6px rgba(255,255,255,0.85), 0 3px 5px rgba(0,0,0,0.18);
-    border: 2px solid rgba(255,255,255,0.65);
-    transition: transform 0.3s ease;
-    animation: idleFloat 3.2s ease-in-out infinite alternate;
-  }
-  .capsule-ball::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: rgba(255,255,255,0.75);
-    transform: translateY(-50%);
-  }
-
-  @keyframes idleFloat {
-    0% { transform: translateY(0px) rotate(0deg); }
-    100% { transform: translateY(-4px) rotate(6deg); }
-  }
-
-  /* Violent shake when spinning */
-  .gacha-machine-wrap.shaking .gacha-globe {
-    animation: machineShake 0.65s cubic-bezier(0.36, 0.07, 0.19, 0.97) 2;
-  }
-  .gacha-machine-wrap.shaking .capsule-ball {
-    animation: capsuleChaos 0.28s ease-in-out infinite alternate !important;
-  }
-
-  @keyframes machineShake {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    20% { transform: translate(-7px, -4px) rotate(-3deg); }
-    40% { transform: translate(7px, 2px) rotate(3deg); }
-    60% { transform: translate(-6px, 3px) rotate(-2deg); }
-    80% { transform: translate(6px, -3px) rotate(2deg); }
-  }
-
-  @keyframes capsuleChaos {
-    0% { transform: translate(-12px, -28px) rotate(-35deg) scale(1.06); }
-    50% { transform: translate(14px, -42px) rotate(45deg) scale(0.96); }
-    100% { transform: translate(-8px, -16px) rotate(90deg) scale(1.04); }
-  }
-
-  .gacha-base {
-    position: absolute;
-    bottom: 8px;
-    left: 8px;
-    right: 8px;
-    height: 112px;
-    background: linear-gradient(145deg, #f38b67, #d74d52 68%, #b93842);
-    border-radius: 28px 28px 22px 22px;
-    box-shadow:
-      inset 0 -9px 0 #952936,
-      inset 0 4px 8px rgba(255, 230, 210, 0.55),
-      0 12px 22px rgba(143, 62, 52, 0.28);
-    z-index: 3;
-  }
-
-  /* Nameplate */
-  .gacha-plate {
-    position: absolute;
-    left: 50%;
-    top: 10px;
-    transform: translateX(-50%);
-    padding: 2px 12px;
-    border-radius: 99px;
-    background: #6c2834;
-    border: 3px solid #ffd5a1;
-    color: #fff3d1;
-    font-size: 10px;
-    font-weight: 900;
-    letter-spacing: 0.16em;
-    white-space: nowrap;
-  }
-
-  /* Rotary Knob */
-  .gacha-knob-outer {
-    position: absolute;
-    left: 34px;
-    top: 38px;
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #fff5d6, #f4b942);
-    border: 4px solid #8c343d;
-    box-shadow: 0 5px 0 #792931, 0 8px 14px rgba(0,0,0,0.22);
-    display: grid;
-    place-items: center;
-    cursor: pointer;
-    transition: transform 0.65s cubic-bezier(0.45, 0.05, 0.55, 0.95), filter 0.2s;
-  }
-  .gacha-knob-outer:hover {
-    filter: brightness(1.08);
-  }
-  .gacha-knob-outer.turning {
-    transform: rotate(360deg);
-  }
-  .gacha-knob-bar {
-    width: 34px;
-    height: 12px;
-    border-radius: 99px;
-    background: linear-gradient(180deg, #ffffff, #ffd97d);
-    box-shadow: 0 2px 4px rgba(120, 62, 14, 0.35);
-    border: 2px solid #b56f1b;
-  }
-
-  /* Exit Chute */
-  .gacha-chute {
-    position: absolute;
-    right: 30px;
-    top: 42px;
-    width: 58px;
-    height: 52px;
-    background: #4e1c26;
-    border-radius: 14px 14px 18px 18px;
-    border: 4px solid #ffcf99;
-    box-shadow: inset 0 8px 12px rgba(0,0,0,0.55);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: visible;
-  }
-
-  /* Dropping Capsule Animation */
-  .dropped-capsule {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    position: relative;
-    transform: scale(0) translateY(-30px);
-    opacity: 0;
-    box-shadow: inset -4px -4px 8px rgba(0,0,0,0.25), 0 6px 12px rgba(0,0,0,0.3);
-    border: 2px solid #fff;
-    cursor: pointer;
-  }
-  .dropped-capsule.drop-in {
-    animation: dropBounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  }
-  @keyframes dropBounce {
-    0% { transform: scale(0.3) translateY(-35px); opacity: 0; }
-    60% { transform: scale(1.12) translateY(6px); opacity: 1; }
-    80% { transform: scale(0.95) translateY(-2px); opacity: 1; }
-    100% { transform: scale(1) translateY(2px); opacity: 1; }
-  }
-
-  /* Grand Prize Ready Aura */
-  .grand-ready-glow {
-    box-shadow: 0 0 0 3px #f7c948, 0 0 25px rgba(247, 201, 72, 0.75) !important;
-    animation: pulseGold 1.6s infinite alternate;
-  }
-  @keyframes pulseGold {
-    0% { filter: drop-shadow(0 0 4px rgba(247, 201, 72, 0.4)); }
-    100% { filter: drop-shadow(0 0 14px rgba(242, 140, 82, 0.9)); }
-  }
-
-  /* Tree Scene Atmospheres */
-  .tree-stage-canvas {
-    position: relative;
-    height: 300px;
-    border-radius: 24px;
-    overflow: hidden;
-    transition: background 0.7s ease;
-    box-shadow: inset 0 4px 18px rgba(0,0,0,0.08);
-    border: 3px solid #ffffff;
-  }
-  .sky-day {
-    background: linear-gradient(180deg, #bfeeff 0%, #eafaff 62%, #b8e6b0 63%, #7ec27c 100%);
-  }
-  .sky-sunset {
-    background: linear-gradient(180deg, #ff9e7d 0%, #ffd59e 50%, #fce6b4 62%, #9bc478 63%, #639a5d 100%);
-  }
-  .sky-night {
-    background: linear-gradient(180deg, #1b2347 0%, #344179 62%, #29594b 63%, #1b3f36 100%);
-  }
-
-  /* Rolling hills in Tree Scene */
-  .hill-back {
-    position: absolute;
-    bottom: 0;
-    left: -10%;
-    width: 75%;
-    height: 39%;
-    border-radius: 50% 50% 0 0;
-    background: rgba(114, 184, 108, 0.45);
-    pointer-events: none;
-  }
-  .hill-front {
-    position: absolute;
-    bottom: 0;
-    right: -12%;
-    width: 80%;
-    height: 36%;
-    border-radius: 50% 50% 0 0;
-    background: rgba(92, 166, 90, 0.55);
-    pointer-events: none;
-  }
-  .sky-night .hill-back { background: rgba(36, 86, 68, 0.65); }
-  .sky-night .hill-front { background: rgba(24, 64, 52, 0.75); }
-
-  /* Interactive Tree Bounce */
-  .main-tree-figure {
-    position: relative;
-    z-index: 5;
-    cursor: pointer;
-    transform-origin: bottom center;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s;
-  }
-  .main-tree-figure:hover {
-    transform: scale(1.04);
-  }
-  .main-tree-figure.boing {
-    animation: treeBoing 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  @keyframes treeBoing {
-    0%, 100% { transform: scale(1, 1) translateY(0); }
-    30% { transform: scale(1.14, 0.88) translateY(4px); }
-    60% { transform: scale(0.92, 1.12) translateY(-10px); }
-    80% { transform: scale(1.04, 0.97) translateY(0); }
-  }
-
-  /* Draggable Ornaments on Tree */
-  .tree-ornament {
-    position: absolute;
-    z-index: 10;
-    font-size: 28px;
-    cursor: grab;
-    filter: drop-shadow(0 3px 4px rgba(0,0,0,0.22));
-    transition: transform 0.15s ease;
-    touch-action: none;
-  }
-  .tree-ornament:hover {
-    transform: scale(1.22) rotate(-6deg);
-    z-index: 20;
-  }
-  .tree-ornament:active {
-    cursor: grabbing;
-    transform: scale(1.3);
-  }
-  .tree-ornament.float-anim {
-    animation: gentleBob 2.6s ease-in-out infinite alternate;
-  }
-  @keyframes gentleBob {
-    0% { margin-top: 0px; }
-    100% { margin-top: -6px; }
-  }
-
-  /* Firefly / Star particles for Night / Rain */
-  .ambient-particle {
-    position: absolute;
-    pointer-events: none;
-    z-index: 4;
-  }
-  @keyframes twinkle {
-    0%, 100% { opacity: 0.25; transform: scale(0.8); }
-    50% { opacity: 1; transform: scale(1.2); }
-  }
-  @keyframes rainFall {
-    0% { transform: translateY(-20px) translateX(4px); opacity: 0; }
-    30% { opacity: 0.75; }
-    100% { transform: translateY(290px) translateX(-12px); opacity: 0; }
-  }
-
-  /* Drawer Transition */
-  .forest-drawer-backdrop {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-  }
-  .forest-drawer-backdrop.open {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  .forest-drawer {
-    transform: translateX(100%);
-    transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .forest-drawer.open {
-    transform: translateX(0);
-  }
-
-  /* Floating Right Edge Drawer Handle */
-  .side-forest-tab {
-    position: fixed;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 35;
-    background: linear-gradient(135deg, #23856b, #3ca385);
-    color: white;
-    border-radius: 22px 0 0 22px;
-    padding: 14px 12px 14px 16px;
-    box-shadow: -6px 10px 26px rgba(35, 133, 107, 0.32);
-    border: 2px solid #ffffff;
-    border-right: none;
-    cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  .side-forest-tab:hover {
-    padding-right: 20px;
-    filter: brightness(1.06);
-  }
-
-  /* Confetti Particle */
-  .fx-particle {
-    position: fixed;
-    pointer-events: none;
-    z-index: 9999;
-    font-size: 18px;
-    animation: particleFly 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-  @keyframes particleFly {
-    0% { transform: translate(0, 0) scale(0.5) rotate(0deg); opacity: 1; }
-    100% { transform: translate(var(--tx), var(--ty)) scale(1.2) rotate(var(--rot)); opacity: 0; }
-  }
+:root{--bg:#e6f6ea;--card:#fff;--ink:#22352c;--mut:#5f7a6c;--g:#2f9e6e;--gd:#1f6b4f;--pink:#ff6f91;--sun:#ffc93c;--lil:#7b6cf6;--line:#d3e8da;--soft:#f2faf4;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#112018;--card:#1b2e24;--ink:#e6f4ea;--mut:#9bb8a8;--line:#2c4739;--soft:#16271e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#112018;--card:#1b2e24;--ink:#e6f4ea;--mut:#9bb8a8;--line:#2c4739;--soft:#16271e;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Huninn","Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.5}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+html,body{height:100%;overflow:hidden}
+.wrap{max-width:1100px;margin:auto;height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));padding:12px;display:grid;gap:12px;grid-template-columns:1fr;grid-template-rows:auto minmax(0,46dvh) minmax(0,1fr);grid-template-areas:"top" "world" "tasks"}
+@media(min-width:900px){.wrap{grid-template-columns:1.1fr .9fr;grid-template-rows:auto minmax(0,1fr);grid-template-areas:"top top" "tasks world"}}
+@media(max-width:600px){.top p{display:none}h1{font-size:20px}.card{padding:12px}.pill{padding:6px 10px;font-size:14px}.pill-tx{display:none}.meter small{display:none}.meter{margin-top:6px}.gbtn{width:44px;height:44px;font-size:21px}.ibtn{width:34px;height:34px;font-size:15px}.top-l,.top-r{gap:6px}}
+@media(max-height:520px) and (max-width:899px){.wrap{grid-template-rows:auto minmax(0,110px) minmax(0,1fr)}.meter,.tabs{display:none}}
+.top{grid-area:top;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.top-l,.top-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+h1{margin:0;font-size:26px;color:var(--gd)}
+:root[data-theme="dark"] h1{color:#7ee0ad}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) h1{color:#7ee0ad}}
+.top p{margin:2px 0 0;color:var(--mut);font-size:14px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:99px;background:var(--sun);color:#4a3600;font-size:17px}
+.pill.bump{animation:bump .5s}
+.ibtn{width:40px;height:40px;border-radius:50%;border:2px solid var(--line);background:var(--card);font-size:18px;display:grid;place-items:center;transition:transform .15s,border-color .15s}
+.ibtn:hover{transform:scale(1.07);border-color:var(--g)}
+.ibtn.off{opacity:.65}
+.card{background:var(--card);border:2px solid var(--line);border-radius:26px;padding:16px}
+h2{margin:0 0 10px;font-size:19px}
+#world{grid-area:world;display:flex;flex-direction:column;min-height:0}#tasks{grid-area:tasks;display:flex;flex-direction:column;min-height:0}
+#gacha,#daily,#bk,#stats,#decoPop{text-align:center;position:relative;width:100%;max-width:360px;max-height:94dvh;overflow:auto}
+#stats,#decoPop{max-width:420px}
+#gov,#dov,#bov,#sov,#decov{z-index:40}
+#bk textarea{display:block;width:100%;margin:8px 0;padding:10px;border-radius:14px;border:2px solid var(--line);background:var(--soft);font-size:12px;word-break:break-all;resize:vertical}#bk h3{margin:18px 0 0;font-size:16px}#bk .btn{width:100%}
+/* scene */
+.scene{position:relative;flex:1;min-height:90px;border-radius:20px;overflow:hidden;background:linear-gradient(#8fd6ff,#e9fbff 64%,#8fd694 64%,#59b06a);user-select:none;touch-action:none;transition:background .8s ease}
+.sun{position:absolute;right:16px;top:10px;font-size:38px;pointer-events:none;z-index:2;transition:transform .4s}
+.cloud{position:absolute;font-size:34px;animation:drift 30s linear infinite;pointer-events:none;z-index:2}
+.hill{position:absolute;bottom:-40px;left:-10%;width:70%;height:110px;border-radius:50%;background:#6cc47b;pointer-events:none;z-index:1;transition:background .8s ease}
+#starLayer,#weatherLayer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+#starLayer{z-index:1;opacity:0;transition:opacity .8s ease}
+#starLayer.on{opacity:1}
+.star{position:absolute;width:3px;height:3px;border-radius:50%;background:#fffbe0;box-shadow:0 0 6px #fff;animation:twinkle 2.6s ease-in-out infinite alternate}
+#weatherLayer{z-index:6}
+.wp-rain{position:absolute;top:-16px;width:2px;height:14px;border-radius:2px;background:linear-gradient(transparent,#dff6ff);opacity:.7;animation:rainFall linear infinite}
+.wp-petal{position:absolute;top:-24px;font-size:15px;opacity:.9;animation:petalFall linear infinite}
+.wp-snow{position:absolute;top:-20px;width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 5px #fff;opacity:.85;animation:snowFall linear infinite}
+.scene-hud{position:absolute;left:10px;top:10px;z-index:9;display:flex;flex-wrap:wrap;gap:6px}
+.deco-btn{border:2px solid #ffffffaa;background:#ffffffcc;color:#22352c;border-radius:99px;padding:4px 10px;font-size:12px;display:inline-flex;align-items:center;gap:4px;backdrop-filter:blur(4px);transition:transform .15s}
+.deco-btn:hover{transform:scale(1.05)}
+#tree{position:absolute;left:2%;bottom:0;width:60%;height:100%;transform-origin:50% 92%;cursor:pointer;z-index:2}
+#tree.boing{animation:boing .6s}
+#pet{position:absolute;right:9%;bottom:18px;line-height:1;cursor:pointer;transform-origin:bottom;animation:bob 1.7s ease-in-out infinite;transition:font-size .4s;z-index:5}
+#pet.hop{animation:hop .7s}
+#tree:focus-visible,#pet:focus-visible{outline:3px solid var(--lil);outline-offset:2px;border-radius:14px}
+.bubble{position:absolute;right:4%;top:50px;max-width:56%;padding:7px 12px;border-radius:14px;background:#fff;color:#22352c;font-size:13px;line-height:1.4;opacity:0;transform:translateY(6px);transition:.25s;pointer-events:none;z-index:8;box-shadow:0 4px 12px #0002}
+.bubble.on{opacity:1;transform:none}
+.deco-item{position:absolute;transform:translate(-50%,-50%);font-size:30px;line-height:1;cursor:grab;z-index:4;filter:drop-shadow(0 3px 4px #0003);transition:transform .15s;touch-action:none}
+.deco-item:active{cursor:grabbing;transform:translate(-50%,-50%) scale(1.2);z-index:7}
+.meter{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:center;margin-top:10px;font-size:14px}
+.meter b{font-weight:400}
+.bar{height:12px;border-radius:9px;background:var(--soft);border:1px solid var(--line);overflow:hidden;grid-column:2}
+.bar i{display:block;height:100%;width:0;border-radius:9px;transition:width .6s cubic-bezier(.3,1.4,.5,1)}
+.m-tree i{background:linear-gradient(90deg,#8fe08f,#2f9e6e)}.m-pet i{background:linear-gradient(90deg,#ffd36b,#ff8a4c)}
+.meter small{grid-column:2;color:var(--mut)}
+/* tasks */
+.add{display:grid;grid-template-columns:1fr auto auto;gap:8px}
+.add input,.add select{padding:10px 12px;border-radius:14px;border:2px solid var(--line);background:var(--soft)}
+.add input:focus,.add select:focus{outline:3px solid var(--lil);border-color:transparent}
+.btn{padding:10px 18px;border:0;border-radius:14px;background:var(--g);color:#fff;font-size:16px;box-shadow:0 4px 0 var(--gd);transition:transform .1s,box-shadow .1s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--gd)}
+.btn:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--lil);outline-offset:2px}
+.hint{display:none;margin:8px 0 0;font-size:13px;color:var(--lil)}.hint.on{display:block}
+.hint button{border:0;background:none;color:inherit;text-decoration:underline}
+#list{margin-top:12px;display:grid;align-content:start;gap:7px;flex:1;min-height:0;overflow:auto;padding:2px}
+.task{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:16px;border:2px solid var(--line);background:var(--soft);animation:pop .3s}
+.task.l0{border-color:var(--lil);background:color-mix(in srgb,var(--lil) 10%,var(--card))}
+.task.l1{border-color:#7fd1a5}
+.task.l2{border-style:dashed}
+.task.done{opacity:.55}.task.done .nm{text-decoration:line-through;cursor:default}
+.task input[type="checkbox"]{width:22px;height:22px;accent-color:var(--g);flex:none}
+.nm{flex:1;min-width:0;overflow-wrap:anywhere;cursor:text}
+.nm-edit{flex:1;min-width:0;padding:2px 8px;border-radius:8px;border:2px solid var(--lil);background:var(--card)}
+.l0 .nm{font-size:17px}.l2 .nm{font-size:14px}
+.cnt{font-style:normal;font-size:12px;padding:1px 8px;border-radius:9px;background:var(--card);border:1px solid var(--line)}
+.rw{font-size:12px;color:var(--mut);white-space:nowrap}
+.task button{border:0;background:var(--card);border-radius:10px;width:28px;height:28px;color:var(--mut)}
+.task button:hover{background:var(--pink);color:#fff}
+.empty{text-align:center;color:var(--mut);padding:26px 0}
+.foot{margin-top:10px;font-size:13px;color:var(--mut);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}.fa{display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-end}
+.foot button{border:0;background:none;color:var(--mut);text-decoration:underline}
+/* gacha */
+.machine{width:210px;margin:6px auto 0;position:relative}
+.globe{height:150px;border-radius:50% 50% 42% 42%;border:7px solid var(--pink);position:relative;overflow:hidden;background:radial-gradient(circle at 30% 25%,#fff 0,#fff0 14%),linear-gradient(145deg,#e4f8ff,#a7e1ee)}
+.cap{position:absolute;width:34px;height:34px;border-radius:50%;background:linear-gradient(180deg,var(--c) 50%,#fff 50%);box-shadow:inset -3px -4px 6px #0003;animation:idle 2.6s ease-in-out infinite alternate}
+.base{height:96px;margin-top:-8px;border-radius:20px 20px 28px 28px;background:linear-gradient(#ff8fa8,#e0476b);position:relative;box-shadow:0 8px 0 #b3314f}
+.knob{position:absolute;left:26px;top:20px;width:56px;height:56px;border-radius:50%;border:4px solid #b3314f;background:radial-gradient(#fff3b0,var(--sun));display:grid;place-items:center;cursor:pointer;transition:transform .9s cubic-bezier(.5,0,.3,1)}
+.knob:after{content:"";width:34px;height:10px;border-radius:9px;background:#fff;border:2px solid #c98a00}
+.knob.turn{transform:rotate(540deg)}
+.chute{position:absolute;right:26px;top:26px;width:60px;height:46px;border-radius:12px 12px 16px 16px;background:#4d1a2a;border:4px solid #ffd0a0;display:grid;place-items:center}
+#drop{width:32px;height:32px;border-radius:50%;opacity:0;background:linear-gradient(180deg,var(--c,#8fe08f) 50%,#fff 50%)}
+#drop.go{animation:drop .6s cubic-bezier(.3,1.5,.5,1) forwards}
+.machine.shake .globe{animation:shake .3s 3}
+.machine.shake .cap{animation:chaos .22s infinite alternate}
+#spin{margin-top:16px;width:100%;max-width:280px;padding:13px;font-size:18px;background:var(--pink);box-shadow:0 5px 0 #b3314f}
+#spin:disabled{opacity:.45;pointer-events:none}
+#spinAll{display:block;margin:10px auto 0;width:100%;max-width:280px;padding:11px;font-size:16px;background:var(--lil);box-shadow:0 5px 0 #4b3fc0}#spinAll:disabled{opacity:.45;pointer-events:none}
+.odds{margin:10px 0 0;font-size:13px;color:var(--mut)}
+.gbtn{position:relative;width:52px;height:52px;border-radius:50%;border:3px solid var(--pink);background:var(--card);font-size:25px;display:grid;place-items:center;box-shadow:0 4px 0 #b3314f;transition:transform .15s}.gbtn:hover{transform:rotate(-8deg) scale(1.08)}.gbtn.ready{animation:wob 1.8s infinite}.gbtn b{position:absolute;right:-6px;top:-6px;min-width:22px;padding:0 6px;border-radius:99px;background:var(--pink);color:#fff;font-size:13px;font-weight:400;line-height:22px}.gx{position:absolute;right:12px;top:10px;border:0;background:var(--soft);width:32px;height:32px;border-radius:50%;color:var(--mut)}
+@keyframes wob{0%,70%,100%{transform:none}78%{transform:rotate(-12deg)}86%{transform:rotate(12deg)}94%{transform:rotate(-6deg)}}
+.tabs{display:flex;gap:6px;margin-top:8px}.sc{flex:1;border:2px solid var(--line);background:var(--soft);border-radius:14px;padding:3px 0;font-size:20px;line-height:1.2}.sc small{display:block;font-size:11px;color:var(--mut)}.sc.on{border-color:var(--g);background:var(--card);box-shadow:0 3px 0 var(--g)}.sc:disabled{opacity:.5;cursor:not-allowed}
+.gbtn.d{border-color:var(--g);box-shadow:0 4px 0 var(--gd)}.gbtn.d b{background:#e8384f}
+.q{display:grid;grid-template-columns:auto 1fr auto;gap:4px 12px;align-items:center;text-align:left;padding:12px;margin-top:10px;border:2px solid var(--line);border-radius:18px;background:var(--soft)}.q .e{font-size:30px}.q p{margin:0;color:var(--mut);font-size:13px}.q.ok{opacity:.6}.q .btn{padding:8px 14px;font-size:15px}.q .btn:disabled{opacity:.5;box-shadow:none}
+.cl{border:2px solid var(--line);background:var(--card);border-radius:99px;padding:5px 11px;font-size:13px;color:var(--mut)}.cl[data-s=ok]{border-color:var(--g);color:var(--g)}.cl[data-s=sync]{border-color:var(--sun)}.cl[data-s=off]{border-style:dashed}
+@media(max-width:600px){.cl small{display:none}}
+/* stats & achievements */
+.sgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.sbox{background:var(--soft);border:2px solid var(--line);border-radius:16px;padding:10px 8px;text-align:center}
+.sbox b{display:block;font-size:22px;color:var(--g)}
+.sbox small{font-size:12px;color:var(--mut)}
+.ach-h{margin:16px 0 8px;font-size:16px;text-align:left;display:flex;justify-content:space-between;align-items:center}
+.ach-list{display:grid;gap:7px;text-align:left}
+.ach{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:16px;border:2px solid var(--line);background:var(--soft);opacity:.55}
+.ach.ok{opacity:1;border-color:var(--g);background:color-mix(in srgb,var(--g) 10%,var(--card))}
+.ach .ae{font-size:26px;flex:none}
+.ach .at{flex:1;min-width:0}
+.ach .at b{display:block;font-size:14px}
+.ach .at small{display:block;font-size:12px;color:var(--mut)}
+.ach .st{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--card);border:1px solid var(--line);white-space:nowrap}
+.ach.ok .st{background:var(--g);color:#fff;border-color:var(--g)}
+/* deco modal */
+.dsec{margin-top:14px;text-align:left}
+.dsec-h{font-size:14px;margin:0 0 6px;display:flex;justify-content:space-between;align-items:center;color:var(--ink)}
+.dsec-h small{font-size:12px;color:var(--mut)}
+.dsec.cur .dsec-h{color:var(--g)}
+.dgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dcard{border:2px solid var(--line);border-radius:16px;background:var(--soft);padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;transition:transform .15s,border-color .15s}
+.dcard .de{font-size:28px;line-height:1.1}
+.dcard.on{border-color:var(--g);background:color-mix(in srgb,var(--g) 12%,var(--card));box-shadow:0 3px 0 var(--g)}
+.dcard.lock{opacity:.48;cursor:not-allowed}
+.dcard small{font-size:11px;color:var(--mut)}
+/* popup */
+.ov{position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:50;padding:16px}.ov.on{display:grid}
+.box{background:var(--card);border-radius:30px;padding:26px 24px;text-align:center;max-width:340px;width:100%;max-height:94dvh;overflow:auto;animation:pop .45s cubic-bezier(.3,1.6,.5,1)}
+.box .big{font-size:84px;line-height:1.1;animation:bob 1.2s ease-in-out infinite}
+.box h3{margin:6px 0 2px;font-size:22px}.box p{margin:4px 0;color:var(--mut)}
+.up{color:var(--g);font-size:17px;margin-top:8px!important}
+.fx{position:fixed;z-index:99;pointer-events:none;font-size:22px;animation:fly .95s cubic-bezier(.15,.9,.3,1) forwards}
+#toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;transition:.3s;z-index:60;max-width:92%;display:inline-flex;align-items:center;gap:10px;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#toast button{border:0;background:var(--sun);color:#4a3600;padding:3px 10px;border-radius:99px;font-size:13px;white-space:nowrap}
+@keyframes drift{from{left:-15%}to{left:110%}}
+@keyframes twinkle{from{opacity:.25;transform:scale(.8)}to{opacity:1;transform:scale(1.25)}}
+@keyframes rainFall{0%{transform:translate(0,0) rotate(12deg)}100%{transform:translate(-28px,380px) rotate(12deg)}}
+@keyframes petalFall{0%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(22px,180px) rotate(160deg)}100%{transform:translate(-16px,380px) rotate(320deg)}}
+@keyframes snowFall{0%{transform:translate(0,0)}50%{transform:translate(16px,180px)}100%{transform:translate(-12px,380px)}}
+@keyframes bob{50%{transform:translateY(-7px)}}
+@keyframes hop{30%{transform:translateY(-40px) scale(1.1,.9)}60%{transform:scale(1.1,.9)}}
+@keyframes boing{30%{transform:scale(1.1,.88)}60%{transform:scale(.94,1.1)}}
+@keyframes pop{from{transform:scale(.7);opacity:0}}
+@keyframes bump{40%{transform:scale(1.25) rotate(-4deg)}}
+@keyframes idle{to{transform:translateY(-5px) rotate(8deg)}}
+@keyframes shake{25%{transform:translate(-6px,2px) rotate(-3deg)}75%{transform:translate(6px,-2px) rotate(3deg)}}
+@keyframes chaos{to{transform:translate(10px,-34px) rotate(80deg)}}
+@keyframes drop{from{transform:translateY(-34px) scale(.3);opacity:0}to{transform:none;opacity:1}}
+@keyframes fly{to{transform:translate(var(--x),var(--y)) rotate(var(--r)) scale(1.2);opacity:0}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important;transition-duration:.01s!important}}
 </style>
 </head>
-<body class="flex flex-col justify-between">
-
-  <!-- ================= TOP NAVIGATION BAR ================= -->
-  <header class="w-full max-w-[1280px] mx-auto px-4 pt-3 pb-1 shrink-0">
-    <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-full bg-white/90 backdrop-blur-md border-2 border-white shadow-sm">
-      <!-- Brand -->
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl grid place-items-center text-white text-xl bg-gradient-to-br from-[#a93645] to-[#e05360] shadow-md shadow-[#cc4352]/30">
-          🌱
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="font-black text-base sm:text-lg tracking-tight text-[#463544]">任務森林・扭蛋種樹樂園</span>
-            <span class="hidden sm:inline-block text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#fff0bd] text-[#9a6400]">互動版</span>
-          </div>
-          <p class="text-xs text-[#887584] font-bold hidden md:block">完成任務賺取扭蛋券，收集神祕裝飾打造你的專屬魔法樹！</p>
-        </div>
-      </div>
-
-      <!-- Quick Stats & Tree Drawer Button -->
-      <div class="flex items-center gap-2 sm:gap-3">
-        <!-- Sound Toggle -->
-        <button id="soundToggleBtn" class="px-3 py-1.5 rounded-full bg-[#fff9ed] border border-[#ead8cc] text-xs font-extrabold text-[#665566] hover:bg-[#ffe7c7] transition flex items-center gap-1" title="切換音效">
-          <span id="soundIcon">🔊</span>
-          <span class="hidden sm:inline">音效</span>
-        </button>
-
-        <!-- Completed Counter Pill -->
-        <div class="px-3.5 py-1.5 rounded-full bg-[#e3f7ef] border border-[#bce5d6] flex items-center gap-1.5">
-          <span class="text-sm">✅</span>
-          <span class="text-xs font-extrabold text-[#23856b]">已完成 <strong id="totalDone" class="text-sm font-black">0</strong></span>
-        </div>
-
-        <!-- Gacha Ticket Counter Pill -->
-        <div class="px-3.5 py-1.5 rounded-full bg-[#fff0bd] border border-[#f5d57a] flex items-center gap-1.5">
-          <span class="text-sm">🎟️</span>
-          <span class="text-xs font-extrabold text-[#9a6400]">扭蛋券 <strong id="topTicketCount" class="text-sm font-black">0</strong></span>
-        </div>
-
-        <!-- Open Magic Tree Drawer Button -->
-        <button id="openTreeBtnTop" class="relative px-4 py-2 rounded-full bg-gradient-to-r from-[#23856b] to-[#3ca888] text-white font-black text-xs sm:text-sm shadow-md hover:brightness-105 active:scale-95 transition flex items-center gap-1.5">
-          <span>🌳 我的魔法樹</span>
-          <span id="topTreeLevelBadge" class="px-2 py-0.5 rounded-full bg-white/20 text-[11px]">Lv.1</span>
-          <!-- Notification Dot -->
-          <span id="treeNotifDot" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#ff4757] border-2 border-white animate-ping"></span>
-          <span id="treeNotifDotStatic" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#ff4757] border-2 border-white"></span>
-        </button>
-      </div>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="top-l">
+      <button class="gbtn d" id="dOpen" aria-label="開啟每日任務" title="每日任務">📅<b id="dBadge">0</b></button>
+      <button class="ibtn" id="statOpen" aria-label="開啟森林紀錄" title="森林紀錄與成就">🏆</button>
+      <div><h1>任務森林</h1><p>完成任務、扭蛋，培育四個場景的植物與夥伴</p></div>
+    </div>
+    <div class="top-r">
+      <button class="cl" id="cloudSt" style="display:none" data-s="sync" title="雲端存檔狀態（點一下重新同步）">☁️<small id="cloudTx"> 連線中</small></button>
+      <button class="ibtn" id="muteBtn" aria-label="切換音效" title="開啟／關閉音效">🔊</button>
+      <button class="ibtn" id="themeBtn" aria-label="切換深淺色模式" title="切換深淺色模式">🌙</button>
+      <div class="pill" id="pill">🎟️ <span class="pill-tx">扭蛋券 </span><b id="tk">0</b></div>
+      <button class="gbtn" id="gOpen" aria-label="開啟扭蛋機" title="開啟扭蛋機">🎰<b id="gBadge">0</b></button>
     </div>
   </header>
 
-  <!-- ================= FLOATING RIGHT-EDGE DRAWER HANDLE ================= -->
-  <button id="sideForestTab" class="side-forest-tab flex flex-col items-center gap-1.5" aria-label="展開我的魔法樹側欄">
-    <span class="text-2xl leading-none" id="sideTabTreeEmoji">🌱</span>
-    <span class="writing-vertical text-xs font-black tracking-widest" style="writing-mode: vertical-rl;">魔法樹花園</span>
-    <span id="sideTabCount" class="mt-1 px-1.5 py-0.5 rounded-full bg-white/25 text-[10px] font-black">0 件</span>
-    <span id="sideNotifBadge" class="hidden absolute -top-2 -left-2 px-2 py-0.5 rounded-full bg-[#ff4757] text-white text-[10px] font-black shadow animate-bounce">NEW!</span>
-  </button>
-
-  <!-- ================= MAIN SINGLE-SCREEN WORKSPACE ================= -->
-  <main class="w-full max-w-[1280px] mx-auto px-4 py-2 flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
-
-    <!-- LEFT COLUMN: TASK LIST PANEL (7 cols on Desktop) -->
-    <section class="lg:col-span-7 bg-white/90 backdrop-blur-md border-2 border-white rounded-[28px] shadow-[0_20px_50px_rgba(142,88,70,0.14)] flex flex-col min-h-[460px] lg:min-h-0 overflow-hidden">
-      <!-- Panel Header -->
-      <div class="px-5 pt-4 pb-3 border-b border-[#f3e6dc] flex flex-wrap items-center justify-between gap-2 shrink-0">
-        <div>
-          <div class="flex items-center gap-2">
-            <h2 class="text-lg sm:text-xl font-black text-[#463544]">📝 我的任務清單</h2>
-            <span id="taskCount" class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-[#fff9ed] border border-[#ead8cc] text-[#887584]">共 0 項</span>
-          </div>
-          <p class="text-xs text-[#887584] font-bold mt-0.5">大任務拆解成小任務，每完成 3～7 個小任務必得「傳說大獎」！</p>
-        </div>
-
-        <!-- Filter Tabs & Template Button -->
-        <div class="flex items-center gap-1.5">
-          <div class="flex bg-[#fff5e6] p-1 rounded-xl border border-[#ead8cc] text-xs font-extrabold">
-            <button data-filter="all" class="filter-btn px-2.5 py-1 rounded-lg bg-white text-[#cc4352] shadow-sm transition">全部</button>
-            <button data-filter="active" class="filter-btn px-2.5 py-1 rounded-lg text-[#665566] hover:text-[#463544] transition">待辦</button>
-            <button data-filter="done" class="filter-btn px-2.5 py-1 rounded-lg text-[#665566] hover:text-[#463544] transition">完成</button>
-          </div>
-          <button id="templateMenuBtn" class="px-2.5 py-1.5 rounded-xl bg-[#eef9f5] hover:bg-[#d9f2e9] text-[#23856b] border border-[#bce5d6] text-xs font-black transition" title="快速載入任務範本">
-            ✨ 範本
-          </button>
-        </div>
+  <section class="card" id="world">
+    <div class="scene" id="sceneBox">
+      <div class="scene-hud">
+        <button class="deco-btn" id="decoOpen" title="查看與擺放場景裝飾品">🎨 裝飾 <span id="decoCnt">0/12</span></button>
+        <button class="deco-btn" id="timeBtn" title="目前時段（點一下可預覽不同時段）">☀️ 白天</button>
+        <button class="deco-btn" id="wxBtn" title="目前天氣（點一下可切換天氣）">🌤️ 晴朗</button>
       </div>
-
-      <!-- Quick Template Bar (Collapsible) -->
-      <div id="templateBar" class="hidden px-5 py-2.5 bg-[#fff9ed] border-b border-[#ead8cc] flex flex-wrap items-center justify-between gap-2 shrink-0">
-        <span class="text-xs font-extrabold text-[#9a6400]">⚡ 點擊一鍵加入任務組合：</span>
-        <div class="flex flex-wrap gap-1.5">
-          <button data-tpl="study" class="tpl-chip px-2.5 py-1 rounded-lg bg-white border border-[#ead8cc] hover:border-[#f28c52] text-xs font-extrabold text-[#463544] transition">📚 專注讀書計畫</button>
-          <button data-tpl="clean" class="tpl-chip px-2.5 py-1 rounded-lg bg-white border border-[#ead8cc] hover:border-[#f28c52] text-xs font-extrabold text-[#463544] transition">🧹 房間清爽整理</button>
-          <button data-tpl="health" class="tpl-chip px-2.5 py-1 rounded-lg bg-white border border-[#ead8cc] hover:border-[#f28c52] text-xs font-extrabold text-[#463544] transition">💪 今日元氣充電</button>
-        </div>
-      </div>
-
-      <!-- Task Input Bar -->
-      <div class="px-5 py-3 bg-[#fffdf9] border-b border-[#f3e6dc] grid grid-cols-1 sm:grid-cols-12 gap-2 shrink-0">
-        <input id="taskInput" type="text" placeholder="輸入一個新任務（按 Enter 快速新增）…" maxlength="100"
-          class="sm:col-span-7 px-3.5 py-2.5 rounded-xl border-2 border-[#ead8cc] bg-white text-sm font-bold text-[#463544] focus:outline-none focus:border-[#f28c52] focus:ring-2 focus:ring-[#f28c52]/20">
-        <select id="taskLevel" aria-label="任務層級"
-          class="sm:col-span-3 px-3 py-2.5 rounded-xl border-2 border-[#ead8cc] bg-white text-sm font-extrabold text-[#463544] focus:outline-none focus:border-[#f28c52]">
-          <option value="0">🌳 大任務</option>
-          <option value="1" selected>🌿 小任務 (累積大獎)</option>
-          <option value="2">• 子任務</option>
-        </select>
-        <button id="addTask" class="sm:col-span-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#cc4352] to-[#e66d61] text-white font-black text-sm shadow-md hover:brightness-105 active:scale-95 transition">
-          ＋ 新增
-        </button>
-      </div>
-
-      <!-- Scrollable Task List Area -->
-      <div id="taskList" class="flex-1 overflow-y-auto px-5 py-3 space-y-2">
-        <!-- Populated by JS -->
-      </div>
-
-      <!-- Task Panel Footer -->
-      <div class="px-5 py-2.5 bg-[#fffaf2] border-t border-dashed border-[#ead8cc] flex flex-wrap items-center justify-between gap-2 text-xs font-extrabold text-[#887584] shrink-0">
-        <div class="flex items-center gap-2">
-          <span>💡 提示：點擊任務右側「+子項」可直接在下方插入下層任務</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <button id="clearDoneBtn" class="text-[#a93645] hover:underline">清除已完成</button>
-          <span>・</span>
-          <button id="exportBtn" class="text-[#23856b] hover:underline">📥 匯出紀錄</button>
-          <span>・</span>
-          <button id="resetBtn" class="text-[#887584] hover:text-[#cc4352] hover:underline">重置森林</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- RIGHT COLUMN: GACHA MACHINE & GRAND PRIZE PROGRESS (5 cols on Desktop) -->
-    <section class="lg:col-span-5 bg-gradient-to-b from-[#fffefa] to-[#fff3e2] border-2 border-white rounded-[28px] shadow-[0_20px_50px_rgba(142,88,70,0.14)] flex flex-col justify-between p-5 min-h-[480px] lg:min-h-0 overflow-y-auto">
-
-      <!-- Top Header -->
-      <div class="flex items-center justify-between gap-2 shrink-0">
-        <div>
-          <h2 class="text-lg sm:text-xl font-black text-[#463544] flex items-center gap-1.5">
-            <span>🎁 神祕扭蛋機</span>
-            <span id="grandReadyBadge" class="hidden px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#f7c948] to-[#f28c52] text-[#5e3800] text-xs font-black animate-bounce">
-              🏆 下一抽必中大獎！
-            </span>
-          </h2>
-          <p class="text-xs text-[#887584] font-bold">轉動旋鈕或點擊下方按鈕，抽出森林裝飾與魔法夥伴</p>
-        </div>
-
-        <!-- Auto-open drawer switch -->
-        <label class="flex items-center gap-1.5 cursor-pointer bg-white/80 px-2.5 py-1.5 rounded-xl border border-[#ead8cc] text-[11px] font-extrabold text-[#665566]" title="抽完扭蛋後是否自動滑出魔法樹抽屜">
-          <input type="checkbox" id="autoOpenTreeToggle" class="accent-[#23856b] w-3.5 h-3.5 rounded">
-          <span>開獎展開樹</span>
-        </label>
-      </div>
-
-      <!-- Center Stage: 3D Gacha Machine + Live Result Card -->
-      <div class="my-auto py-2 flex flex-col items-center justify-center relative">
-
-        <!-- Interactive Gacha Machine -->
-        <div id="machine" class="gacha-machine-wrap">
-          <!-- Glass Globe with 3D Capsules -->
-          <div class="gacha-globe" id="gachaGlobe">
-            <!-- Capsules injected by JS for dynamic colors & positions -->
-          </div>
-
-          <!-- Base with Rotary Knob & Chute -->
-          <div class="gacha-base">
-            <div class="gacha-plate">FOREST GACHA</div>
-
-            <!-- Interactive Knob -->
-            <div id="gachaKnob" class="gacha-knob-outer" title="點擊轉動旋鈕！">
-              <div class="gacha-knob-bar"></div>
-            </div>
-
-            <!-- Exit Chute with Dropped Capsule -->
-            <div class="gacha-chute">
-              <div id="droppedCapsule" class="dropped-capsule"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Reward Reveal Popover Card (Shown after spinning) -->
-        <div id="result" class="hidden w-full max-w-[340px] mt-2 p-3.5 rounded-2xl bg-white border-2 border-dashed border-[#f0b55a] shadow-lg text-center animate-[pop_0.35s_ease]">
-          <div class="flex items-center gap-3 text-left">
-            <div id="resultIcon" class="w-14 h-14 rounded-2xl bg-[#fff8e6] border border-[#f5d89a] grid place-items-center text-4xl shrink-0">
-              🎁
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-1.5">
-                <span id="resultTag" class="px-2 py-0.5 rounded-md bg-[#ffe2e3] text-[#a93645] text-[10px] font-black">獲得道具</span>
-                <strong id="resultName" class="text-base font-black text-[#a93645] truncate">神祕道具</strong>
-              </div>
-              <p id="resultDesc" class="text-xs text-[#665566] font-bold mt-0.5 line-clamp-2">讓你的樹長出新變化！</p>
-            </div>
-          </div>
-          <div class="mt-2.5 pt-2 border-t border-[#f5ebe0] flex items-center justify-between gap-2">
-            <span class="text-[11px] font-extrabold text-[#23856b]">✨ 已自動放入你的魔法樹花園！</span>
-            <button id="viewInTreeBtn" class="px-3 py-1 rounded-xl bg-[#23856b] text-white text-xs font-black hover:brightness-110 transition">
-              👉 前往魔法樹查看
-            </button>
-          </div>
-        </div>
-
-        <!-- Spin Action Button -->
-        <div class="w-full max-w-[290px] mt-2 text-center">
-          <button id="spinBtn" class="w-full py-3 px-5 rounded-2xl bg-gradient-to-r from-[#f6c84b] to-[#f29a43] text-[#5c3607] font-black text-base shadow-lg hover:brightness-105 active:scale-95 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none">
-            <span>🎡 扭轉神祕扭蛋</span>
-            <span id="spinBtnBadge" class="px-2 py-0.5 rounded-full bg-white/45 text-xs font-black">剩 0 次</span>
-          </button>
-          <p id="spinHint" class="text-xs text-[#887584] font-extrabold mt-1.5">完成任務後，就會獲得一次扭蛋機會</p>
-        </div>
-      </div>
-
-      <!-- Bottom Card: Grand Prize Progress + Quick Tree Preview Bar -->
-      <div class="space-y-2.5 shrink-0">
-        <!-- Grand Prize Variable Ratio Bar -->
-        <div id="grandCard" class="p-3.5 rounded-2xl bg-white border border-[#ead8cc] shadow-sm transition">
-          <div class="flex items-center justify-between text-xs font-black">
-            <span class="flex items-center gap-1 text-[#463544]">🏆 傳說大獎保底進度 <span class="text-[11px] font-bold text-[#887584]">(完成🌿小任務)</span></span>
-            <span id="bigProgressText" class="text-[#cc4352]">0 / 3 次</span>
-          </div>
-          <div class="h-3 bg-[#f2eadf] rounded-full my-2 overflow-hidden p-0.5">
-            <div id="bigProgress" class="h-full w-0 bg-gradient-to-r from-[#f5c948] via-[#f28c52] to-[#cc4352] rounded-full transition-all duration-300"></div>
-          </div>
-          <div class="flex items-center justify-between text-[11px] text-[#887584] font-bold">
-            <span>每次隨機設定 3～7 個小任務，集滿必出傳說大獎！</span>
-            <button id="openTreeBtnBottom" class="text-[#23856b] font-black hover:underline shrink-0 ml-2">🌳 打開魔法樹 (目前已收集 <span id="miniInvCount">0</span> 件) ➔</button>
-          </div>
-        </div>
-      </div>
-
-    </section>
-  </main>
-
-  <!-- ================= SLIDE-OUT FOREST DRAWER (我的魔法樹側欄) ================= -->
-  <div id="drawerBackdrop" class="forest-drawer-backdrop fixed inset-0 bg-[#352633]/40 backdrop-blur-sm z-40"></div>
-
-  <aside id="forestDrawer" class="forest-drawer fixed top-0 right-0 bottom-0 w-full max-w-[540px] bg-[#fffdf9] border-l-4 border-white shadow-2xl z-50 flex flex-col justify-between overflow-hidden">
-
-    <!-- Drawer Top Header -->
-    <div class="px-5 py-4 bg-gradient-to-r from-[#e3f7ef] to-[#fff9ed] border-b border-[#ead8cc] flex items-center justify-between gap-3 shrink-0">
-      <div class="flex items-center gap-2.5">
-        <div class="w-10 h-10 rounded-2xl bg-[#23856b] text-white grid place-items-center text-xl shadow">
-          🌳
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h2 class="text-lg font-black text-[#463544]">我的魔法樹生態園</h2>
-            <span id="treeLevel" class="px-2.5 py-0.5 rounded-full bg-[#23856b] text-white text-xs font-black">幼苗 Lv.1</span>
-          </div>
-          <p class="text-xs text-[#665566] font-bold">可自由拖曳樹上的裝飾品調整位置，或點擊小樹與它互動！</p>
-        </div>
-      </div>
-
-      <button id="closeDrawerBtn" class="w-9 h-9 rounded-full bg-white border border-[#ead8cc] text-[#665566] hover:bg-[#ffe2e3] hover:text-[#a93645] font-black text-lg grid place-items-center transition" aria-label="關閉側欄">
-        ✕
-      </button>
+      <div id="starLayer"></div>
+      <div class="sun" id="sun">☀️</div>
+      <div class="cloud" style="top:18px">☁️</div>
+      <div class="cloud" style="top:56px;animation-delay:-14s;font-size:26px;opacity:.8">☁️</div>
+      <div class="hill" id="hill"></div>
+      <div id="decoLayer"></div>
+      <div id="tree" tabindex="0" role="button" aria-label="戳戳小樹" title="戳戳小樹"></div>
+      <div class="bubble" id="bub"></div>
+      <div id="pet" tabindex="0" role="button" aria-label="摸摸毛孩" title="摸摸毛孩"></div>
+      <div id="weatherLayer"></div>
     </div>
+    <div class="tabs" id="tabs"></div>
+    <div class="meter m-tree"><b id="tName">🌱 種子</b><div class="bar"><i id="tBar"></i></div><small id="tTxt"></small></div>
+    <div class="meter m-pet"><b id="pName">🥚 神祕蛋</b><div class="bar"><i id="pBar"></i></div><small id="pTxt"></small></div>
+  </section>
 
-    <!-- Drawer Scrollable Body -->
-    <div class="flex-1 overflow-y-auto p-5 space-y-4">
-
-      <!-- Sky & Weather Controls + Tree Interaction Bar -->
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <!-- Ambiance Switcher -->
-        <div class="flex items-center gap-1 bg-[#fff5e6] p-1 rounded-xl border border-[#ead8cc] text-xs font-extrabold">
-          <button data-sky="day" class="sky-btn px-2.5 py-1 rounded-lg bg-white text-[#9a6400] shadow-sm transition">☀️ 晨光</button>
-          <button data-sky="sunset" class="sky-btn px-2.5 py-1 rounded-lg text-[#665566] transition">🌅 夕陽</button>
-          <button data-sky="night" class="sky-btn px-2.5 py-1 rounded-lg text-[#665566] transition">🌙 星夜</button>
-          <button id="rainToggleBtn" class="px-2.5 py-1 rounded-lg text-[#665566] hover:bg-white/60 transition">🌧️ 甘霖</button>
-        </div>
-
-        <!-- Interact / Rearrange Buttons -->
-        <div class="flex items-center gap-1.5">
-          <button id="waterTreeBtn" class="px-3 py-1.5 rounded-xl bg-[#e6f8fb] hover:bg-[#cdeff6] text-[#1c7285] border border-[#a9e2ee] text-xs font-black transition flex items-center gap-1">
-            <span>💧 澆水呵護</span>
-          </button>
-          <button id="shuffleDecorBtn" class="px-3 py-1.5 rounded-xl bg-[#fff9ed] hover:bg-[#ffe7c7] text-[#9a6400] border border-[#ead8cc] text-xs font-black transition" title="隨機重新排列樹上裝飾位置">
-            ✨ 隨機擺設
-          </button>
-        </div>
-      </div>
-
-      <!-- Interactive Tree Stage -->
-      <div id="treeScene" class="tree-stage-canvas sky-day flex items-end justify-center select-none">
-        <!-- Sky Celestial Body -->
-        <div id="skyCelestial" class="absolute right-6 top-4 text-4xl filter drop-shadow transition-all duration-500 pointer-events-none">☀️</div>
-        <div class="absolute left-6 top-6 text-3xl opacity-80 pointer-events-none animate-pulse">☁️</div>
-        <div class="absolute left-36 top-10 text-2xl opacity-60 pointer-events-none">☁️</div>
-
-        <!-- Ambient Particles Container (Fireflies / Stars / Rain) -->
-        <div id="ambientLayer" class="absolute inset-0 pointer-events-none"></div>
-
-        <!-- Rolling Hills -->
-        <div class="hill-back"></div>
-        <div class="hill-front"></div>
-
-        <!-- Tree Speech Bubble -->
-        <div id="treeSpeech" class="hidden absolute top-4 left-1/2 -translate-x-1/2 z-30 px-3.5 py-1.5 rounded-2xl bg-white/95 border-2 border-[#23856b] text-[#23856b] text-xs font-black shadow-md whitespace-nowrap">
-          🌿 謝謝你的努力，我感覺充滿能量！
-        </div>
-
-        <!-- Main Tree Visual (SVG + Emoji Hybrid for Rich Stages) -->
-        <div id="tree" class="main-tree-figure mb-3 flex flex-col items-center" title="點擊小樹跟它打招呼！">
-          <!-- Dynamic Tree Stage Rendered by JS -->
-        </div>
-
-        <!-- Draggable Ornaments Layer -->
-        <div id="ornamentsLayer" class="absolute inset-0 overflow-hidden pointer-events-none">
-          <!-- Individual ornaments have pointer-events-auto and drag handlers -->
-        </div>
-      </div>
-
-      <!-- Tree Growth Progress & Caption -->
-      <div class="p-3.5 rounded-2xl bg-[#f4fbf7] border border-[#cbeadd] flex items-center justify-between gap-3">
-        <div>
-          <p id="treeCaption" class="text-xs font-black text-[#23856b]">先完成任務，讓小樹開始冒險！</p>
-          <p class="text-[11px] text-[#665566] font-bold mt-0.5">💡 提示：用滑鼠或手指直接拖曳樹上的花朵、果實與精靈，擺出你最喜歡的樣子！</p>
-        </div>
-        <div class="text-right shrink-0">
-          <span class="text-[11px] font-bold text-[#887584] block">距離下一階段</span>
-          <strong id="nextStageHint" class="text-xs font-black text-[#23856b]">還差 2 件道具</strong>
-        </div>
-      </div>
-
-      <!-- Drawer Tabs: 1. 森林圖鑑與背包 | 2. 森林驚喜日記 -->
-      <div>
-        <div class="flex border-b border-[#ead8cc] gap-2 mb-3">
-          <button data-dtab="pokedex" class="drawer-tab-btn px-4 py-2 border-b-4 border-[#cc4352] text-[#cc4352] font-black text-sm transition">
-            🎒 道具圖鑑 (<span id="pokedexProgress">0/12</span>)
-          </button>
-          <button data-dtab="diary" class="drawer-tab-btn px-4 py-2 border-b-4 border-transparent text-[#887584] hover:text-[#463544] font-black text-sm transition">
-            📜 森林驚喜日記
-          </button>
-        </div>
-
-        <!-- Tab 1: Pokedex & Inventory Grid -->
-        <div id="dtab-pokedex" class="space-y-3">
-          <div id="pokedexGrid" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
-            <!-- Populated by JS with unlocked count & locked silhouettes -->
-          </div>
-          <!-- Legacy Chip List for quick summary -->
-          <div class="pt-2 border-t border-dashed border-[#ead8cc]">
-            <h4 class="text-xs font-black text-[#887584] mb-2">目前樹上擺設清單：</h4>
-            <div id="inventory" class="flex flex-wrap gap-1.5"></div>
-          </div>
-        </div>
-
-        <!-- Tab 2: Forest History Log -->
-        <div id="dtab-diary" class="hidden">
-          <div id="history" class="max-h-[240px] overflow-y-auto space-y-1.5 pr-1 text-xs font-bold text-[#665566]">
-            <!-- Populated by JS -->
-          </div>
-        </div>
-      </div>
-
+  <section class="card" id="tasks">
+    <h2>我的任務</h2>
+    <div class="add">
+      <input id="inp" maxlength="60" placeholder="寫下一個任務，按 Enter 新增" aria-label="任務名稱">
+      <select id="lv" aria-label="任務層級"><option value="0">🌳 大任務</option><option value="1" selected>🌿 小任務</option><option value="2">🍃 子任務</option></select>
+      <button class="btn" id="addBtn">新增</button>
     </div>
+    <p class="hint" id="hint"></p>
+    <div id="list"></div>
+    <div class="foot"><span>大任務 +3、小任務 +2、子任務 +1 張券（雙擊名稱可編輯）</span><span class="fa"><button id="bkOpen">備份／還原</button><button id="clrDone">清除已完成</button><button id="clrAll">清空清單</button><button id="reset">重新開始</button></span></div>
+  </section>
 
-    <!-- Drawer Footer -->
-    <div class="px-5 py-3 bg-[#fff9ed] border-t border-[#ead8cc] flex items-center justify-between text-xs font-extrabold text-[#887584] shrink-0">
-      <span>🌟 每件收集到的道具都會永久保存在這台裝置</span>
-      <button id="backToTaskBtn" class="px-3.5 py-1.5 rounded-xl bg-[#cc4352] text-white font-black hover:brightness-110 transition">
-        返回任務與扭蛋
-      </button>
+  <div class="ov" id="gov"><section class="card" id="gacha" role="dialog" aria-label="森林扭蛋機">
+    <button class="gx" id="gClose" aria-label="關閉扭蛋機">✕</button>
+    <h2>森林扭蛋機</h2>
+    <div class="machine" id="mach">
+      <div class="globe" id="globe"></div>
+      <div class="base"><div class="knob" id="knob" title="點一下扭蛋"></div><div class="chute"><div id="drop"></div></div></div>
     </div>
-  </aside>
+    <button class="btn" id="spin">扭一下！</button>
+    <button class="btn" id="spinAll">一鍵扭完</button>
+    <p class="odds" id="gOdds">綠色道具讓植物長大，橘色道具讓夥伴長大。目前培育中：<b id="gTarget"></b><br>連續 6 抽沒出稀有，下一抽必出稀有。</p>
+  </section></div>
+</div>
 
-  <!-- ================= CUSTOM MODAL DIALOG (No native confirm/alert) ================= -->
-  <div id="customModal" class="hidden fixed inset-0 bg-[#352633]/50 backdrop-blur-xs z-50 grid place-items-center p-4">
-    <div class="w-full max-w-[380px] bg-white rounded-3xl border-2 border-[#ead8cc] shadow-2xl p-6 text-center animate-[pop_0.25s_ease]">
-      <div id="modalEmoji" class="text-4xl mb-2">🌱</div>
-      <h3 id="modalTitle" class="text-lg font-black text-[#463544]">確認操作</h3>
-      <p id="modalMessage" class="text-xs font-bold text-[#665566] mt-2 leading-relaxed">確定要執行這項操作嗎？</p>
-      <div id="modalInputWrap" class="hidden mt-3">
-        <input id="modalInput" type="text" maxlength="100" class="w-full px-3.5 py-2 rounded-xl border-2 border-[#ead8cc] text-sm font-bold text-[#463544] focus:outline-none focus:border-[#f28c52]">
-      </div>
-      <div class="mt-5 flex items-center justify-center gap-2.5">
-        <button id="modalCancelBtn" class="flex-1 py-2.5 rounded-xl bg-[#fff9ed] border border-[#ead8cc] text-[#665566] font-black text-xs hover:bg-[#ffe7c7] transition">取消</button>
-        <button id="modalConfirmBtn" class="flex-1 py-2.5 rounded-xl bg-[#cc4352] text-white font-black text-xs hover:brightness-110 transition">確定</button>
-      </div>
-    </div>
-  </div>
+<div class="ov" id="bov"><section class="card" id="bk" role="dialog" aria-label="備份與還原">
+  <button class="gx" id="bClose" aria-label="關閉備份視窗">✕</button>
+  <h2>備份與還原</h2>
+  <p class="odds">備份碼包含所有任務、培育進度與裝飾品，貼到另一台裝置就能還原。</p>
+  <textarea id="bkOut" readonly rows="3" aria-label="備份碼"></textarea>
+  <button class="btn" id="bCopy">複製備份碼</button>
+  <h3>還原進度</h3>
+  <textarea id="bkIn" rows="3" placeholder="貼上備份碼，再按還原" aria-label="貼上備份碼"></textarea>
+  <button class="btn" id="bRestore" style="background:var(--lil);box-shadow:0 4px 0 #4b3fc0">還原</button>
+</section></div>
 
-  <!-- ================= TOAST NOTIFICATION ================= -->
-  <div id="toast" class="fixed left-1/2 bottom-5 -translate-x-1/2 translate-y-6 opacity-0 pointer-events-none bg-[#463544] text-white px-5 py-2.5 rounded-full shadow-xl font-extrabold text-xs sm:text-sm z-50 transition-all duration-300 text-center max-w-[90%]"></div>
+<div class="ov" id="dov"><section class="card" id="daily" role="dialog" aria-label="每日任務">
+  <button class="gx" id="dClose" aria-label="關閉每日任務">✕</button>
+  <h2>每日任務</h2>
+  <p class="odds">每天 0 點重置，完成就能多拿扭蛋券</p>
+  <div id="dList"></div>
+</section></div>
+
+<div class="ov" id="sov"><section class="card" id="stats" role="dialog" aria-label="森林紀錄與成就">
+  <button class="gx" id="sClose" aria-label="關閉森林紀錄">✕</button>
+  <h2>🏆 森林紀錄</h2>
+  <div class="sgrid" id="sGrid"></div>
+  <div class="ach-h"><span>成就牆</span><small id="achCnt" style="color:var(--mut)"></small></div>
+  <div class="ach-list" id="achList"></div>
+</section></div>
+
+<div class="ov" id="decov"><section class="card" id="decoPop" role="dialog" aria-label="場景裝飾品圖鑑">
+  <button class="gx" id="decoClose" aria-label="關閉裝飾品視窗">✕</button>
+  <h2 id="decoTitle">🎨 場景裝飾品圖鑑</h2>
+  <p class="odds" id="decoSub">四個場景全部培育完成後，扭蛋就能抽到專屬裝飾品！點選已解鎖小物可擺放或收回，也能直接在場景中拖曳移動位置。</p>
+  <div id="decoGrid"></div>
+</section></div>
+
+<div class="ov" id="ov"><div class="box">
+  <div class="big" id="pE"></div><h3 id="pN"></h3><p id="pD"></p><p class="up" id="pU"></p>
+  <button class="btn" id="pOk" style="margin-top:14px">收下！</button>
+</div></div>
+<div id="toast" role="status"></div>
 
 <script>
-  const $ = id => document.getElementById(id);
+const $=id=>document.getElementById(id);
+const L=[{i:"🌳",t:3},{i:"🌿",t:2},{i:"🍃",t:1}];
+const PRIZES=[
+ {n:"晨露",i:"💧",k:"tree",v:1,w:30,c:"#6fd0ff"},
+ {n:"陽光碎片",i:"☀️",k:"tree",v:2,w:16,c:"#8fe08f"},
+ {n:"魔法肥料",i:"🧪",k:"tree",v:4,w:5,r:1,c:"#3fbf7f"},
+ {n:"野莓",i:"🍓",k:"pet",v:1,w:30,c:"#ff9a6b"},
+ {n:"小魚乾",i:"🐟",k:"pet",v:2,w:16,c:"#ffc24d"},
+ {n:"蜂蜜蛋糕",i:"🍰",k:"pet",v:4,w:5,r:1,c:"#ff7a3d"},
+ {n:"彩虹星塵",i:"🌈",k:"both",v:3,w:3,r:1,c:"#b78cff"}];
+const DECOS=[
+ {id:"camp",sc:0,i:"🔥",n:"溫暖營火",x:26,y:78,c:"#ff8a4c"},
+ {id:"bench",sc:0,i:"🪑",n:"森林長椅",x:68,y:74,c:"#c98a4b"},
+ {id:"mush",sc:0,i:"🍄",n:"發光蘑菇",x:12,y:82,c:"#ff6f91"},
+ {id:"picnic",sc:1,i:"🧺",n:"花田野餐籃",x:24,y:80,c:"#ffc93c"},
+ {id:"fountain",sc:1,i:"⛲",n:"許願噴泉",x:68,y:72,c:"#6fd0ff"},
+ {id:"rainbow",sc:1,i:"🌈",n:"雙層彩虹",x:50,y:24,c:"#b78cff"},
+ {id:"tent",sc:2,i:"⛺",n:"綠洲帳篷",x:70,y:70,c:"#ff9a6b"},
+ {id:"meteor",sc:2,i:"🌠",n:"沙漠流星",x:44,y:22,c:"#ffd95a"},
+ {id:"lamp",sc:2,i:"🏮",n:"旅人營燈",x:24,y:78,c:"#ff6f61"},
+ {id:"snowman",sc:3,i:"⛄",n:"圍巾雪人",x:68,y:74,c:"#a1c4fd"},
+ {id:"cabin",sc:3,i:"🏠",n:"暖爐木屋",x:22,y:70,c:"#d98a5b"},
+ {id:"aurora",sc:3,i:"🌌",n:"極光緞帶",x:48,y:22,c:"#7b6cf6"}
+];
+const TREE_LINES=[
+ "沙沙～你每一次努力，都在悄悄替未來扎根喔。",
+ "風吹過葉子的聲音，是在替認真的你拍拍手！",
+ "別急著看結果，樹也是在看不見的地方先長好根的。",
+ "休息一下看看綠意吧，今天的你已經比昨天更成長了！",
+ "每完成一件小事，就替自己多留下一片綠蔭 🌿",
+ "陽光、水分、還有你的堅持，就是最棒的養分！",
+ "累的時候就在樹下乘個涼，充好電再繼續往前走吧。",
+ "沙沙沙…這片森林因為你的行動越來越有生氣了！"
+];
+const TIME_CFG={
+ dawn:{n:"清晨",ic:"🌅",sky:"#ffb6c1,#ffe7b8 64%",sun:"🌅"},
+ day:{n:"白天",ic:"☀️",sky:null,sun:null},
+ dusk:{n:"黃昏",ic:"🌇",sky:"#ff7e6b,#ffd27d 64%",sun:"🌇"},
+ night:{n:"星空",ic:"🌙",sky:"#0f1b3d,#283c63 64%",sun:"🌙"}
+};
+const WX_CFG={
+ clear:{n:"晴朗",ic:"🌤️"},
+ rain:{n:"微雨",ic:"🌧️"},
+ petal:{n:"飄花瓣",ic:"🌸"},
+ snow:{n:"下小雪",ic:"❄️"}
+};
+const TIME_ORDER=["auto","dawn","day","dusk","night"];
+const WX_ORDER=["clear","rain","petal","snow"];
+let timeMode="auto",curWeather="clear",wxManual=false;
 
-  // ================= REWARD DEFINITIONS (8 Normal + 4 Grand Prizes) =================
-  const rewards = [
-    { name: "晨露水滴", icon: "💧", desc: "清澈的露水滋潤樹根，讓枝葉閃閃發亮。", type: "water" },
-    { name: "暖陽徽章", icon: "☀️", desc: "溫暖陽光灑落，樹冠變得更加蓬鬆。", type: "sun" },
-    { name: "魔法肥料", icon: "✨", desc: "小樹吸收星塵養分，長得更茁壯。", type: "fertilizer" },
-    { name: "彩虹花種", icon: "🌸", desc: "枝頭綻放出繽紛芬芳的粉紅小花。", type: "flower" },
-    { name: "森林蝴蝶", icon: "🦋", desc: "翩翩飛舞的彩蝶，讓森林變得更熱鬧。", type: "butterfly" },
-    { name: "甜甜果實", icon: "🍎", desc: "樹上結出飽滿紅潤的香甜果實。", type: "fruit" },
-    { name: "星星掛飾", icon: "⭐", desc: "把夜空的星光摘下來掛在樹梢上。", type: "star" },
-    { name: "小鳥朋友", icon: "🐦", desc: "快樂的青鳥在枝頭唱著清脆歌謠。", type: "bird" }
-  ];
+const TT=[2,5,9,14],PT=[2,6,12],MUL=[1,1.4,1.8,2.2];
+const th=(i,a)=>a.map(x=>Math.round(x*MUL[i]));
+const PS=[46,54,64,78];
+const SC=[
+{n:"森林",ic:"🌳",pl:"小樹",pn:"孔雀",skyTop:"#8fd6ff,#e9fbff 64%",ground:"#8fd694 64%,#59b06a",hill:"#6cc47b",sun:"☀️",dc:"☁️",wxPool:["clear","clear","rain","petal"],svg:treeSVG,P:["🌱 種子","🌿 嫩芽","🌳 小樹苗","🌲 綠蔭樹","🌸 開花神木"],A:["🥚","🐣","🐥","🦚"],AN:["神祕蛋","破殼寶寶","活力小雞","孔雀王"],
+ lines:[
+  ["咚…蛋殼裡好安靜，好像有人在幫我加油。","輕輕搖晃中…快帶我去看看森林吧！","就算現在只是小小一步，對我來說都是很棒的暖意喔。","慢慢來沒關係，我會在蛋殼裡安靜等你準備好。"],
+  ["啾！原來陽光這麼暖，我們今天要做什麼呢？","羽毛還沒長齊，但我已經準備好陪你囉！","剛開始總是最需要勇氣的，你已經踏出第一步了，超棒！","啾啾！累了就看看森林的綠色，休息一下再出發吧。"],
+  ["看我整理羽毛的樣子，是不是很有架勢？","一步一步來，森林裡的樹也是慢慢長高的。","專注的你閃閃發光，不用跟別人比，跟昨天的自己比就好！","卡關的時候別責怪自己，把大任務拆小一點就會順很多喔。"],
+  ["為了慶祝你的努力，特別為你開屏一次！","優雅的人做事從容不迫，你今天也超亮眼。","一路走來你克服了好多事，這份自律真的很迷人。","無論今天進度多少，願意面對待辦清單的你，都值得掌聲！"]
+ ],
+ mood:{
+  z:["早安！先挑一件最小的事開始，我陪你暖身。","還沒開工也沒關係，完成第一項就會順起來喔！","只要先打開檔案或寫下第一行，你就已經贏過一半的拖延了。","深呼吸，挑一個 5 分鐘內能搞定的小事，我們一起破冰吧！"],
+  m:["今天已經完成 {n} 項任務了，節奏抓得很優雅呢！","已經推進 {n} 件事了，繼續保持這份從容吧！","看著清單一點一點被打勾，是不是很有踏實感？你做得很棒！","完成 {n} 項囉！喝口水、伸個懶腰，再穩穩拿下下一件吧。"],
+  h:["今天竟然完成了 {n} 項任務！我的尾羽都要為你閃耀了！","太佩服了，{n} 項任務全數拿下，記得也休息一下喔！","整整 {n} 項的累積，今天的你真的超級可靠！","已經完成 {n} 件事了，今晚請毫無愧疚地好好犒賞自己吧！"]
+ }},
+{n:"花田",ic:"🌻",pl:"向日葵",pn:"蝴蝶",skyTop:"#ffd0e6,#fff3df 64%",ground:"#b6e08a 64%,#7fc45a",hill:"#98d46a",sun:"🌞",dc:"☁️",wxPool:["clear","petal","petal","rain"],svg:flowerSVG,P:["🌱 花種子","🌿 嫩芽","🌼 花苞","🌻 向日葵","🌈 巨大向日葵"],A:["🐛","🐝","🦋","🧚"],AN:["毛毛蟲","小蜜蜂","彩蝶","花仙子"],
+ lines:[
+  ["喀滋喀滋…嚼葉子的同時也在等你完成任務喔！","別看我小小一隻，我可是藏著翅膀的夢想家！","每天進步一點點，就像我每天吃掉一片葉子一樣踏實！","別小看微小的小任務，它們都是在幫你累積蛻變的能量喔！"],
+  ["嗡嗡嗡～採蜜就像做任務，一點一點就會變甜！","今天的風好香，我們一起把清單變輕鬆吧！","嗡嗡！遇到不想做的事，就當成採一朵難搞的花，搞定超有成就感！","別忘了眨眨眼、放鬆肩膀，開心做事效率會更高喔！"],
+  ["呼哇～在花田裡飛翔的感覺太棒了，謝謝你帶我長大！","每次你勾選完成，花瓣都像在灑彩帶一樣！","你努力的樣子超可愛，連花田的太陽都為你笑得更燦爛了！","偶爾飛得慢一點也沒關係，重點是你一直都在往前飛呀！"],
+  ["撒點花瓣魔法給你！願你今天的待辦都順順利利✨","你認真生活的樣子，比整片向日葵花田還燦爛！","施展「專注力滿點」魔法～叮！祝你靈感源源不絕！","你已經做得非常好了，記得也要對自己溫柔一點喔💐"]
+ ],
+ mood:{
+  z:["花田的微風吹來囉～先完成一件小事當今天的開場吧！","還沒開始嗎？沒關係，挑一朵最可愛的任務先摘下來！","啟動的第一步最難，我幫你加油打氣，三、二、一，開始！","不用一次做到完美，先完成 60 分就很棒了喔！"],
+  m:["哇！已經完成 {n} 項了，花田裡飄起甜甜的成就感！","完成了 {n} 件事耶～你就像勤勞的小蜜蜂一樣棒！","{n} 項達標！每打一個勾，就替自己種下一朵小花🌼","進展超順利的～趁著這股好手感，再來一項吧！"],
+  h:["天呀！今天完成了 {n} 項任務，整片花田都在為你開派對！","{n} 項任務達成！給你灑滿一整個夏天的魔法花瓣✨","完成了 {n} 件耶，你根本是時間管理小天才！","今天超額發光了！剩下的時間就留給喜歡的事和好好休息吧！"]
+ }},
+{n:"沙漠",ic:"🌵",pl:"仙人掌",pn:"恐龍",skyTop:"#ffd59a,#fff0d0 64%",ground:"#f2cf8a 64%,#e0b265",hill:"#e8c47a",sun:"🌞",dc:"🌤️",wxPool:["clear","clear","clear","rain"],svg:cactusSVG,P:["🌱 仙人掌種子","🌵 小仙人球","🌵 小仙人掌","🌵 壯碩仙人掌","🌺 開花仙人掌"],A:["🥚","🦎","🐊","🦖"],AN:["恐龍蛋","小蜥蜴","鱷魚","暴龍王"],
+ lines:[
+  ["咚咚咚！這顆蛋裡裝滿了破殼而出的熱血！","沙漠太陽這麼大，感覺我隨時都要孵化啦！","準備好大幹一場了嗎？我在蛋殼裡都熱血沸騰了！","別猶豫！現在動手，五分鐘後你就會感謝自己！"],
+  ["刷刷！在沙地上衝刺超痛快，任務也一口氣衝掉吧！","別小看我的小爪子，爬過沙丘沒在怕的！","拖延症算什麼，我們直接正面迎擊把它甩在後頭！","專注 15 分鐘試試看，你會發現自己比想像中更能幹！"],
+  ["嘿！困難越大，越能證明我們的實力！","只要咬定目標不放，沒有過不了的難關！","最硬的那塊骨頭啃下來，後面就全都是順風局了！","穩住呼吸、鎖定目標，把眼前這件大事漂亮收尾吧！"],
+  ["吼——！有我暴龍王罩著，今天所有任務通通碾壓！","痛快！跟你並肩作戰是這片沙漠最熱血的事！","強者不是不會累，而是累了休息完依然會站起來往前衝！","你的執行力簡直無敵，這片沙漠都為你震動啦！"]
+ ],
+ mood:{
+  z:["熱身時間到！挑一個任務當第一個獵物，衝吧！","還沒出手嗎？來吧，先解決一項就能點燃幹勁！","別等靈感自己來，動手做的那一刻引擎就會發動！","選好目標沒？拿出氣勢，先拿下一血再說！"],
+  m:["好樣的！已經拿下 {n} 項任務，火力正在升溫！","{n} 項通關！這股氣勢直接往下一關推進吧！","連過 {n} 關，手感正燙！趁勝追擊！","乾脆俐落！這才是我們的風格，繼續保持！"],
+  h:["吼——！今天狂掃 {n} 項任務，你根本是效率界霸主！","整整 {n} 項任務！這份戰鬥力連暴龍王都甘拜下風！","一天幹掉 {n} 件事，今晚你就是這片綠洲的傳奇！","大獲全勝！戰士也需要補充體力，快去好好休息慶功吧！"]
+ }},
+{n:"雪地",ic:"🌲",pl:"杉樹",pn:"北極熊",skyTop:"#9fb8ff,#e8f0ff 64%",ground:"#ffffff 64%,#d7e6f5",hill:"#f4f9ff",sun:"🌙",dc:"❄️",wxPool:["snow","snow","clear"],svg:pineSVG,P:["🌱 杉樹種子","🌿 小杉苗","🌲 小杉樹","🌲 雪松","🎄 聖誕神木"],A:["🥚","🐧","🦭","🐻‍❄️"],AN:["冰凍蛋","小企鵝","海豹","北極熊王"],
+ lines:[
+  ["呼…雪地很安靜，但蛋殼裡被你暖得剛剛好。","慢慢來就好，雪花也是靜靜落下來才堆成銀白世界。","今天如果覺得有點累，只做一點點也沒關係喔。","不管外頭多忙碌，這裡永遠是你安靜喘口氣的小角落。"],
+  ["啪嗒啪嗒～走路雖然搖搖晃晃，但我會一直跟著你。","冷的時候就靠過來吧，我幫你擋風。","步子小也沒關係，只要方向對了，走著走著就會到的。","滑倒了就拍拍雪站起來，你其實一直都做得很努力喔。"],
+  ["呼嚕嚕…在冰原上曬太陽好舒服，做完任務也休息一下吧。","不疾不徐地往前走，我們已經走了很遠喔。","把注意力放回當下這一件事就好，別被未來的煩惱嚇到了。","你默默付出的每一分努力，時間都會溫柔地記住。"],
+  ["厚實的毛皮借你靠一下，辛苦的時刻有我在。","在安靜的雪夜裡，你每完成一件事都像點亮一盞燈。","不必總是勉強自己當滿分的人，真實努力的你就已經很珍貴。","如果感到壓力太大，就放下手機深呼吸三次，我會靜靜陪你。"]
+ ],
+ mood:{
+  z:["雪地很寧靜，深呼吸一下，先從最不費力的一件開始吧。","今天剛起步，不用急，我會安靜陪在你旁邊。","先倒杯溫水，挑一件最溫和的小事，慢慢進入狀態就好。","沒關係的，開始永遠不嫌晚，現在就是剛剛好的時候。"],
+  m:["你已經穩穩完成 {n} 項任務了，喝口熱水再繼續吧。","默默累積了 {n} 件事，這份踏實感最讓人安心了。","一步一腳印走了 {n} 步，雪地上留下了很漂亮的足跡呢。","做得很好喔，眼睛看累了記得看看遠方休息一分鐘。"],
+  h:["今天完成了 {n} 項任務，真的非常努力，該給自己一個溫暖的擁抱了。","{n} 項任務都完成了！今晚可以安心在雪光下好好放鬆囉。","謝謝你今天這麼照顧自己的目標，完成 {n} 件事真的很了不起。","辛苦了，今天已經足夠閃耀，剩下的交給明天的自己就好。"]
+ }}
+];
+function fresh(){return{tasks:[],tickets:1,sc:[0,1,2,3].map(()=>({p:0,a:0})),grow:0,view:0,pulls:0,dry:0,done:0,decos:[],placed:{},daily:{d:"",signed:false,small:false,claimed:false,streak:0,maxStreak:0,last:"",todayDone:0,maxToday:0}}}
+let S=fresh(),lastK="",lastI=null;
+let parent=null,busy=false;
+const KEY="taskForestV2",PKEY="taskForestPrefs";
+let prefs={theme:"auto",muted:false};
+try{const pr=localStorage.getItem(PKEY);if(pr)prefs=Object.assign(prefs,JSON.parse(pr))}catch(e){}
+function savePrefs(){try{localStorage.setItem(PKEY,JSON.stringify(prefs))}catch(e){}}
+function isDarkNow(){return prefs.theme==="dark"||(prefs.theme==="auto"&&matchMedia("(prefers-color-scheme:dark)").matches)}
+function applyPrefs(){
+ if(prefs.theme==="light"||prefs.theme==="dark")document.documentElement.dataset.theme=prefs.theme;
+ else delete document.documentElement.dataset.theme;
+ $("themeBtn").textContent=isDarkNow()?"☀️":"🌙";
+ $("themeBtn").title=isDarkNow()?"切換為淺色模式":"切換為深色模式";
+ $("muteBtn").textContent=prefs.muted?"🔇":"🔊";
+ $("muteBtn").classList.toggle("off",prefs.muted);
+ $("muteBtn").title=prefs.muted?"目前靜音（點一下開啟音效）":"目前有聲（點一下靜音）"}
 
-  const grandRewards = [
-    { name: "傳說彩虹樹冠", icon: "🌈", desc: "傳說級七彩光芒降臨，跨越整片樹冠！", type: "rainbow", grand: true },
-    { name: "夢幻花園花環", icon: "💐", desc: "整棵魔法樹盛開出奇蹟般的花海！", type: "garden", grand: true },
-    { name: "森林守護精靈", icon: "🧚", desc: "閃耀翅膀的森林精靈現身守護你的樹！", type: "fairy", grand: true },
-    { name: "榮耀黃金果實", icon: "🏆", desc: "珍貴無比的黃金果實，森林的最高榮耀！", type: "gold", grand: true }
-  ];
-
-  const allCatalog = [...rewards, ...grandRewards];
-
-  // Preset Task Templates
-  const taskTemplates = {
-    study: [
-      { name: "完成今日學習衝刺目標", level: 0 },
-      { name: "閱讀核心章節 30 分鐘并畫重點", level: 1 },
-      { name: "整理 5 個容易忘記的觀念筆記", level: 1 },
-      { name: "完成一回練習題自我測驗", level: 1 },
-      { name: "訂正錯題並寫下解析", level: 2 }
-    ],
-    clean: [
-      { name: "打造清爽舒適的房間角落", level: 0 },
-      { name: "把書桌上的雜物與文具歸位", level: 1 },
-      { name: "摺好床鋪與散落的衣服", level: 1 },
-      { name: "將垃圾分類打包清理", level: 1 }
-    ],
-    health: [
-      { name: "今日身心元氣充電計畫", level: 0 },
-      { name: "喝滿 3 大杯溫開水補充水分", level: 1 },
-      { name: "離開座位伸展拉筋 10 分鐘", level: 1 },
-      { name: "放下手機提早休息放鬆眼睛", level: 1 }
-    ]
-  };
-
-  // ================= STATE VARIABLES =================
-  let tasks = [];
-  let inventory = []; // Array of prize objects with optional { uid, x, y }
-  let history = [];
-  let doneCount = 0;
-  let smallCount = 0;
-  let smallTarget = 3;
-  let spinCredits = 0;
-  let pendingGrand = false;
-
-  // UI & Extended Preferences
-  let taskFilter = "all";
-  let soundEnabled = true;
-  let autoOpenTree = false;
-  let skyMode = "day";
-  let rainActive = false;
-  let isSpinning = false;
-
-  // ================= STORAGE (Compatible with taskForestSave) =================
-  function save() {
-    localStorage.setItem("taskForestSave", JSON.stringify({
-      tasks,
-      inventory,
-      history,
-      doneCount,
-      smallCount,
-      smallTarget,
-      spinCredits,
-      pendingGrand,
-      soundEnabled,
-      autoOpenTree,
-      skyMode,
-      rainActive
-    }));
+let lastSer="",cloud=null,syncT=null,syncing=false,dirty=false,pend=false;
+const ser=()=>{const{savedAt,...r}=S;return JSON.stringify(r)};
+const tmo=(p,ms)=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r({code:"timeout"}),ms))]);
+function setCloud(st){$("cloudTx").textContent=" "+({sync:"同步中",ok:"已同步",off:"離線（僅存本機）"})[st];$("cloudSt").dataset.s=st}
+function save(){const s=ser();if(s===lastSer)return;lastSer=s;S.savedAt=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}schedCloud()}
+function schedCloud(){if(!cloud)return;dirty=true;setCloud("sync");clearTimeout(syncT);syncT=setTimeout(push,1500)}
+async function push(){
+ if(!cloud)return;if(syncing){pend=true;return}
+ if(!S.savedAt){S.savedAt=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+ syncing=true;
+ try{await cloud.set({savedAt:S.savedAt,json:JSON.stringify(S)});if(!pend)dirty=false;setCloud("ok")}catch(e){setCloud("off")}
+ syncing=false;if(pend){pend=false;schedCloud()}}
+function normalize(o){
+ const base=fresh();
+ const m=Object.assign(base,o);
+ m.daily=Object.assign(base.daily,o.daily||{});
+ const scBase=[0,1,2,3].map(()=>({p:0,a:0}));
+ if(Array.isArray(o.sc)){
+  for(let i=0;i<4;i++){
+   if(o.sc[i]&&typeof o.sc[i]==="object"){
+    scBase[i]={p:Math.max(0,+o.sc[i].p||0),a:Math.max(0,+o.sc[i].a||0)};
+   }
   }
-
-  function load() {
-    try {
-      const raw = localStorage.getItem("taskForestSave");
-      if (raw) {
-        const d = JSON.parse(raw);
-        tasks = d.tasks || [];
-        inventory = (d.inventory || []).map((item, idx) => ({
-          ...item,
-          uid: item.uid || `orn_${idx}_${Date.now()}`,
-          x: typeof item.x === "number" ? item.x : getDefaultOrnamentPos(idx).x,
-          y: typeof item.y === "number" ? item.y : getDefaultOrnamentPos(idx).y
-        }));
-        history = d.history || [];
-        doneCount = d.doneCount || 0;
-        smallCount = d.smallCount || 0;
-        smallTarget = d.smallTarget || 3;
-        spinCredits = d.spinCredits || 0;
-        pendingGrand = !!d.pendingGrand;
-        if (typeof d.soundEnabled === "boolean") soundEnabled = d.soundEnabled;
-        if (typeof d.autoOpenTree === "boolean") autoOpenTree = d.autoOpenTree;
-        if (d.skyMode) skyMode = d.skyMode;
-        if (typeof d.rainActive === "boolean") rainActive = d.rainActive;
-      }
-    } catch (e) {
-      console.warn("讀取紀錄失敗", e);
-    }
-  }
-
-  function uid() {
-    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-  }
-
-  function getDefaultOrnamentPos(index) {
-    // Golden-angle spiral around the tree canopy so ornaments never stack awkwardly
-    const spots = [
-      { x: 46, y: 34 }, { x: 33, y: 48 }, { x: 58, y: 46 },
-      { x: 48, y: 20 }, { x: 25, y: 33 }, { x: 67, y: 31 },
-      { x: 38, y: 60 }, { x: 56, y: 60 }, { x: 18, y: 52 },
-      { x: 74, y: 50 }, { x: 36, y: 22 }, { x: 60, y: 21 }
-    ];
-    const base = spots[index % spots.length];
-    const jitterX = (index >= spots.length) ? ((index * 7) % 11) - 5 : 0;
-    const jitterY = (index >= spots.length) ? ((index * 5) % 9) - 4 : 0;
-    return {
-      x: Math.max(10, Math.min(84, base.x + jitterX)),
-      y: Math.max(8, Math.min(72, base.y + jitterY))
-    };
-  }
-
-  // ================= SOUND EFFECTS (Web Audio API) =================
-  function playSound(type) {
-    if (!soundEnabled) return;
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const now = ctx.currentTime;
-
-      if (type === "check") {
-        [587.33, 880].forEach((freq, i) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = "triangle";
-          osc.frequency.value = freq;
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          gain.gain.setValueAtTime(0.001, now + i * 0.07);
-          gain.gain.exponentialRampToValueAtTime(0.14, now + i * 0.07 + 0.02);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.22);
-          osc.start(now + i * 0.07);
-          osc.stop(now + i * 0.07 + 0.23);
-        });
-      } else if (type === "crank") {
-        // Mechanical ratchet clicks during knob turn
-        [0, 0.09, 0.18, 0.28, 0.40, 0.52].forEach((t, i) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = "sawtooth";
-          osc.frequency.value = 180 + (i % 2) * 60;
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          gain.gain.setValueAtTime(0.001, now + t);
-          gain.gain.exponentialRampToValueAtTime(0.09, now + t + 0.01);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.05);
-          osc.start(now + t);
-          osc.stop(now + t + 0.06);
-        });
-      } else if (type === "chime") {
-        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
-          const o = ctx.createOscillator();
-          const g = ctx.createGain();
-          o.type = "sine";
-          o.frequency.value = f;
-          o.connect(g);
-          g.connect(ctx.destination);
-          g.gain.setValueAtTime(0.0001, now + i * 0.08);
-          g.gain.exponentialRampToValueAtTime(0.14, now + i * 0.08 + 0.02);
-          g.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.08 + 0.26);
-          o.start(now + i * 0.08);
-          o.stop(now + i * 0.08 + 0.28);
-        });
-      } else if (type === "grand") {
-        [523.25, 659.25, 783.99, 1046.5, 1318.5, 1567.98].forEach((f, i) => {
-          const o = ctx.createOscillator();
-          const g = ctx.createGain();
-          o.type = "triangle";
-          o.frequency.value = f;
-          o.connect(g);
-          g.connect(ctx.destination);
-          g.gain.setValueAtTime(0.0001, now + i * 0.07);
-          g.gain.exponentialRampToValueAtTime(0.18, now + i * 0.07 + 0.02);
-          g.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.07 + 0.35);
-          o.start(now + i * 0.07);
-          o.stop(now + i * 0.07 + 0.36);
-        });
-      } else if (type === "leaf") {
-        [440, 554.37, 659.25].forEach((f, i) => {
-          const o = ctx.createOscillator();
-          const g = ctx.createGain();
-          o.type = "sine";
-          o.frequency.value = f;
-          o.connect(g);
-          g.connect(ctx.destination);
-          g.gain.setValueAtTime(0.001, now + i * 0.06);
-          g.gain.exponentialRampToValueAtTime(0.08, now + i * 0.06 + 0.02);
-          g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.18);
-          o.start(now + i * 0.06);
-          o.stop(now + i * 0.06 + 0.20);
-        });
-      }
-
-      setTimeout(() => ctx.close(), 1200);
-    } catch (e) {}
-  }
-
-  // ================= VISUAL PARTICLE BURST =================
-  function spawnParticles(x, y, emojis = ["✨", "🌿", "⭐", "🎉"], count = 8) {
-    for (let i = 0; i < count; i++) {
-      const el = document.createElement("span");
-      el.className = "fx-particle";
-      el.textContent = emojis[i % emojis.length];
-      const angle = (Math.PI * 2 * i) / count + (Math.random() * 0.5 - 0.25);
-      const dist = 42 + Math.random() * 55;
-      el.style.left = `${x}px`;
-      el.style.top = `${y}px`;
-      el.style.setProperty("--tx", `${Math.cos(angle) * dist}px`);
-      el.style.setProperty("--ty", `${Math.sin(angle) * dist - 20}px`);
-      el.style.setProperty("--rot", `${Math.floor(Math.random() * 260 - 130)}deg`);
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 920);
-    }
-  }
-
-  // ================= TOAST & CUSTOM MODAL =================
-  let toastTimer = null;
-  function toast(msg) {
-    const t = $("toast");
-    t.textContent = msg;
-    t.classList.remove("opacity-0", "translate-y-6");
-    t.classList.add("opacity-100", "translate-y-0");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => {
-      t.classList.add("opacity-0", "translate-y-6");
-      t.classList.remove("opacity-100", "translate-y-0");
-    }, 2400);
-  }
-
-  function openModal({ emoji = "🌱", title, message, inputDefault = null, onConfirm }) {
-    $("modalEmoji").textContent = emoji;
-    $("modalTitle").textContent = title;
-    $("modalMessage").textContent = message;
-    const inputWrap = $("modalInputWrap");
-    const inputEl = $("modalInput");
-    if (inputDefault !== null) {
-      inputWrap.classList.remove("hidden");
-      inputEl.value = inputDefault;
-      setTimeout(() => inputEl.focus(), 50);
-    } else {
-      inputWrap.classList.add("hidden");
-    }
-    $("customModal").classList.remove("hidden");
-
-    const close = () => $("customModal").classList.add("hidden");
-    $("modalCancelBtn").onclick = close;
-    $("modalConfirmBtn").onclick = () => {
-      const val = inputDefault !== null ? inputEl.value.trim() : true;
-      close();
-      if (onConfirm) onConfirm(val);
-    };
-  }
-
-  // ================= GACHA GLOBE CAPSULES INIT =================
-  const capsuleGradients = [
-    "linear-gradient(135deg, #ff9a9e, #ee4c58)",
-    "linear-gradient(135deg, #ffd86f, #f39237)",
-    "linear-gradient(135deg, #84fab0, #239b75)",
-    "linear-gradient(135deg, #a1c4fd, #4a89dc)",
-    "linear-gradient(135deg, #d4a5ff, #8c61d4)",
-    "linear-gradient(135deg, #fbc2eb, #e86ea9)"
-  ];
-
-  function renderGlobeCapsules() {
-    const globe = $("gachaGlobe");
-    globe.innerHTML = "";
-    const positions = [
-      { left: 14, bottom: 8, delay: 0 },
-      { left: 48, bottom: 6, delay: 0.2 },
-      { left: 84, bottom: 7, delay: 0.4 },
-      { left: 120, bottom: 8, delay: 0.1 },
-      { left: 152, bottom: 10, delay: 0.3 },
-      { left: 28, bottom: 38, delay: 0.5 },
-      { left: 66, bottom: 36, delay: 0.15 },
-      { left: 104, bottom: 38, delay: 0.35 },
-      { left: 138, bottom: 40, delay: 0.25 },
-      { left: 50, bottom: 66, delay: 0.45 },
-      { left: 90, bottom: 68, delay: 0.05 },
-      { left: 124, bottom: 64, delay: 0.3 }
-    ];
-    positions.forEach((pos, idx) => {
-      const ball = document.createElement("div");
-      ball.className = "capsule-ball";
-      ball.style.left = `${pos.left}px`;
-      ball.style.bottom = `${pos.bottom}px`;
-      ball.style.background = capsuleGradients[idx % capsuleGradients.length];
-      ball.style.animationDelay = `${pos.delay}s`;
-      globe.appendChild(ball);
-    });
-  }
-
-  // ================= DRAWER OPEN / CLOSE =================
-  function setDrawerOpen(open) {
-    const drawer = $("forestDrawer");
-    const backdrop = $("drawerBackdrop");
-    if (open) {
-      drawer.classList.add("open");
-      backdrop.classList.add("open");
-      // Clear new notification badge
-      $("treeNotifDot").classList.add("hidden");
-      $("treeNotifDotStatic").classList.add("hidden");
-      $("sideNotifBadge").classList.add("hidden");
-    } else {
-      drawer.classList.remove("open");
-      backdrop.classList.remove("open");
-    }
-  }
-
-  function showTreeNotif() {
-    $("treeNotifDot").classList.remove("hidden");
-    $("treeNotifDotStatic").classList.remove("hidden");
-    $("sideNotifBadge").classList.remove("hidden");
-  }
-
-  // ================= TASK MANAGEMENT =================
-  function addTask() {
-    const name = $("taskInput").value.trim();
-    if (!name) {
-      toast("先寫下一個想完成的任務喔！");
-      $("taskInput").focus();
-      return;
-    }
-    const level = Number($("taskLevel").value);
-    tasks.push({ id: uid(), name, level, done: false });
-    $("taskInput").value = "";
-    render();
-    save();
-    $("taskInput").focus();
-  }
-
-  function insertSubTask(parentId, parentLevel) {
-    const childLevel = Math.min(2, parentLevel + 1);
-    const levelLabel = childLevel === 1 ? "🌿 小任務" : "• 子任務";
-    openModal({
-      emoji: childLevel === 1 ? "🌿" : "•",
-      title: `新增下層${levelLabel}`,
-      message: "請輸入要拆解出的細項任務名稱：",
-      inputDefault: "",
-      onConfirm: (val) => {
-        if (!val) return;
-        const idx = tasks.findIndex(t => t.id === parentId);
-        if (idx === -1) return;
-        // Insert right after parent (and its existing immediate children)
-        let insertAt = idx + 1;
-        while (insertAt < tasks.length && tasks[insertAt].level > parentLevel) {
-          insertAt++;
-        }
-        tasks.splice(insertAt, 0, { id: uid(), name: val, level: childLevel, done: false });
-        render();
-        save();
-        toast(`已新增${levelLabel}！`);
-      }
-    });
-  }
-
-  function editTask(id) {
-    const t = tasks.find(x => x.id === id);
-    if (!t) return;
-    openModal({
-      emoji: "✏️",
-      title: "編輯任務名稱",
-      message: "修改你的任務內容：",
-      inputDefault: t.name,
-      onConfirm: (val) => {
-        if (!val) return;
-        t.name = val;
-        render();
-        save();
-        toast("任務名稱已更新！");
-      }
-    });
-  }
-
-  function completeTask(id, checked, event) {
-    const t = tasks.find(x => x.id === id);
-    if (!t) return;
-    if (checked && !t.done) {
-      t.done = true;
-      doneCount++;
-      spinCredits++;
-      if (t.level === 1) {
-        smallCount++;
-        if (smallCount >= smallTarget) {
-          pendingGrand = true;
-          smallCount = 0;
-          smallTarget = 3 + Math.floor(Math.random() * 5);
-        }
-      }
-      playSound("check");
-      if (event && event.target) {
-        const rect = event.target.getBoundingClientRect();
-        spawnParticles(rect.left + 10, rect.top + 10, ["🎉", "🎟️", "🌿", "✨"], 7);
-      }
-      toast(pendingGrand ? "🎉 任務完成！獲得扭蛋券，且下一抽必得傳說大獎！" : "任務完成！獲得 1 張扭蛋券 🎟️");
-    } else if (!checked && t.done) {
-      t.done = false;
-      doneCount = Math.max(0, doneCount - 1);
-      toast("已取消完成狀態（不追回已獲得的獎勵）");
-    }
-    render();
-    save();
-  }
-
-  function removeTask(id) {
-    tasks = tasks.filter(t => t.id !== id);
-    render();
-    save();
-  }
-
-  // ================= GACHA SPIN LOGIC =================
-  function spin() {
-    if (isSpinning) return;
-    if (spinCredits <= 0) {
-      toast("先完成一項任務，才能轉動扭蛋機喔！");
-      return;
-    }
-
-    isSpinning = true;
-    spinCredits--;
-    const isBig = pendingGrand;
-    let prizeTemplate;
-    if (isBig) {
-      prizeTemplate = grandRewards[Math.floor(Math.random() * grandRewards.length)];
-      pendingGrand = false;
-    } else {
-      prizeTemplate = rewards[Math.floor(Math.random() * rewards.length)];
-    }
-
-    // Create instance with default ornament position on the tree
-    const pos = getDefaultOrnamentPos(inventory.length);
-    const prize = {
-      ...prizeTemplate,
-      uid: `orn_${uid()}`,
-      x: pos.x,
-      y: pos.y
-    };
-
-    // Animate knob + globe shake + dropped capsule
-    const knob = $("gachaKnob");
-    const machine = $("machine");
-    const dropped = $("droppedCapsule");
-
-    knob.classList.add("turning");
-    machine.classList.remove("shaking");
-    void machine.offsetWidth;
-    machine.classList.add("shaking");
-    dropped.classList.remove("drop-in");
-    dropped.style.background = isBig
-      ? "linear-gradient(135deg, #fff3a1, #f7b731, #e84393)"
-      : capsuleGradients[Math.floor(Math.random() * capsuleGradients.length)];
-
-    $("spinBtn").disabled = true;
-    playSound("crank");
-
-    // Step 1: Drop capsule into chute
-    setTimeout(() => {
-      dropped.classList.add("drop-in");
-    }, 620);
-
-    // Step 2: Pop open & reveal reward
-    setTimeout(() => {
-      knob.classList.remove("turning");
-      machine.classList.remove("shaking");
-
-      inventory.push(prize);
-      const timeStr = new Date().toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" });
-      history.unshift({ icon: prize.icon, name: prize.name, big: isBig, time: timeStr });
-      history = history.slice(0, 20);
-
-      $("resultIcon").textContent = prize.icon;
-      $("resultTag").textContent = isBig ? "🏆 傳說大獎" : "🎁 森林道具";
-      $("resultTag").className = isBig
-        ? "px-2 py-0.5 rounded-md bg-gradient-to-r from-[#f7c948] to-[#f28c52] text-[#5e3800] text-[10px] font-black"
-        : "px-2 py-0.5 rounded-md bg-[#ffe2e3] text-[#a93645] text-[10px] font-black";
-      $("resultName").textContent = (isBig ? "🏆 大獎降臨！" : "") + prize.name;
-      $("resultDesc").textContent = prize.desc;
-      $("result").classList.remove("hidden");
-
-      const chuteRect = dropped.getBoundingClientRect();
-      spawnParticles(
-        chuteRect.left + 20,
-        chuteRect.top + 10,
-        isBig ? ["🏆", "🌈", "✨", "🎊", "🧚"] : [prize.icon, "✨", "🎉", "🌟"],
-        isBig ? 14 : 9
-      );
-
-      playSound(isBig ? "grand" : "chime");
-      showTreeNotif();
-      isSpinning = false;
-      render();
-      save();
-
-      if (isBig) {
-        toast("🎊 太幸運了！傳說級神祕大獎出現啦！");
-      } else {
-        toast(`獲得「${prize.icon} ${prize.name}」！已裝飾到魔法樹上`);
-      }
-
-      if (autoOpenTree) {
-        setTimeout(() => setDrawerOpen(true), 650);
-      }
-    }, 1150);
-  }
-
-  // ================= TREE STAGE & DRAGGABLE ORNAMENTS =================
-  function getTreeStageInfo(count) {
-    if (count >= 12) {
-      return {
-        levelText: "傳說世界神木 Lv.5",
-        emoji: "🌳",
-        nextText: "已達最高傳說境界 ✨",
-        caption: "傳說中的世界神木！整座森林都在閃耀著你的努力成果！",
-        svgScale: 1.18,
-        canopyColor1: "#2cad7e",
-        canopyColor2: "#1d8761",
-        blossom: true
-      };
-    } else if (count >= 8) {
-      return {
-        levelText: "森林守護樹 Lv.4",
-        emoji: "🌳",
-        nextText: `再收集 ${12 - count} 件升至 Lv.5`,
-        caption: "你的魔法樹已經成為森林裡的焦點，小動物都來定居了！",
-        svgScale: 1.06,
-        canopyColor1: "#34b37c",
-        canopyColor2: "#238a5d",
-        blossom: false
-      };
-    } else if (count >= 5) {
-      return {
-        levelText: "茂盛大樹 Lv.3",
-        emoji: "🌲",
-        nextText: `再收集 ${8 - count} 件升至 Lv.4`,
-        caption: "哇！枝葉越來越茂盛，樹上開始出現美麗的變化了！",
-        svgScale: 0.94,
-        canopyColor1: "#47bf83",
-        canopyColor2: "#2e9964",
-        blossom: false
-      };
-    } else if (count >= 2) {
-      return {
-        levelText: "成長小樹 Lv.2",
-        emoji: "🌿",
-        nextText: `再收集 ${5 - count} 件升至 Lv.3`,
-        caption: "小樹正在吸收能量抽高枝枒，繼續收集道具吧！",
-        svgScale: 0.80,
-        canopyColor1: "#5cce8e",
-        canopyColor2: "#3ca86c",
-        blossom: false
-      };
-    }
-    return {
-      levelText: "希望幼苗 Lv.1",
-      emoji: "🌱",
-      nextText: `再收集 ${2 - count} 件升至 Lv.2`,
-      caption: count === 0 ? "先完成任務，讓小樹開始冒險！" : "小幼苗冒出嫩芽了，再扭幾顆扭蛋幫助它長大！",
-      svgScale: 0.65,
-      canopyColor1: "#74da9a",
-      canopyColor2: "#4eb877",
-      blossom: false
-    };
-  }
-
-  function buildTreeSVG(stage, count) {
-    if (count < 2) {
-      // Cute vibrant sprout SVG + Emoji
-      return `
-        <svg width="150" height="160" viewBox="0 0 150 160" class="overflow-visible">
-          <ellipse cx="75" cy="148" rx="38" ry="9" fill="rgba(0,0,0,0.12)"/>
-          <path d="M75 145 Q75 105 75 82" stroke="#7c5338" stroke-width="10" stroke-linecap="round" fill="none"/>
-          <path d="M75 100 Q42 88 35 62 Q64 62 75 95 Z" fill="#52c97e"/>
-          <path d="M75 92 Q108 78 115 52 Q85 52 75 88 Z" fill="#3ab068"/>
-          <circle cx="75" cy="70" r="8" fill="#ffdf6b"/>
-        </svg>
-      `;
-    }
-
-    const hasRainbow = inventory.some(x => x.type === "rainbow");
-    return `
-      <svg width="230" height="235" viewBox="0 0 230 235" style="transform: scale(${stage.svgScale}); transform-origin: bottom center;" class="overflow-visible transition-transform duration-500">
-        ${hasRainbow ? `<path d="M 15 130 A 100 100 0 0 1 215 130" fill="none" stroke="url(#rainbowGrad)" stroke-width="14" stroke-linecap="round" opacity="0.85"/>` : ""}
-        <defs>
-          <linearGradient id="rainbowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#ff6b6b"/>
-            <stop offset="25%" stop-color="#feca57"/>
-            <stop offset="50%" stop-color="#48dbfb"/>
-            <stop offset="75%" stop-color="#1dd1a1"/>
-            <stop offset="100%" stop-color="#ff9ff3"/>
-          </linearGradient>
-        </defs>
-        <!-- Ground Shadow -->
-        <ellipse cx="115" cy="222" rx="64" ry="12" fill="rgba(0,0,0,0.15)"/>
-        <!-- Trunk & Branches -->
-        <path d="M98 220 Q105 170 106 130 L124 130 Q125 170 132 220 Z" fill="#8c583a"/>
-        <path d="M112 158 Q85 140 72 118" stroke="#8c583a" stroke-width="11" stroke-linecap="round" fill="none"/>
-        <path d="M118 152 Q145 134 158 112" stroke="#75472d" stroke-width="10" stroke-linecap="round" fill="none"/>
-        <!-- Lush Multi-layered Canopy -->
-        <circle cx="72" cy="112" r="44" fill="${stage.canopyColor2}"/>
-        <circle cx="158" cy="112" r="44" fill="${stage.canopyColor2}"/>
-        <circle cx="115" cy="72" r="52" fill="${stage.canopyColor2}"/>
-        <circle cx="84" cy="95" r="42" fill="${stage.canopyColor1}"/>
-        <circle cx="146" cy="95" r="42" fill="${stage.canopyColor1}"/>
-        <circle cx="115" cy="64" r="46" fill="${stage.canopyColor1}"/>
-        <!-- Friendly Tree Face -->
-        <circle cx="103" cy="176" r="3.2" fill="#462818"/>
-        <circle cx="127" cy="176" r="3.2" fill="#462818"/>
-        <path d="M109 184 Q115 190 121 184" stroke="#462818" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-        <ellipse cx="97" cy="180" rx="4" ry="2.2" fill="#ff9a9e" opacity="0.7"/>
-        <ellipse cx="133" cy="180" rx="4" ry="2.2" fill="#ff9a9e" opacity="0.7"/>
-      </svg>
-    `;
-  }
-
-  function renderAmbientEffects() {
-    const scene = $("treeScene");
-    const layer = $("ambientLayer");
-    const celestial = $("skyCelestial");
-
-    scene.classList.remove("sky-day", "sky-sunset", "sky-night");
-    scene.classList.add(`sky-${skyMode}`);
-
-    if (skyMode === "day") celestial.textContent = "☀️";
-    else if (skyMode === "sunset") celestial.textContent = "🌅";
-    else celestial.textContent = "🌙";
-
-    layer.innerHTML = "";
-
-    // Night fireflies & stars
-    if (skyMode === "night") {
-      for (let i = 0; i < 14; i++) {
-        const star = document.createElement("span");
-        star.className = "ambient-particle";
-        star.textContent = i % 3 === 0 ? "✨" : "⋅";
-        star.style.color = i % 2 === 0 ? "#fff6a9" : "#b8ffda";
-        star.style.fontSize = i % 3 === 0 ? "13px" : "20px";
-        star.style.left = `${8 + (i * 17) % 86}%`;
-        star.style.top = `${6 + (i * 23) % 58}%`;
-        star.style.animation = `twinkle ${1.6 + (i % 4) * 0.5}s ease-in-out infinite`;
-        layer.appendChild(star);
-      }
-    }
-
-    // Raindrops
-    if (rainActive) {
-      for (let i = 0; i < 18; i++) {
-        const drop = document.createElement("span");
-        drop.className = "ambient-particle";
-        drop.textContent = "💧";
-        drop.style.fontSize = "11px";
-        drop.style.left = `${5 + (i * 19) % 90}%`;
-        drop.style.top = "0px";
-        drop.style.animation = `rainFall ${0.9 + (i % 5) * 0.2}s linear infinite`;
-        drop.style.animationDelay = `${(i * 0.13) % 1}s`;
-        layer.appendChild(drop);
-      }
-    }
-  }
-
-  function renderTree() {
-    const count = inventory.length;
-    const stage = getTreeStageInfo(count);
-
-    // Update Badges & Texts
-    $("treeLevel").textContent = stage.levelText;
-    $("topTreeLevelBadge").textContent = stage.levelText.split(" ")[1] || "Lv.1";
-    $("sideTabTreeEmoji").textContent = stage.emoji;
-    $("sideTabCount").textContent = `${count} 件`;
-    $("miniInvCount").textContent = count;
-    $("treeCaption").textContent = stage.caption;
-    $("nextStageHint").textContent = stage.nextText;
-
-    // Render SVG Tree
-    $("tree").innerHTML = buildTreeSVG(stage, count);
-
-    // Render Draggable Ornaments on Tree
-    const ornLayer = $("ornamentsLayer");
-    ornLayer.innerHTML = "";
-    inventory.forEach((item, idx) => {
-      if (typeof item.x !== "number" || typeof item.y !== "number") {
-        const pos = getDefaultOrnamentPos(idx);
-        item.x = pos.x;
-        item.y = pos.y;
-      }
-      const el = document.createElement("div");
-      el.className = "tree-ornament float-anim pointer-events-auto";
-      el.textContent = item.icon;
-      el.title = `${item.name}（可拖曳移動位置）`;
-      el.style.left = `${item.x}%`;
-      el.style.top = `${item.y}%`;
-      el.style.animationDelay = `${(idx * 0.25) % 2}s`;
-
-      // Make ornament draggable inside #treeScene
-      bindOrnamentDrag(el, item);
-      ornLayer.appendChild(el);
-    });
-
-    // Render Pokedex Collection Grid
-    const unlockedTypes = new Set(inventory.map(x => x.type));
-    $("pokedexProgress").textContent = `${unlockedTypes.size}/${allCatalog.length}`;
-    $("pokedexGrid").innerHTML = allCatalog.map(cat => {
-      const ownedCount = inventory.filter(x => x.type === cat.type).length;
-      const unlocked = ownedCount > 0;
-      return `
-        <div class="p-2.5 rounded-2xl border ${unlocked ? (cat.grand ? "bg-gradient-to-br from-[#fffbeb] to-[#fff0d4] border-[#f5c948]" : "bg-white border-[#ead8cc]") : "bg-[#f7f2ec] border-dashed border-[#dfd3c8] opacity-65"} flex flex-col items-center text-center relative">
-          ${unlocked ? `<span class="absolute top-1.5 right-1.5 px-1.5 py-0.2 rounded-full bg-[#fff0bd] text-[#9a6400] text-[10px] font-black">x${ownedCount}</span>` : ""}
-          <div class="text-2xl my-0.5 ${unlocked ? "" : "grayscale contrast-200 brightness-50"}">${unlocked ? cat.icon : "❓"}</div>
-          <div class="text-[11px] font-black text-[#463544] truncate w-full">${unlocked ? escapeHtml(cat.name) : "未知的驚喜"}</div>
-          <div class="text-[10px] font-bold text-[#887584]">${cat.grand ? "🏆 傳說大獎" : "🎁 一般道具"}</div>
-        </div>
-      `;
-    }).join("");
-
-    // Render Inventory Chips & History Log
-    $("inventory").innerHTML = inventory.length
-      ? inventory.map(x => `<span class="inline-flex items-center gap-1 bg-[#fff9ed] border border-[#ead8cc] rounded-full px-2.5 py-1 text-xs font-extrabold">${x.icon} ${escapeHtml(x.name)}</span>`).join("")
-      : '<span class="text-xs text-[#887584] font-bold">還沒有道具，快去完成任務扭一顆吧！</span>';
-
-    $("history").innerHTML = history.length
-      ? history.map(x => `
-        <div class="flex items-center justify-between py-1.5 px-2.5 rounded-xl bg-white border border-[#f2e5d8]">
-          <span>${x.big ? '<strong class="text-[#cc4352]">🏆 大獎</strong>' : '🎁 獲得'} ${x.icon} <strong>${escapeHtml(x.name)}</strong></span>
-          <span class="text-[10px] text-[#887584]">${x.time || "剛剛"}</span>
-        </div>
-      `).join("")
-      : '<div class="text-center py-6 text-[#887584]">森林日記目前空白，去轉動第一顆扭蛋吧！</div>';
-
-    renderAmbientEffects();
-  }
-
-  function bindOrnamentDrag(el, itemData) {
-    const scene = $("treeScene");
-    let dragging = false;
-
-    const onMove = (clientX, clientY) => {
-      if (!dragging) return;
-      const rect = scene.getBoundingClientRect();
-      const relX = ((clientX - rect.left - 14) / rect.width) * 100;
-      const relY = ((clientY - rect.top - 14) / rect.height) * 100;
-      itemData.x = Math.max(4, Math.min(88, Math.round(relX)));
-      itemData.y = Math.max(4, Math.min(82, Math.round(relY)));
-      el.style.left = `${itemData.x}%`;
-      el.style.top = `${itemData.y}%`;
-    };
-
-    const onEnd = () => {
-      if (!dragging) return;
-      dragging = false;
-      el.classList.add("float-anim");
-      save();
-    };
-
-    el.addEventListener("mousedown", (e) => {
-      e.stopPropagation();
-      dragging = true;
-      el.classList.remove("float-anim");
-    });
-    window.addEventListener("mousemove", (e) => onMove(e.clientX, e.clientY));
-    window.addEventListener("mouseup", onEnd);
-
-    el.addEventListener("touchstart", (e) => {
-      e.stopPropagation();
-      dragging = true;
-      el.classList.remove("float-anim");
-    }, { passive: true });
-    window.addEventListener("touchmove", (e) => {
-      if (!dragging || !e.touches[0]) return;
-      onMove(e.touches[0].clientX, e.touches[0].clientY);
-    }, { passive: true });
-    window.addEventListener("touchend", onEnd);
-  }
-
-  // Interact with Tree (Click / Water)
-  const treeLines = [
-    "🌿 謝謝你的努力，我感覺充滿能量！",
-    "🌸 微風吹過樹梢，今天也要加油喔！",
-    "✨ 每完成一個小目標，森林就更熱鬧一點！",
-    "🐦 小鳥說很喜歡你佈置的樹冠呢！",
-    "🍎 吸收滿滿的陽光與露水，好舒服呀～"
-  ];
-  let speechTimer = null;
-
-  function interactWithTree(e, isWater = false) {
-    const treeEl = $("tree");
-    treeEl.classList.remove("boing");
-    void treeEl.offsetWidth;
-    treeEl.classList.add("boing");
-    playSound("leaf");
-
-    const rect = treeEl.getBoundingClientRect();
-    spawnParticles(
-      rect.left + rect.width / 2,
-      rect.top + rect.height / 3,
-      isWater ? ["💧", "✨", "🌿", "🌱"] : ["🍃", "🌸", "✨", "🌿"],
-      8
-    );
-
-    const speech = $("treeSpeech");
-    speech.textContent = isWater
-      ? "💧 咕嚕咕嚕～甘甜的泉水讓樹葉更翠綠了！"
-      : treeLines[Math.floor(Math.random() * treeLines.length)];
-    speech.classList.remove("hidden");
-    clearTimeout(speechTimer);
-    speechTimer = setTimeout(() => speech.classList.add("hidden"), 2500);
-  }
-
-  // ================= MAIN RENDER =================
-  function render() {
-    const list = $("taskList");
-    list.innerHTML = "";
-
-    const filteredTasks = tasks.filter(t => {
-      if (taskFilter === "active") return !t.done;
-      if (taskFilter === "done") return t.done;
-      return true;
-    });
-
-    if (!filteredTasks.length) {
-      list.innerHTML = `
-        <div class="py-12 px-4 text-center text-[#887584] font-extrabold leading-relaxed">
-          <div class="text-4xl mb-2">🌼</div>
-          <div>${tasks.length === 0 ? "你的任務森林還是一片空地" : "這個分類目前沒有任務喔"}</div>
-          <div class="text-xs mt-1">先在上方新增一個任務，或點擊右上角「✨ 範本」快速開始吧！</div>
-        </div>
-      `;
-    } else {
-      filteredTasks.forEach(t => {
-        const row = document.createElement("div");
-        const bgClass = t.done
-          ? "bg-[#eff8f0] opacity-60 border-[#cde5d1]"
-          : t.level === 0
-            ? "bg-[#fffaf2] border-[#eedcc9]"
-            : t.level === 1
-              ? "bg-[#f4fbf7] border-[#d3ede0]"
-              : "bg-[#f4f8ff] border-[#d8e5f7]";
-
-        row.className = `task-row level-${t.level} flex items-center gap-2.5 px-3 py-2.5 rounded-2xl border ${bgClass}`;
-
-        const check = document.createElement("input");
-        check.type = "checkbox";
-        check.className = "w-5 h-5 accent-[#23856b] rounded cursor-pointer shrink-0";
-        check.checked = t.done;
-        check.setAttribute("aria-label", "完成任務");
-        check.addEventListener("change", e => completeTask(t.id, e.target.checked, e));
-
-        const dot = document.createElement("span");
-        dot.className = "text-xs font-black shrink-0";
-        dot.textContent = t.level === 0 ? "🌳" : t.level === 1 ? "🌿" : "•";
-
-        const name = document.createElement("span");
-        name.className = `flex-1 font-extrabold text-sm break-words cursor-pointer ${t.done ? "line-through text-[#887584]" : "text-[#463544]"}`;
-        name.textContent = t.name;
-        name.title = "點擊可修改任務名稱";
-        name.onclick = () => editTask(t.id);
-
-        const actions = document.createElement("div");
-        actions.className = "flex items-center gap-1 shrink-0";
-
-        // Quick Add Subtask button for level 0 & 1
-        if (t.level < 2 && !t.done) {
-          const subBtn = document.createElement("button");
-          subBtn.className = "px-2 py-1 rounded-lg bg-white hover:bg-[#e3f7ef] border border-[#ead8cc] text-[11px] font-extrabold text-[#23856b] transition";
-          subBtn.textContent = "+子項";
-          subBtn.title = "在此任務下方新增子任務";
-          subBtn.onclick = () => insertSubTask(t.id, t.level);
-          actions.appendChild(subBtn);
-        }
-
-        const del = document.createElement("button");
-        del.className = "px-2 py-1 rounded-lg bg-white hover:bg-[#ffe2e3] border border-[#ead8cc] text-[11px] font-extrabold text-[#887584] hover:text-[#a93645] transition";
-        del.textContent = "刪除";
-        del.onclick = () => removeTask(t.id);
-        actions.appendChild(del);
-
-        row.append(check, dot, name, actions);
-        list.appendChild(row);
-      });
-    }
-
-    // Update Counters & Spin State
-    $("totalDone").textContent = doneCount;
-    $("topTicketCount").textContent = spinCredits;
-    $("taskCount").textContent = `共 ${tasks.length} 項・完成 ${doneCount} 項`;
-
-    $("spinBtn").disabled = spinCredits <= 0 || isSpinning;
-    $("spinBtnBadge").textContent = `剩 ${spinCredits} 次`;
-    $("spinHint").textContent = spinCredits > 0
-      ? `你有 ${spinCredits} 次扭蛋機會，點擊旋鈕或按鈕試試手氣！`
-      : "完成任務後，就會獲得一次扭蛋機會";
-
-    // Grand Prize Bar & Ready Glow
-    $("bigProgressText").textContent = pendingGrand
-      ? "🔥 已達標！下一抽必中傳說大獎"
-      : `${smallCount} / ${smallTarget} 次小任務`;
-    $("bigProgress").style.width = pendingGrand
-      ? "100%"
-      : `${Math.min(100, (smallCount / smallTarget) * 100)}%`;
-
-    if (pendingGrand) {
-      $("grandReadyBadge").classList.remove("hidden");
-      $("grandCard").classList.add("grand-ready-glow");
-    } else {
-      $("grandReadyBadge").classList.add("hidden");
-      $("grandCard").classList.remove("grand-ready-glow");
-    }
-
-    $("soundIcon").textContent = soundEnabled ? "🔊" : "🔇";
-    $("autoOpenTreeToggle").checked = autoOpenTree;
-
-    renderTree();
-  }
-
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, c => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-    }[c]));
-  }
-
-  // ================= EXPORT & RESET =================
-  function resetAll() {
-    openModal({
-      emoji: "⚠️",
-      title: "重新整理任務森林",
-      message: "確定要重新開始嗎？目前的任務清單、已收集的扭蛋道具與魔法樹紀錄都會清空喔！",
-      onConfirm: () => {
-        tasks = [];
-        inventory = [];
-        history = [];
-        doneCount = 0;
-        smallCount = 0;
-        smallTarget = 3 + Math.floor(Math.random() * 5);
-        spinCredits = 0;
-        pendingGrand = false;
-        $("result").classList.add("hidden");
-        save();
-        render();
-        toast("🌱 森林已重新整理，開始新的冒險吧！");
-      }
-    });
-  }
-
-  function exportLog() {
-    const lines = [
-      "=== 任務森林｜扭蛋種樹樂園 紀錄 ===",
-      "匯出時間：" + new Date().toLocaleString("zh-TW"),
-      "已完成任務：" + doneCount,
-      "目前魔法樹階段：" + $("treeLevel").textContent,
-      "收集道具 (" + inventory.length + "件)：" + (inventory.map(x => `${x.icon}${x.name}`).join("、") || "無"),
-      "",
-      "【任務清單】",
-      ...tasks.map(t => `${t.done ? "[完成]" : "[待辦]"} ${"　".repeat(t.level)}${t.name}`)
-    ];
-    const blob = new Blob(["\ufeff" + lines.join("\n")], { type: "text/plain;charset=utf-8" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "task_forest_record.txt";
-    a.click();
-    URL.revokeObjectURL(a.href);
-    toast("📥 任務森林紀錄已下載！");
-  }
-
-  // ================= EVENT LISTENERS =================
-  $("addTask").addEventListener("click", addTask);
-  $("taskInput").addEventListener("keydown", e => { if (e.key === "Enter") addTask(); });
-  $("spinBtn").addEventListener("click", spin);
-  $("gachaKnob").addEventListener("click", spin);
-  $("resetBtn").addEventListener("click", resetAll);
-  $("exportBtn").addEventListener("click", exportLog);
-
-  // Clear Completed Tasks
-  $("clearDoneBtn").addEventListener("click", () => {
-    const doneTasks = tasks.filter(t => t.done);
-    if (!doneTasks.length) {
-      toast("目前沒有已完成的任務可清除喔！");
-      return;
-    }
-    tasks = tasks.filter(t => !t.done);
-    render();
-    save();
-    toast(`已清除 ${doneTasks.length} 項已完成任務！`);
+ }
+ m.sc=scBase;
+ if(o.tree!==undefined&&!o.sc)m.sc[0]={p:Math.max(0,+o.tree||0),a:Math.max(0,+o.pet||0)};
+ delete m.tree;delete m.pet;
+ if(!Array.isArray(m.tasks))m.tasks=[];
+ if(!Array.isArray(m.decos))m.decos=[];
+ if(!m.placed||typeof m.placed!=="object")m.placed={};
+ m.grow=Math.max(0,Math.min(3,+m.grow||0));
+ m.view=Math.max(0,Math.min(m.grow,+m.view||0));
+ m.daily.maxStreak=Math.max(m.daily.maxStreak||0,m.daily.streak||0);
+ m.daily.maxToday=Math.max(m.daily.maxToday||0,m.daily.todayDone||0);
+ return m}
+function adopt(d){
+ try{const o=JSON.parse(d.json);S=normalize(o);S.savedAt=d.savedAt;lastSer=ser();
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+  renderAll();toast("已載入雲端最新進度");return true}catch(e){return false}}
+async function pull(){
+ const sn=await tmo(cloud.get(),10000);if(!sn.exists)return"none";
+ const d=sn.data(),l=S.savedAt||0;
+ if(d.savedAt>l)return adopt(d)?"adopted":"same";
+ return d.savedAt<l?"local":"same"}
+async function cloudInit(){
+ try{const c=window.claude;if(!c||!c.use)return;$("cloudSt").style.display="";setCloud("sync");
+  const[db,user]=await Promise.all([c.use("db"),c.use("user")]);
+  if(!db||!user){setCloud("off");return}
+  const id=await user.id();if(!id){setCloud("off");return}
+  cloud=db.doc("data/users/"+id+"/save");
+  const r=await pull();let had=false;try{had=!!localStorage.getItem(KEY)}catch(e){}
+  if(r==="local"||(r==="none"&&had))await push();else setCloud("ok")
+ }catch(e){cloud=null;setCloud("off")}}
+$("cloudSt").onclick=()=>{
+ if(!cloud){cloudInit();return}
+ if(syncing)return;setCloud("sync");
+ pull().then(r=>r==="local"||r==="none"?push():setCloud("ok")).catch(()=>setCloud("off"))};
+document.addEventListener("visibilitychange",()=>{
+ if(!document.hidden){
+  dayCheck();dailyBadge();renderAtmosphere();
+  if($("dov").classList.contains("on"))renderDaily();
+  if(cloud&&!dirty&&!syncing&&!busy)pull().then(()=>setCloud("ok")).catch(()=>{});
+ }
+});
+function load(){try{const r=localStorage.getItem(KEY);if(r){S=normalize(JSON.parse(r));return true}}catch(e){}return false}
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const stage=(xp,th)=>th.filter(x=>xp>=x).length;
+
+let audioCtx=null;
+function tone(f){
+ if(prefs.muted)return;
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC)return;
+  if(!audioCtx||audioCtx.state==="closed")audioCtx=new AC();
+  if(audioCtx.state==="suspended")audioCtx.resume();
+  const n=audioCtx.currentTime;
+  f.forEach((q,i)=>{
+   const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+   o.type="triangle";o.frequency.value=q;o.connect(g);g.connect(audioCtx.destination);
+   g.gain.setValueAtTime(.0001,n+i*.08);
+   g.gain.exponentialRampToValueAtTime(.12,n+i*.08+.02);
+   g.gain.exponentialRampToValueAtTime(.0001,n+i*.08+.25);
+   o.start(n+i*.08);o.stop(n+i*.08+.26);
   });
+ }catch(e){}
+}
+function fx(x,y,em,n=9){for(let i=0;i<n;i++){const s=document.createElement("span"),a=Math.PI*2*i/n,d=50+Math.random()*60;s.className="fx";s.textContent=em[i%em.length];s.style.left=x+"px";s.style.top=y+"px";s.style.setProperty("--x",Math.cos(a)*d+"px");s.style.setProperty("--y",Math.sin(a)*d-24+"px");s.style.setProperty("--r",Math.random()*240-120+"deg");document.body.appendChild(s);setTimeout(()=>s.remove(),1000)}}
+let tt;
+function toast(m,undoFn){
+ const t=$("toast");
+ t.innerHTML="<span>"+esc(m)+"</span>"+(undoFn?'<button id="tUndo">復原</button>':"");
+ if(undoFn){$("tUndo").onclick=()=>{clearTimeout(tt);t.classList.remove("on");undoFn()}}
+ t.classList.add("on");
+ clearTimeout(tt);
+ tt=setTimeout(()=>t.classList.remove("on"),undoFn?4200:2400);
+}
 
-  // Filter Buttons
-  document.querySelectorAll(".filter-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      taskFilter = btn.dataset.filter;
-      document.querySelectorAll(".filter-btn").forEach(b => {
-        b.className = "filter-btn px-2.5 py-1 rounded-lg text-[#665566] hover:text-[#463544] transition";
-      });
-      btn.className = "filter-btn px-2.5 py-1 rounded-lg bg-white text-[#cc4352] shadow-sm transition";
-      render();
-    });
-  });
+// Real-time Day/Night & Weather System
+function getTimePhase(){
+ if(timeMode!=="auto")return timeMode;
+ const h=new Date().getHours();
+ if(h>=5&&h<8)return"dawn";
+ if(h>=8&&h<17)return"day";
+ if(h>=17&&h<20)return"dusk";
+ return"night";
+}
+function initStars(){
+ let h="";
+ for(let i=0;i<24;i++){
+  const x=(Math.random()*94+3).toFixed(1),y=(Math.random()*54+4).toFixed(1),d=(Math.random()*2.5).toFixed(2);
+  h+='<span class="star" style="left:'+x+'%;top:'+y+'%;animation-delay:-'+d+'s"></span>';
+ }
+ $("starLayer").innerHTML=h;
+}
+function rollWeather(scIdx){
+ const pool=SC[scIdx].wxPool;
+ curWeather=pool[Math.floor(Math.random()*pool.length)];
+}
+function renderWeatherParticles(){
+ const w=$("weatherLayer");
+ if(curWeather==="clear"){w.innerHTML="";return}
+ let h="",n=curWeather==="rain"?22:16;
+ for(let i=0;i<n;i++){
+  const left=(Math.random()*106-3).toFixed(1);
+  const delay=(Math.random()*4).toFixed(2);
+  if(curWeather==="rain"){
+   const dur=(0.7+Math.random()*0.45).toFixed(2);
+   h+='<span class="wp-rain" style="left:'+left+'%;animation-duration:'+dur+'s;animation-delay:-'+delay+'s"></span>';
+  }else if(curWeather==="petal"){
+   const dur=(4.5+Math.random()*2.8).toFixed(2);
+   const em=i%3===0?"🌼":"🌸";
+   h+='<span class="wp-petal" style="left:'+left+'%;animation-duration:'+dur+'s;animation-delay:-'+delay+'s">'+em+'</span>';
+  }else if(curWeather==="snow"){
+   const dur=(3.8+Math.random()*2.6).toFixed(2);
+   const sz=(4+Math.random()*4).toFixed(1);
+   h+='<span class="wp-snow" style="left:'+left+'%;width:'+sz+'px;height:'+sz+'px;animation-duration:'+dur+'s;animation-delay:-'+delay+'s"></span>';
+  }
+ }
+ w.innerHTML=h;
+}
+function renderAtmosphere(){
+ const c=SC[S.view],ph=getTimePhase(),tc=TIME_CFG[ph];
+ const sky=tc.sky||c.skyTop;
+ $("sceneBox").style.background="linear-gradient(180deg,"+sky+","+c.ground+")";
+ $("sun").textContent=tc.sun||c.sun;
+ $("starLayer").classList.toggle("on",ph==="night");
+ $("timeBtn").textContent=tc.ic+" "+tc.n+(timeMode==="auto"?"":"*");
+ $("wxBtn").textContent=WX_CFG[curWeather].ic+" "+WX_CFG[curWeather].n;
+ renderWeatherParticles();
+}
 
-  // Template Bar Toggle & Presets
-  $("templateMenuBtn").addEventListener("click", () => {
-    $("templateBar").classList.toggle("hidden");
-  });
-  document.querySelectorAll(".tpl-chip").forEach(chip => {
-    chip.addEventListener("click", () => {
-      const tpl = taskTemplates[chip.dataset.tpl];
-      if (!tpl) return;
-      tpl.forEach(item => tasks.push({ id: uid(), name: item.name, level: item.level, done: false }));
-      $("templateBar").classList.add("hidden");
-      render();
-      save();
-      toast("✨ 已載入任務範本，勾選完成就能抽扭蛋囉！");
-    });
-  });
+function treeSVG(s){
+ const cfg=[0,0,{t:130,c:[[100,116,30],[80,130,20],[120,130,20]]},{t:100,c:[[100,80,44],[64,108,32],[136,108,32]]},{t:96,c:[[100,68,52],[56,104,38],[144,104,38],[100,110,34]]}][s];
+ let o='<svg viewBox="0 0 200 200" width="100%" height="100%" style="overflow:visible"><ellipse cx="100" cy="186" rx="'+(30+s*9)+'" ry="8" fill="#0002"/>';
+ if(s===0)return o+'<ellipse cx="100" cy="182" rx="26" ry="9" fill="#8a5a3b"/><path d="M100 176q-12-4-14-16 12 1 14 16zM100 176q12-4 14-16-12 1-14 16z" fill="#4ecb86"/></svg>';
+ if(s===1)return o+'<path d="M100 186v-40" stroke="#6b9b3f" stroke-width="7" stroke-linecap="round"/><path d="M100 156q-30-4-34-34 30 2 34 34zM100 146q30-4 34-32-30 0-34 32z" fill="#3fbf7f"/><circle cx="100" cy="138" r="6" fill="#ffd95a"/></svg>';
+ o+='<path d="M'+(92-s*2)+' 186L'+(95-s)+' '+cfg.t+'h'+(10+s*2)+'L'+(108+s*2)+' 186z" fill="#8a5a3b"/>';
+ cfg.c.forEach(([x,y,r])=>o+='<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="#2f9e6e"/>');
+ cfg.c.forEach(([x,y,r])=>o+='<circle cx="'+(x-r*.15)+'" cy="'+(y-r*.18)+'" r="'+r*.78+'" fill="#4ecb86"/>');
+ if(s===4){[[70,70],[110,50],[140,96],[56,106],[100,100],[128,70]].forEach(([x,y],i)=>o+='<circle cx="'+x+'" cy="'+y+'" r="6" fill="'+(i%2?"#ff6f91":"#ffb3c7")+'"/>');[[84,92],[120,112],[48,98]].forEach(([x,y])=>o+='<circle cx="'+x+'" cy="'+y+'" r="5" fill="#e8384f"/>');o+='<text x="150" y="40" font-size="22">✨</text><text x="34" y="64" font-size="18">✨</text>'}
+ return o+'</svg>'}
 
-  // Drawer Open / Close Triggers
-  $("openTreeBtnTop").addEventListener("click", () => setDrawerOpen(true));
-  $("openTreeBtnBottom").addEventListener("click", () => setDrawerOpen(true));
-  $("sideForestTab").addEventListener("click", () => setDrawerOpen(true));
-  $("viewInTreeBtn").addEventListener("click", () => setDrawerOpen(true));
-  $("closeDrawerBtn").addEventListener("click", () => setDrawerOpen(false));
-  $("backToTaskBtn").addEventListener("click", () => setDrawerOpen(false));
-  $("drawerBackdrop").addEventListener("click", () => setDrawerOpen(false));
+function meter(xp,th,st){const n=th[st],p=th[st-1]||0;return{pct:n?(xp-p)/(n-p)*100:100,txt:n?"再收集 "+(n-xp)+" 點成長值升級（目前 "+xp+"）":"已達最高等級！（"+xp+"）"}}
+const G='<svg viewBox="0 0 200 200" width="100%" height="100%" style="overflow:visible">';
+const sh=s=>'<ellipse cx="100" cy="186" rx="'+(30+s*9)+'" ry="8" fill="#0002"/>';
+function sunHead(x,y,r){let o="";for(let k=0;k<12;k++)o+='<ellipse cx="'+x+'" cy="'+(y-r*.95)+'" rx="'+r*.27+'" ry="'+r*.48+'" fill="#ffc93c" transform="rotate('+k*30+' '+x+' '+y+')"/>';return o+'<circle cx="'+x+'" cy="'+y+'" r="'+r*.55+'" fill="#7a4a21"/>'}
+function flowerSVG(s){
+ let o=G+sh(s);
+ if(s===0)return o+'<ellipse cx="100" cy="182" rx="26" ry="9" fill="#8a5a3b"/><path d="M100 176q-12-4-14-16 12 1 14 16zM100 176q12-4 14-16-12 1-14 16z" fill="#7fd45a"/></svg>';
+ const h=[0,150,120,100,80][s];
+ o+='<path d="M100 186V'+h+'" stroke="#4aa33a" stroke-width="'+(5+s*2)+'" stroke-linecap="round"/><path d="M100 170q-34-4-40-30 34 2 40 30zM100 150q34-4 40-30-34 2-40 30z" fill="#5cc04a"/>';
+ if(s===1)return o+'</svg>';
+ if(s===2)return o+'<ellipse cx="100" cy="'+(h-6)+'" rx="16" ry="22" fill="#8fd45a"/><path d="M100 '+(h-26)+'q-8 12 0 40" stroke="#ffc93c" stroke-width="5" fill="none"/></svg>';
+ if(s===4)o+='<path d="M50 152v34M152 148v38" stroke="#4aa33a" stroke-width="6"/>'+sunHead(50,130,22)+sunHead(152,124,24);
+ o+=sunHead(100,h-6,s===3?32:44);
+ return o+(s===4?'<text x="150" y="40" font-size="22">✨</text>':"")+'</svg>'}
+function cactusSVG(s){
+ let o=G+sh(s)+'<ellipse cx="100" cy="184" rx="'+(34+s*6)+'" ry="9" fill="#e0b265"/>';
+ if(s===0)return o+'<circle cx="100" cy="176" r="7" fill="#6b4a2a"/><path d="M100 172q-6-8-4-14M100 172q6-8 4-14" stroke="#4aa86a" stroke-width="4" fill="none" stroke-linecap="round"/></svg>';
+ const h=[0,60,84,104,112][s],w=[0,38,40,46,52][s],c="#3f9b5b",arm=(d)=>'<path d="'+d+'" stroke="'+c+'" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>';
+ o+='<rect x="'+(100-w/2)+'" y="'+(184-h)+'" width="'+w+'" height="'+h+'" rx="'+w/2+'" fill="'+c+'"/><path d="M'+(100-w*.15)+' '+(190-h)+'v'+(h-14)+'M'+(100+w*.15)+' '+(190-h)+'v'+(h-14)+'" stroke="#5fc07d" stroke-width="3" stroke-linecap="round" opacity=".7"/>';
+ if(s>=3)o+=arm("M"+(100-w/2+2)+" 150H64V118")+arm("M"+(100+w/2-2)+" 138H136V106");
+ if(s===4)o+='<circle cx="100" cy="'+(184-h)+'" r="10" fill="#ff6f91"/><circle cx="100" cy="'+(184-h)+'" r="4" fill="#ffd95a"/><circle cx="64" cy="114" r="6" fill="#ffb3c7"/><circle cx="136" cy="102" r="6" fill="#ffb3c7"/>';
+ return o+'</svg>'}
+function pineSVG(s){
+ let o=G+sh(s)+'<ellipse cx="100" cy="184" rx="'+(32+s*8)+'" ry="9" fill="#fff" stroke="#c9dcef"/>';
+ if(s===0)return o+'<path d="M100 178q-10-4-12-16 10 1 12 16zM100 178q10-4 12-16-10 1-12 16z" fill="#3f9b6b"/></svg>';
+ o+='<rect x="93" y="150" width="14" height="36" fill="#7a4f33"/>';
+ for(let k=0;k<s;k++){const yb=172-k*26,hw=s*10+14-k*9,ya=yb-44;
+  o+='<polygon points="'+(100-hw)+','+yb+' '+(100+hw)+','+yb+' 100,'+ya+'" fill="#2f8f64"/><polygon points="'+(100-hw*.42)+','+(ya+(yb-ya)*.4)+' '+(100+hw*.42)+','+(ya+(yb-ya)*.4)+' 100,'+ya+'" fill="#fff"/>'}
+ if(s===4)o+='<text x="88" y="54" font-size="24">⭐</text><circle cx="76" cy="150" r="5" fill="#e8384f"/><circle cx="126" cy="128" r="5" fill="#ffc93c"/><circle cx="92" cy="104" r="5" fill="#6fd0ff"/>';
+ return o+'</svg>'}
 
-  // Sound & Auto-Open Toggles
-  $("soundToggleBtn").addEventListener("click", () => {
-    soundEnabled = !soundEnabled;
-    render();
-    save();
-    toast(soundEnabled ? "🔊 音效已開啟" : "🔇 音效已靜音");
-  });
-  $("autoOpenTreeToggle").addEventListener("change", e => {
-    autoOpenTree = e.target.checked;
-    save();
-  });
+const key=d=>d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+const yest=()=>key(new Date(Date.now()-864e5));
+function dayCheck(){const D=S.daily,t=key(new Date());if(D.d!==t){D.d=t;D.signed=false;D.small=false;D.claimed=false;D.todayDone=0}}
+function curStreak(){dayCheck();const D=S.daily;return(D.last===D.d||D.last===yest())?(D.streak||0):0}
+function dailyBadge(){dayCheck();const D=S.daily,n=(D.signed?0:1)+(D.small&&!D.claimed?1:0),b=$("dBadge");b.textContent=n;b.style.display=n?"":"none";$("dOpen").classList.toggle("ready",n>0)}
+function renderDaily(){dayCheck();const D=S.daily,ns=D.signed?D.streak:(D.last===yest()?D.streak+1:1),g=2+(ns>=3?1:0);
+ $("dList").innerHTML='<div class="q'+(D.signed?" ok":"")+'"><span class="e">📅</span><div><b>每日簽到</b><p>🔥 連續 '+ns+' 天，連續 3 天起多 +1 張</p></div><button class="btn" data-q="sign" '+(D.signed?"disabled":"")+'>'+(D.signed?"已簽到":"+"+g+" 🎟️ 簽到")+'</button></div><div class="q'+(D.claimed?" ok":"")+'"><span class="e">🌿</span><div><b>完成 1 個小任務或大任務</b><p>今天完成任一個 🌿 小任務或 🌳 大任務（'+(D.small?1:0)+'/1）</p></div><button class="btn" data-q="claim" '+(D.small&&!D.claimed?"":"disabled")+'>'+(D.claimed?"已領取":D.small?"+2 🎟️ 領取":"未完成")+'</button></div>'}
+function sst(i){const d=S.sc[i];return[stage(d.p,th(i,TT)),stage(d.a,th(i,PT))]}
+const done_=i=>{const[a,b]=sst(i);return a>=4&&b>=3};
+const allDone=()=>SC.every((_,i)=>done_(i));
+const lockedDecos=()=>DECOS.filter(d=>!S.decos.includes(d.id));
 
-  // Tree Drawer Interactions (Sky, Rain, Watering, Shuffle, Tabs)
-  $("tree").addEventListener("click", e => interactWithTree(e, false));
-  $("waterTreeBtn").addEventListener("click", e => interactWithTree(e, true));
+function renderDecosInScene(){
+ const layer=$("decoLayer"),vi=S.view;
+ const active=DECOS.filter(d=>d.sc===vi&&S.decos.includes(d.id)&&S.placed[d.id]&&S.placed[d.id].on);
+ layer.innerHTML=active.map(d=>{
+  const p=S.placed[d.id];
+  return '<div class="deco-item" data-did="'+d.id+'" title="'+d.n+'（可拖曳移動）" style="left:'+p.x+'%;top:'+p.y+'%">'+d.i+'</div>';
+ }).join("");
+ $("decoCnt").textContent=S.decos.length+"/"+DECOS.length;
+}
+function renderDecoModal(){
+ $("decoTitle").textContent="🎨 場景裝飾品圖鑑（"+S.decos.length+"/"+DECOS.length+"）";
+ $("decoSub").textContent=allDone()
+  ?(lockedDecos().length?"四個場景已培育完成！現在扭蛋可直接抽到裝飾品，點選已解鎖小物可擺放或收回，也能在對應場景中拖曳移動。":"全圖鑑 12 件裝飾品收集完成！點選可擺放或收回，也能在對應場景中直接拖曳移動位置。")
+  :"將四個場景全部培育完成後，扭蛋機就會開放抽取專屬裝飾品。";
+ $("decoGrid").innerHTML=SC.map((c,si)=>{
+  const list=DECOS.filter(d=>d.sc===si);
+  const owned=list.filter(d=>S.decos.includes(d.id)).length;
+  const cur=si===S.view;
+  return '<div class="dsec'+(cur?" cur":"")+'"><div class="dsec-h"><b>'+c.ic+' '+c.n+(cur?"（目前場景）":"")+'</b><small>'+owned+'/'+list.length+'</small></div><div class="dgrid">'+list.map(d=>{
+   const has=S.decos.includes(d.id),on=has&&S.placed[d.id]&&S.placed[d.id].on;
+   return '<button class="dcard'+(has?(on?" on":""):" lock")+'" data-did="'+d.id+'" '+(has?"":"disabled")+'><span class="de">'+(has?d.i:"🔒")+'</span><b>'+(has?d.n:"未解鎖")+'</b><small>'+(has?(on?"已擺放":"點一下擺放"):"滿等後獲得")+'</small></button>';
+  }).join("")+'</div></div>';
+ }).join("");
+}
 
-  $("shuffleDecorBtn").addEventListener("click", () => {
-    if (!inventory.length) {
-      toast("樹上還沒有裝飾品喔，快去扭蛋吧！");
-      return;
-    }
-    inventory.forEach((item, i) => {
-      item.x = 14 + Math.floor(Math.random() * 68);
-      item.y = 10 + Math.floor(Math.random() * 62);
-    });
-    renderTree();
-    save();
-    playSound("leaf");
-    toast("✨ 已隨機重新佈置魔法樹上的裝飾品！");
-  });
+function renderWorld(){
+ const i=S.view,c=SC[i],d=S.sc[i],[ts,ps]=sst(i);
+ $("hill").style.background=c.hill;
+ document.querySelectorAll(".cloud").forEach(e=>e.textContent=c.dc);
+ $("tree").innerHTML=c.svg(ts);$("pet").textContent=c.A[ps];$("pet").style.fontSize=PS[ps]+"px";
+ $("tName").textContent=c.P[ts]+" Lv."+(ts+1);$("pName").textContent=c.A[ps]+" "+c.AN[ps]+" Lv."+(ps+1);
+ let m=meter(d.p,th(i,TT),ts);$("tBar").style.width=m.pct+"%";$("tTxt").textContent=m.txt;
+ m=meter(d.a,th(i,PT),ps);$("pBar").style.width=m.pct+"%";$("pTxt").textContent=m.txt;
+ if(allDone()){
+  const rem=lockedDecos().length;
+  $("gOdds").innerHTML=rem
+   ?'🎉 四個場景已全部滿等！現在扭蛋將抽出<b>「場景裝飾品」</b>（剩餘 '+rem+' 件未收集），可自由擺放在場景中。'
+   :'🏆 四個場景與 12 件裝飾品全部收集完成！現在扭蛋會繼續累積森林榮譽成長值。';
+ }else{
+  $("gOdds").innerHTML='綠色道具讓植物長大，橘色道具讓夥伴長大。目前培育中：<b id="gTarget">'+SC[S.grow].ic+' '+SC[S.grow].n+'</b><br>連續 6 抽沒出稀有，下一抽必出稀有。';
+ }
+ $("tabs").innerHTML=SC.map((x,k)=>'<button class="sc'+(k===i?" on":"")+'" data-i="'+k+'" '+(k>S.grow?"disabled":"")+' title="'+x.n+'">'+(k>S.grow?"🔒":x.ic)+"<small>"+(k>S.grow?"未解鎖":done_(k)?"已完成":"培育中")+"</small></button>").join("");
+ renderDecosInScene();
+ renderAtmosphere();
+}
 
-  document.querySelectorAll(".sky-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      skyMode = btn.dataset.sky;
-      document.querySelectorAll(".sky-btn").forEach(b => {
-        b.className = "sky-btn px-2.5 py-1 rounded-lg text-[#665566] transition";
-      });
-      btn.className = "sky-btn px-2.5 py-1 rounded-lg bg-white text-[#9a6400] shadow-sm transition";
-      renderAmbientEffects();
-      save();
-    });
-  });
+function renderStats(){
+ dayCheck();
+ const doneScenes=SC.filter((_,i)=>done_(i)).length;
+ const cs=curStreak();
+ const bestStreak=Math.max(cs,S.daily.maxStreak||0);
+ const bestToday=Math.max(S.daily.todayDone||0,S.daily.maxToday||0);
+ const cards=[
+  {v:S.done,l:"總完成任務"},
+  {v:S.daily.todayDone||0,l:"今日完成（最高 "+bestToday+"）"},
+  {v:S.pulls,l:"累計扭蛋次數"},
+  {v:cs+" 天",l:"連續簽到（最高 "+bestStreak+" 天）"},
+  {v:doneScenes+" / 4",l:"滿等場景數"},
+  {v:S.decos.length+" / "+DECOS.length,l:"場景裝飾收集"}
+ ];
+ $("sGrid").innerHTML=cards.map(c=>'<div class="sbox"><b>'+c.v+'</b><small>'+c.l+'</small></div>').join("");
+ const achs=[
+  {e:"🌱",n:"初入森林",d:"完成第 1 個任務",ok:S.done>=1},
+  {e:"📝",n:"行動派",d:"累計完成 10 個任務",ok:S.done>=10},
+  {e:"⚡",n:"效率達人",d:"單日完成 5 個任務",ok:bestToday>=5},
+  {e:"🔥",n:"持之以恆",d:"連續簽到滿 3 天",ok:bestStreak>=3},
+  {e:"🎰",n:"扭蛋收藏家",d:"累計扭蛋 10 次",ok:S.pulls>=10},
+  {e:"🌳",n:"綠手指",d:"完成第 1 個場景培育",ok:done_(0)},
+  {e:"🏆",n:"森林守護者",d:"四個場景全部培育滿等",ok:allDone()},
+  {e:"🎨",n:"空間設計師",d:"收集至少 4 件場景裝飾品",ok:S.decos.length>=4}
+ ];
+ const okCnt=achs.filter(a=>a.ok).length;
+ $("achCnt").textContent="已解鎖 "+okCnt+" / "+achs.length;
+ $("achList").innerHTML=achs.map(a=>'<div class="ach'+(a.ok?" ok":"")+'"><span class="ae">'+a.e+'</span><div class="at"><b>'+a.n+'</b><small>'+a.d+'</small></div><span class="st">'+(a.ok?"已達成":"未解鎖")+'</span></div>').join("");
+}
 
-  $("rainToggleBtn").addEventListener("click", () => {
-    rainActive = !rainActive;
-    $("rainToggleBtn").className = rainActive
-      ? "px-2.5 py-1 rounded-lg bg-[#e6f8fb] text-[#1c7285] shadow-sm transition"
-      : "px-2.5 py-1 rounded-lg text-[#665566] hover:bg-white/60 transition";
-    renderAmbientEffects();
-    save();
-  });
+function renderTasks(){
+ const T=S.tasks;
+ $("list").innerHTML=T.length?T.map((t,i)=>{
+  let c="";if(t.level<2){let d=0,n=0;for(let j=i+1;j<T.length&&T[j].level>t.level;j++){n++;if(T[j].done)d++}if(n)c='<em class="cnt">'+d+"/"+n+"</em>"}
+  return '<div class="task l'+t.level+(t.done?" done":"")+'" style="margin-left:'+t.level*22+'px"><input type="checkbox" data-a="chk" data-id="'+t.id+'" '+(t.done?"checked disabled":"")+' aria-label="完成任務"><span>'+L[t.level].i+'</span><span class="nm" data-id="'+t.id+'"'+(t.done?"":' title="雙擊可編輯名稱"')+'>'+esc(t.name)+"</span>"+c+'<span class="rw">+'+L[t.level].t+"🎟️</span>"+(t.level<2&&!t.done?'<button data-a="sub" data-id="'+t.id+'" title="在底下新增細項" aria-label="新增下層任務">＋</button>':"")+'<button data-a="del" data-id="'+t.id+'" aria-label="刪除">✕</button></div>'}).join(""):'<div class="empty">🌼 森林還是一片空地<br>先新增一個任務吧！</div>';
+ $("tk").textContent=S.tickets;$("gBadge").textContent=S.tickets;dailyBadge();$("gOpen").classList.toggle("ready",S.tickets>0);$("spin").disabled=S.tickets<1||busy;$("spinAll").disabled=S.tickets<2||busy;$("spinAll").textContent=S.tickets>1?"一鍵扭完（"+S.tickets+" 顆）":"一鍵扭完（需 2 張以上）";
+ $("spin").textContent=S.tickets>0?"扭一下！（剩 "+S.tickets+" 張）":"完成任務就能獲得扭蛋券"}
+function renderAll(){renderTasks();renderWorld();save()}
 
-  // Drawer Internal Tabs (Pokedex vs Diary)
-  document.querySelectorAll(".drawer-tab-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const target = btn.dataset.dtab;
-      document.querySelectorAll(".drawer-tab-btn").forEach(b => {
-        b.className = "drawer-tab-btn px-4 py-2 border-b-4 border-transparent text-[#887584] hover:text-[#463544] font-black text-sm transition";
-      });
-      btn.className = "drawer-tab-btn px-4 py-2 border-b-4 border-[#cc4352] text-[#cc4352] font-black text-sm transition";
-      $("dtab-pokedex").classList.toggle("hidden", target !== "pokedex");
-      $("dtab-diary").classList.toggle("hidden", target !== "diary");
-    });
-  });
+function addTask(){
+ const name=$("inp").value.trim();if(!name){toast("先寫下一個任務喔");$("inp").focus();return}
+ let level=+$("lv").value,at=S.tasks.length;
+ if(parent){const i=S.tasks.findIndex(t=>t.id===parent);if(i>-1){level=Math.min(2,S.tasks[i].level+1);at=i+1;while(at<S.tasks.length&&S.tasks[at].level>S.tasks[i].level)at++}}
+ S.tasks.splice(at,0,{id:uid(),name,level,done:false});
+ $("inp").value="";clearParent();renderAll();$("inp").focus()}
+function setParent(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;parent=id;$("lv").value=Math.min(2,t.level+1);$("hint").innerHTML="加到「"+esc(t.name)+"」底下 <button id=\"cp\">取消</button>";$("hint").classList.add("on");$("cp").onclick=clearParent;$("inp").focus()}
+function clearParent(){parent=null;$("hint").classList.remove("on")}
+function complete(id,el){
+ const t=S.tasks.find(x=>x.id===id);if(!t||t.done)return;
+ dayCheck();
+ const prevSmall=S.daily.small;
+ t.done=true;S.done++;S.daily.todayDone=(S.daily.todayDone||0)+1;
+ S.daily.maxToday=Math.max(S.daily.maxToday||0,S.daily.todayDone);
+ S.tickets+=L[t.level].t;if(t.level<=1)S.daily.small=true;
+ const r=el.getBoundingClientRect();fx(r.left+10,r.top+10,["🎟️","✨","🌿"],7);tone([587,880]);
+ $("pill").classList.remove("bump");void $("pill").offsetWidth;$("pill").classList.add("bump");
+ toast("完成！獲得 "+L[t.level].t+" 張扭蛋券",()=>{
+  if(!S.tasks.some(x=>x.id===id)||!t.done||S.tickets<L[t.level].t){toast("扭蛋券已使用或任務已刪除，無法復原");return}
+  t.done=false;S.done=Math.max(0,S.done-1);
+  S.daily.todayDone=Math.max(0,(S.daily.todayDone||1)-1);
+  S.tickets-=L[t.level].t;
+  if(t.level<=1&&!S.daily.claimed)S.daily.small=prevSmall;
+  renderAll();toast("已復原任務狀態");
+ });
+ renderAll()}
 
-  // ================= INITIALIZE =================
-  window.onload = function () {
-    load();
-    if (!smallTarget) smallTarget = 3 + Math.floor(Math.random() * 5);
-    renderGlobeCapsules();
-    render();
-  };
+function pick(){
+ if(allDone()){
+  const rem=lockedDecos();
+  if(rem.length){
+   const d=rem[Math.floor(Math.random()*rem.length)];
+   return{n:d.n,i:d.i,k:"deco",deco:d,v:0,r:1,c:d.c};
+  }
+ }
+ let pool=S.dry>=5?PRIZES.filter(p=>p.r):PRIZES;
+ let x=Math.random()*pool.reduce((a,p)=>a+p.w,0);
+ for(const p of pool){x-=p.w;if(x<=0)return p}return pool[0]}
+function spin(){
+ if(busy||S.tickets<1)return;
+ busy=true;S.tickets--;S.pulls++;
+ const p=pick();S.dry=p.r?0:S.dry+1;
+ $("spin").disabled=true;$("spinAll").disabled=true;
+ $("mach").classList.remove("shake");void $("mach").offsetWidth;$("mach").classList.add("shake");
+ $("knob").classList.add("turn");tone([180,220,180,240,200]);
+ $("drop").style.setProperty("--c",p.c);$("drop").classList.remove("go");
+ setTimeout(()=>$("drop").classList.add("go"),900);
+ setTimeout(()=>reveal(p),1600)}
+function reveal(p){
+ if(p.k==="deco"){
+  const d=p.deco;
+  if(!S.decos.includes(d.id))S.decos.push(d.id);
+  S.placed[d.id]={on:true,x:d.x,y:d.y};
+  lastI=d.sc;lastK="both";
+  $("pE").textContent=d.i;$("pN").textContent="解鎖場景裝飾："+d.n;
+  $("pD").textContent="已自動擺放到「"+SC[d.sc].n+"」場景，可在畫面中拖曳移動！";
+  $("pU").textContent=lockedDecos().length?"裝飾品收集進度："+S.decos.length+" / "+DECOS.length:"🏆 全 12 件場景裝飾品收集完成！";
+  $("ov").classList.add("on");$("pOk").focus();
+  fx(innerWidth/2,innerHeight/2,["🌟","🎊","✨",d.i],16);
+  tone([523,659,784,1046,1318]);
+  $("knob").classList.remove("turn");$("mach").classList.remove("shake");$("drop").classList.remove("go");
+  busy=false;renderAll();return;
+ }
+ const gi=S.grow,c=SC[gi],[ot,op]=sst(gi),d=S.sc[gi];
+ let desc="",effK=p.k;
+ if(p.k==="both"){d.p+=p.v;d.a+=p.v;desc=c.pl+"和"+c.pn+" +"+p.v+" 成長值"}
+ else if(p.k==="tree"){
+  if(ot>=4&&op<3){d.a+=p.v;effK="pet";desc=c.pl+"已滿等，自動轉給"+c.pn+" +"+p.v+" 成長值"}
+  else{d.p+=p.v;desc=c.pl+" +"+p.v+" 成長值"}
+ }else{
+  if(op>=3&&ot<4){d.p+=p.v;effK="tree";desc=c.pn+"已滿等，自動轉給"+c.pl+" +"+p.v+" 成長值"}
+  else{d.a+=p.v;desc=c.pn+" +"+p.v+" 成長值"}
+ }
+ const[nt,np]=sst(gi);
+ let up="";if(nt>ot)up+="🌱 "+c.pl+"長大了：「"+c.P[nt]+"」！ ";if(np>op)up+="🐾 "+c.pn+"進化了：「"+c.AN[np]+"」！ ";
+ if(done_(gi)&&gi<3){S.grow++;up+="🎉 「"+c.n+"」培育完成！解鎖新場景「"+SC[gi+1].n+"」！"}else if(done_(gi)&&!(ot>=4&&op>=3))up+="🏆 四個場景全部培育完成！扭蛋開放抽取「場景裝飾品」囉！";
+ lastI=gi;lastK=effK;
+ $("pE").textContent=p.i;$("pN").textContent=(p.r?"稀有！":"")+p.n;
+ $("pD").textContent=desc;$("pU").textContent=up;
+ $("ov").classList.add("on");$("pOk").focus();
+ fx(innerWidth/2,innerHeight/2,p.r?["🌟","🎊","✨",p.i]:["✨",p.i,"🎉"],p.r?16:10);
+ tone(p.r||up?[523,659,784,1046,1318]:[523,659,784]);
+ $("knob").classList.remove("turn");$("mach").classList.remove("shake");$("drop").classList.remove("go");
+ busy=false;renderAll()}
+function applyPrize(p){
+ if(p.k==="deco"){
+  const d=p.deco;
+  if(!S.decos.includes(d.id))S.decos.push(d.id);
+  S.placed[d.id]={on:true,x:d.x,y:d.y};
+  const up=["🎨 解鎖「"+SC[d.sc].n+"」裝飾："+d.i+d.n];
+  if(!lockedDecos().length)up.push("🏆 全 12 件場景裝飾品收集完成！");
+  return up;
+ }
+ const gi=S.grow,c=SC[gi],[ot,op]=sst(gi),d=S.sc[gi],up=[];
+ if(p.k==="both"){d.p+=p.v;d.a+=p.v}
+ else if(p.k==="tree"){if(ot>=4&&op<3)d.a+=p.v;else d.p+=p.v}
+ else{if(op>=3&&ot<4)d.p+=p.v;else d.a+=p.v}
+ const[nt,np]=sst(gi);if(nt>ot)up.push("🌱 "+c.pl+"長大了：「"+c.P[nt]+"」");if(np>op)up.push("🐾 "+c.pn+"進化了：「"+c.AN[np]+"」");
+ if(done_(gi)&&gi<3){S.grow++;up.push("🎉 「"+c.n+"」培育完成，解鎖「"+SC[gi+1].n+"」")}else if(done_(gi)&&!(ot>=4&&op>=3))up.push("🏆 四個場景全部培育完成！開放抽取裝飾品");return up}
+function spinAll(){
+ if(busy||S.tickets<2)return;
+ busy=true;$("spin").disabled=true;$("spinAll").disabled=true;
+ $("mach").classList.remove("shake");void $("mach").offsetWidth;$("mach").classList.add("shake");$("knob").classList.add("turn");tone([180,220,180,240,200,260]);
+ setTimeout(()=>{
+  const n=S.tickets,got=[],ups=[],cnt={},decosGot=[];let lastDecoSc=null;S.tickets=0;S.pulls+=n;
+  for(let j=0;j<n;j++){
+   const p=pick();S.dry=p.r?0:S.dry+1;got.push(p);
+   if(p.k==="deco"){decosGot.push(p.i+p.n);lastDecoSc=p.deco.sc}else cnt[p.n]=(cnt[p.n]||0)+1;
+   ups.push(...applyPrize(p));
+  }
+  const summaryParts=[];
+  if(decosGot.length)summaryParts.push("🎨 裝飾："+decosGot.join("、"));
+  const normSummary=PRIZES.filter(p=>cnt[p.n]).map(p=>(p.r?"⭐":"")+p.i+p.n+" ×"+cnt[p.n]).join("、");
+  if(normSummary)summaryParts.push(normSummary);
+  $("pE").textContent=got.some(p=>p.r)?"🎊":"🎁";$("pN").textContent="一鍵扭完 "+n+" 顆！";
+  $("pD").textContent=summaryParts.join("｜");
+  $("pU").innerHTML=ups.join("<br>");
+  $("ov").classList.add("on");$("pOk").focus();
+  fx(innerWidth/2,innerHeight/2,["🌟","🎊","✨","🎉"],16);tone([523,659,784,1046,1318]);
+  $("knob").classList.remove("turn");$("mach").classList.remove("shake");
+  lastK="both";lastI=lastDecoSc!==null?lastDecoSc:S.grow;busy=false;renderAll()},1400)}
+function closePop(){
+ $("ov").classList.remove("on");$("gov").classList.remove("on");
+ const k=lastK;if(lastI!==null)S.view=lastI;renderWorld();save();
+ if(k!=="pet"){bounce("tree","boing")}
+ if(k!=="tree"){bounce("pet","hop")}}
+function bounce(id,c){const e=$(id);e.classList.remove(c);void e.offsetWidth;e.classList.add(c);const r=e.getBoundingClientRect();fx(r.left+r.width/2,r.top+r.height/3,id==="tree"?["🍃","🌸","✨"]:["💖","✨","⭐"],7)}
+let bt,lastLine="";
+function showBubble(pool){
+ const filtered=pool.length>1?pool.filter(s=>s!==lastLine):pool;
+ const chosen=filtered[Math.floor(Math.random()*filtered.length)];
+ lastLine=chosen;
+ $("bub").textContent=chosen;
+ $("bub").classList.add("on");clearTimeout(bt);bt=setTimeout(()=>$("bub").classList.remove("on"),3400);
+}
+function say(){
+ dayCheck();
+ const c=SC[S.view],ps=sst(S.view)[1],td=S.daily.todayDone||0;
+ const stagePool=c.lines[ps];
+ const moodKey=td===0?"z":td<=2?"m":"h";
+ const moodPool=c.mood[moodKey].map(s=>s.replace("{n}",td));
+ showBubble([...stagePool,...moodPool]);
+}
+function sayTree(){showBubble(TREE_LINES)}
+
+{let dragEl=null,dragId=null;
+ $("decoLayer").addEventListener("pointerdown",e=>{
+  const el=e.target.closest(".deco-item");if(!el)return;
+  e.preventDefault();dragEl=el;dragId=el.dataset.did;el.setPointerCapture(e.pointerId);
+ });
+ $("decoLayer").addEventListener("pointermove",e=>{
+  if(!dragEl)return;
+  const r=$("sceneBox").getBoundingClientRect();
+  const x=Math.max(6,Math.min(94,Math.round((e.clientX-r.left)/r.width*100)));
+  const y=Math.max(14,Math.min(90,Math.round((e.clientY-r.top)/r.height*100)));
+  dragEl.style.left=x+"%";dragEl.style.top=y+"%";
+  if(S.placed[dragId]){S.placed[dragId].x=x;S.placed[dragId].y=y;}
+ });
+ const endDrag=()=>{if(!dragEl)return;dragEl=null;dragId=null;save()};
+ $("decoLayer").addEventListener("pointerup",endDrag);
+ $("decoLayer").addEventListener("pointercancel",endDrag);
+}
+
+function initGlobe(){
+ const cs=["#ff9a9e","#ffd86f","#84fab0","#a1c4fd","#d4a5ff","#fbc2eb","#ffb27a"],pos=[[10,6],[46,4],[82,6],[118,6],[26,36],[64,34],[100,36]];
+ $("globe").innerHTML=pos.map((p,i)=>'<span class="cap" style="left:'+p[0]+"px;bottom:"+p[1]+"px;--c:"+cs[i]+";animation-delay:"+i*.17+'s"></span>').join("")}
+
+$("timeBtn").onclick=()=>{
+ timeMode=TIME_ORDER[(TIME_ORDER.indexOf(timeMode)+1)%TIME_ORDER.length];
+ renderAtmosphere();
+ toast(timeMode==="auto"?"已切回真實時間天色":"已預覽「"+TIME_CFG[timeMode].n+"」天色");
+};
+$("wxBtn").onclick=()=>{
+ wxManual=true;
+ curWeather=WX_ORDER[(WX_ORDER.indexOf(curWeather)+1)%WX_ORDER.length];
+ renderAtmosphere();
+ toast("天氣已切換為："+WX_CFG[curWeather].n);
+};
+
+$("themeBtn").onclick=()=>{prefs.theme=isDarkNow()?"light":"dark";savePrefs();applyPrefs();toast(prefs.theme==="dark"?"已切換為深色模式":"已切換為淺色模式")};
+$("muteBtn").onclick=()=>{prefs.muted=!prefs.muted;savePrefs();applyPrefs();if(!prefs.muted)tone([660,880]);toast(prefs.muted?"已靜音":"已開啟音效")};
+$("statOpen").onclick=()=>{renderStats();$("sov").classList.add("on")};
+$("sClose").onclick=()=>$("sov").classList.remove("on");
+$("sov").onclick=e=>{if(e.target.id==="sov")$("sov").classList.remove("on")};
+$("decoOpen").onclick=()=>{renderDecoModal();$("decov").classList.add("on")};
+$("decoClose").onclick=()=>$("decov").classList.remove("on");
+$("decov").onclick=e=>{if(e.target.id==="decov")$("decov").classList.remove("on")};
+$("decoGrid").onclick=e=>{
+ const b=e.target.closest(".dcard");if(!b||b.disabled)return;
+ const id=b.dataset.did,d=DECOS.find(x=>x.id===id);if(!d)return;
+ if(!S.placed[id])S.placed[id]={on:true,x:d.x,y:d.y};
+ else S.placed[id].on=!S.placed[id].on;
+ if(d.sc!==S.view&&d.sc<=S.grow)S.view=d.sc;
+ tone(S.placed[id].on?[587,880]:[440,330]);
+ renderWorld();renderDecoModal();save();
+};
+
+$("addBtn").onclick=addTask;
+$("inp").onkeydown=e=>{if(e.key==="Enter"&&!e.isComposing)addTask()};
+$("list").addEventListener("click",e=>{
+ const b=e.target.closest("button");if(!b)return;
+ if(b.dataset.a==="sub")setParent(b.dataset.id);
+ if(b.dataset.a==="del"){
+  const idx=S.tasks.findIndex(t=>t.id===b.dataset.id);
+  if(idx>-1){
+   const lv=S.tasks[idx].level;
+   let end=idx+1;
+   while(end<S.tasks.length&&S.tasks[end].level>lv)end++;
+   const removed=S.tasks.splice(idx,end-idx);
+   if(removed.some(x=>x.id===parent))clearParent();
+   renderAll();
+   if(removed.length>1)toast("已一併刪除 "+removed.length+" 項任務（含子項目）");
+  }
+ }
+});
+$("list").addEventListener("dblclick",e=>{
+ const nm=e.target.closest(".nm");if(!nm)return;
+ const t=S.tasks.find(x=>x.id===nm.dataset.id);if(!t||t.done)return;
+ const inp=document.createElement("input");
+ inp.className="nm-edit";inp.maxLength=60;inp.value=t.name;
+ nm.replaceWith(inp);inp.focus();inp.select();
+ let doneEdit=false;
+ const commit=saveIt=>{
+  if(doneEdit)return;doneEdit=true;
+  if(saveIt){const v=inp.value.trim();if(v&&v!==t.name){t.name=v;toast("已更新任務名稱")}}
+  renderAll();
+ };
+ inp.onkeydown=ev=>{if(ev.key==="Enter"&&!ev.isComposing)commit(true);if(ev.key==="Escape")commit(false)};
+ inp.onblur=()=>commit(true);
+});
+$("list").addEventListener("change",e=>{if(e.target.dataset.a==="chk"&&e.target.checked)complete(e.target.dataset.id,e.target)});
+$("gOpen").onclick=()=>{$("gov").classList.add("on");$("spin").focus()};$("gClose").onclick=()=>{if(!busy)$("gov").classList.remove("on")};$("gov").onclick=e=>{if(e.target.id==="gov"&&!busy)$("gov").classList.remove("on")};
+addEventListener("keydown",e=>{
+ if(e.key==="Escape"&&!busy){
+  if($("ov").classList.contains("on")){closePop();return}
+  $("gov").classList.remove("on");$("dov").classList.remove("on");$("bov").classList.remove("on");$("sov").classList.remove("on");$("decov").classList.remove("on");
+ }
+});
+$("spin").onclick=spin;$("knob").onclick=spin;$("spinAll").onclick=spinAll;$("pOk").onclick=closePop;
+$("clrDone").onclick=()=>{const n=S.tasks.filter(t=>t.done).length;if(!n){toast("目前沒有已完成的任務");return}S.tasks=S.tasks.filter(t=>!t.done);renderAll();toast("已清除 "+n+" 項已完成任務，獎勵與成長都保留")};
+{let ct=null;const b=$("clrAll");b.onclick=()=>{if(!S.tasks.length){toast("清單已經是空的");return}if(!ct){b.textContent="再按一次確認清空";ct=setTimeout(()=>{ct=null;b.textContent="清空清單"},3000);return}clearTimeout(ct);ct=null;b.textContent="清空清單";const n=S.tasks.length;S.tasks=[];clearParent();renderAll();toast("已清空 "+n+" 項任務，扭蛋券與成長都保留")}}
+$("tabs").onclick=e=>{
+ const b=e.target.closest(".sc");
+ if(b&&!b.disabled){
+  S.view=+b.dataset.i;
+  if(!wxManual)rollWeather(S.view);
+  renderWorld();save();tone([660,880]);
+ }
+};
+$("dOpen").onclick=()=>{renderDaily();$("dov").classList.add("on")};$("dClose").onclick=()=>$("dov").classList.remove("on");$("dov").onclick=e=>{if(e.target.id==="dov")$("dov").classList.remove("on")};
+$("dList").onclick=e=>{const b=e.target.closest("button");if(!b||b.disabled)return;dayCheck();const D=S.daily,r=b.getBoundingClientRect();let g=0;
+ if(b.dataset.q==="sign"&&!D.signed){D.streak=D.last===yest()?D.streak+1:1;D.maxStreak=Math.max(D.maxStreak||0,D.streak);D.last=D.d;D.signed=true;g=2+(D.streak>=3?1:0)}
+ else if(b.dataset.q==="claim"&&D.small&&!D.claimed){D.claimed=true;g=2}
+ if(!g)return;S.tickets+=g;fx(r.left+r.width/2,r.top,["🎟️","✨","⭐"],9);tone([523,659,784]);toast("領取成功！獲得 "+g+" 張扭蛋券");renderAll();renderDaily()};
+$("tree").onclick=()=>{bounce("tree","boing");sayTree();tone([523,659])};
+$("pet").onclick=()=>{bounce("pet","hop");say();tone([660,880])};
+const kbClick=(el,fn)=>el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fn()}});
+kbClick($("tree"),()=>$("tree").click());
+kbClick($("pet"),()=>$("pet").click());
+let rt;$("reset").onclick=()=>{if(!rt){$("reset").textContent="再按一次確認清空";rt=setTimeout(()=>{rt=null;$("reset").textContent="重新開始"},3000);return}clearTimeout(rt);rt=null;$("reset").textContent="重新開始";S=fresh();clearParent();renderAll();toast("森林已重置，開始新的冒險！")};
+
+if(!load()){S.tasks=[{id:uid(),name:"完成期末報告",level:0,done:false},{id:uid(),name:"整理參考資料",level:1,done:false},{id:uid(),name:"找 3 篇文獻",level:2,done:false},{id:uid(),name:"寫出報告大綱",level:1,done:false}]}
+
+const BK2="TFOREST2:",BK1="TFOREST1:";
+function encodeBackup(obj){
+ const bytes=new TextEncoder().encode(JSON.stringify(obj));
+ let bin="";
+ for(let i=0;i<bytes.length;i++)bin+=String.fromCharCode(bytes[i]);
+ return BK2+btoa(bin);
+}
+function decodeBackup(raw){
+ const prefix=raw.startsWith(BK2)?BK2:raw.startsWith(BK1)?BK1:"";
+ if(!prefix)throw new Error("bad prefix");
+ const bin=atob(raw.slice(prefix.length));
+ const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));
+ return JSON.parse(new TextDecoder().decode(bytes));
+}
+$("bkOpen").onclick=()=>{$("bkOut").value=encodeBackup(S);$("bkIn").value="";$("bov").classList.add("on")};
+$("bClose").onclick=()=>$("bov").classList.remove("on");
+$("bov").onclick=e=>{if(e.target.id==="bov")$("bov").classList.remove("on")};
+$("bCopy").onclick=async()=>{const t=$("bkOut");t.select();try{await navigator.clipboard.writeText(t.value);toast("備份碼已複製")}catch(e){try{document.execCommand("copy");toast("備份碼已複製")}catch(e2){toast("請手動全選後複製")}}};
+{let rt2=null;const b=$("bRestore");b.onclick=()=>{
+ const raw=$("bkIn").value.trim();let o;
+ try{o=decodeBackup(raw);if(!Array.isArray(o.tasks)||!Array.isArray(o.sc))throw 0}catch(e){toast("備份碼格式不正確，請重新複製完整內容");return}
+ if(!rt2){b.textContent="再按一次確認覆蓋目前進度";rt2=setTimeout(()=>{rt2=null;b.textContent="還原"},3000);return}
+ clearTimeout(rt2);rt2=null;b.textContent="還原";
+ S=normalize(o);$("bkIn").value="";$("bov").classList.remove("on");clearParent();renderAll();toast("已還原備份進度")}}
+
+applyPrefs();initGlobe();initStars();rollWeather(S.view);lastSer=ser();renderAll();cloudInit();
+setInterval(()=>{if(timeMode==="auto")renderAtmosphere()},60000);
+setInterval(()=>{if(!wxManual&&Math.random()<0.35){rollWeather(S.view);renderAtmosphere()}},180000);
 </script>
 </body>
 </html>
