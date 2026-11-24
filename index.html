@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>任務森林｜扭蛋養樹與毛孩</title>
+<meta name="description" content="完成待辦任務、收集扭蛋券，在四個療癒場景中培育專屬植物與毛孩夥伴！支援每日習慣模式、成就系統與本機備份。">
+<meta property="og:title" content="任務森林｜扭蛋養樹與毛孩">
+<meta property="og:description" content="把待辦清單變成療癒養成遊戲！完成任務抽扭蛋，培育森林、花田、沙漠與雪地的植物與夥伴。">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#2f9e6e">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌳</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Huninn&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#e6f6ea;--card:#fff;--ink:#22352c;--mut:#5f7a6c;--g:#2f9e6e;--gd:#1f6b4f;--pink:#ff6f91;--sun:#ffc93c;--lil:#7b6cf6;--line:#d3e8da;--soft:#f2faf4;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -158,8 +164,6 @@ h2{margin:0 0 10px;font-size:19px}
 .sc .st-tag{position:absolute;right:4px;top:2px;font-size:10px;padding:0 5px;border-radius:99px;background:var(--sun);color:#4a3000;line-height:1.5}
 .gbtn.d{border-color:var(--g);box-shadow:0 4px 0 var(--gd)}.gbtn.d b{background:#e8384f}
 .q{display:grid;grid-template-columns:auto 1fr auto;gap:4px 12px;align-items:center;text-align:left;padding:12px;margin-top:10px;border:2px solid var(--line);border-radius:18px;background:var(--soft)}.q .e{font-size:30px}.q p{margin:0;color:var(--mut);font-size:13px}.q.ok{opacity:.6}.q .btn{padding:8px 14px;font-size:15px}.q .btn:disabled{opacity:.5;box-shadow:none}
-.cl{border:2px solid var(--line);background:var(--card);border-radius:99px;padding:5px 11px;font-size:13px;color:var(--mut)}.cl[data-s=ok]{border-color:var(--g);color:var(--g)}.cl[data-s=sync]{border-color:var(--sun)}.cl[data-s=off]{border-style:dashed}
-@media(max-width:600px){.cl small{display:none}}
 /* stats & achievements */
 .sgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
 .sbox{background:var(--soft);border:2px solid var(--line);border-radius:16px;padding:10px 8px;text-align:center}
@@ -233,7 +237,6 @@ h2{margin:0 0 10px;font-size:19px}
       <div><h1>任務森林</h1><p>完成任務、扭蛋，培育四個場景的植物與夥伴</p></div>
     </div>
     <div class="top-r">
-      <button class="cl" id="cloudSt" style="display:none" data-s="sync" title="雲端存檔狀態（點一下重新同步）">☁️<small id="cloudTx"> 連線中</small></button>
       <button class="ibtn" id="muteBtn" aria-label="切換音效" title="開啟／關閉音效">🔊</button>
       <button class="ibtn" id="themeBtn" aria-label="切換深淺色模式" title="切換深淺色模式">🌙</button>
       <div class="pill" id="pill">🎟️ <span class="pill-tx">扭蛋券 </span><b id="tk">0</b></div>
@@ -300,7 +303,7 @@ h2{margin:0 0 10px;font-size:19px}
 <div class="ov" id="bov"><section class="card" id="bk" role="dialog" aria-label="備份與還原">
   <button class="gx" id="bClose" aria-label="關閉備份視窗">✕</button>
   <h2>備份與還原</h2>
-  <p class="odds">備份碼包含所有任務、習慣設定、培育進度、星級、成就、裝飾品、頭飾與限定天氣，貼到另一台裝置就能還原。</p>
+  <p class="odds">資料僅儲存於目前瀏覽器，清除快取或更換裝置前建議先複製備份碼保存。備份碼包含所有任務、習慣設定、培育進度、星級、成就、裝飾品、頭飾與限定天氣。</p>
   <textarea id="bkOut" readonly rows="3" aria-label="備份碼"></textarea>
   <button class="btn" id="bCopy">複製備份碼</button>
   <h3>還原進度</h3>
@@ -498,18 +501,9 @@ function applyPrefs(){
  $("sinkBtn").textContent=prefs.sinkDone?"⬇️ 已完成沉底":"↕️ 原始排序";
 }
 
-let lastSer="",cloud=null,syncT=null,syncing=false,dirty=false,pend=false;
+let lastSer="";
 const ser=()=>{const{savedAt,...r}=S;return JSON.stringify(r)};
-const tmo=(p,ms)=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r({code:"timeout"}),ms))]);
-function setCloud(st){$("cloudTx").textContent=" "+({sync:"同步中",ok:"已同步",off:"離線（僅存本機）"})[st];$("cloudSt").dataset.s=st}
-function save(){const s=ser();if(s===lastSer)return;lastSer=s;S.savedAt=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}schedCloud()}
-function schedCloud(){if(!cloud)return;dirty=true;setCloud("sync");clearTimeout(syncT);syncT=setTimeout(push,1500)}
-async function push(){
- if(!cloud)return;if(syncing){pend=true;return}
- if(!S.savedAt){S.savedAt=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
- syncing=true;
- try{await cloud.set({savedAt:S.savedAt,json:JSON.stringify(S)});if(!pend)dirty=false;setCloud("ok")}catch(e){setCloud("off")}
- syncing=false;if(pend){pend=false;schedCloud()}}
+function save(){const s=ser();if(s===lastSer)return;lastSer=s;S.savedAt=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 
 function applySavedAtmosphere(){
  const wp=S.wxPref||{manual:false,wx:"clear",time:"auto"};
@@ -561,34 +555,12 @@ function normalize(o){
  m.daily.maxStreak=Math.max(m.daily.maxStreak||0,m.daily.streak||0);
  m.daily.maxToday=Math.max(m.daily.maxToday||0,m.daily.todayDone||0);
  return m}
-function adopt(d){
- try{const o=JSON.parse(d.json);S=normalize(o);S.savedAt=d.savedAt;applySavedAtmosphere();lastSer=ser();
-  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
-  renderAll(true);toast("已載入雲端最新進度");return true}catch(e){return false}}
-async function pull(){
- const sn=await tmo(cloud.get(),10000);if(!sn.exists)return"none";
- const d=sn.data(),l=S.savedAt||0;
- if(d.savedAt>l)return adopt(d)?"adopted":"same";
- return d.savedAt<l?"local":"same"}
-async function cloudInit(){
- try{const c=window.claude;if(!c||!c.use)return;$("cloudSt").style.display="";setCloud("sync");
-  const[db,user]=await Promise.all([c.use("db"),c.use("user")]);
-  if(!db||!user){setCloud("off");return}
-  const id=await user.id();if(!id){setCloud("off");return}
-  cloud=db.doc("data/users/"+id+"/save");
-  const r=await pull();let had=false;try{had=!!localStorage.getItem(KEY)}catch(e){}
-  if(r==="local"||(r==="none"&&had))await push();else setCloud("ok")
- }catch(e){cloud=null;setCloud("off")}}
-$("cloudSt").onclick=()=>{
- if(!cloud){cloudInit();return}
- if(syncing)return;setCloud("sync");
- pull().then(r=>r==="local"||r==="none"?push():setCloud("ok")).catch(()=>setCloud("off"))};
+
 document.addEventListener("visibilitychange",()=>{
  if(!document.hidden){
   if(dayCheck()){renderTasks();save()}
   dailyBadge();renderAtmosphere();
   if($("dov").classList.contains("on"))renderDaily();
-  if(cloud&&!dirty&&!syncing&&!busy)pull().then(()=>setCloud("ok")).catch(()=>{});
  }
 });
 function load(){try{const r=localStorage.getItem(KEY);if(r){S=normalize(JSON.parse(r));return true}}catch(e){}return false}
@@ -911,6 +883,8 @@ function renderWorld(){
   }else{
    $("gOdds").innerHTML='🏆 全圖鑑 '+TOTAL_COLL+' 件收藏達成！現在可幫任意場景<b>「⭐ 升星轉生」</b>解鎖星級光環，或繼續累積榮譽成長值。';
   }
+ }else{
+  $("gOdds").innerHTML='目前目標場景已滿等，請切換至尚未滿等的場景設為培育目標，或繼續扭蛋累積榮譽成長值。';
  }
  $("tabs").innerHTML=SC.map((x,k)=>{
   const locked=k>S.unlocked,kst=S.stars[k]||0,isGrow=k===S.grow&&!done_(k);
@@ -1506,7 +1480,7 @@ $("bCopy").onclick=async()=>{const t=$("bkOut");t.select();try{await navigator.c
  clearTimeout(rt2);rt2=null;b.textContent="還原";
  S=normalize(o);notifiedAchs.clear();applySavedAtmosphere();$("bkIn").value="";$("bov").classList.remove("on");clearParent();renderAll(true);toast("已還原備份進度")}}
 
-applyPrefs();initGlobe();initStars();dayCheck();applySavedAtmosphere();lastSer=ser();renderAll(true);cloudInit();
+applyPrefs();initGlobe();initStars();dayCheck();applySavedAtmosphere();lastSer=ser();renderAll(true);
 setInterval(()=>{if(timeMode==="auto")renderAtmosphere()},60000);
 setInterval(()=>{if(!wxManual&&Math.random()<0.35){rollWeather(S.view);renderAtmosphere()}},180000);
 </script>
